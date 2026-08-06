@@ -19,6 +19,9 @@ export const site = {
   rating: "4.9",
   reviewCount: 50,
   url: "https://akshathadental.com",
+  // Get this from: Google Maps → search your clinic → Share → Copy link
+  // Format: https://g.page/r/XXXXXXXXXXXXXXXX/review
+  googleReviewUrl: "https://www.google.com/maps/search/Akshatha+Dental+Clinic+KM+Arcade+Mahalakshmi+Layout+Bengaluru",
   mapsEmbed:
     "https://maps.google.com/maps?q=Akshatha+Dental+Clinic+KM+Arcade+Mahalakshmi+Layout+Bengaluru&z=15&output=embed",
 } as const;

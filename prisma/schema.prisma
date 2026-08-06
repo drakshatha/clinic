@@ -120,6 +120,18 @@ model Consultation {
   documents Document[]
 }
 
+// ─── Offers / Promotions ──────────────────────────────────────────────────────
+model Offer {
+  id          String   @id @default(cuid())
+  badge       String   @default("OFFER")   // e.g. "20% OFF", "FREE", "LIMITED"
+  title       String                        // e.g. "Free Consultation This Week"
+  description String   @default("")         // optional sub-text
+  validUntil  String?                       // YYYY-MM-DD, null = no expiry
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 // ─── Documents (X-rays, reports, prescriptions) ───────────────────────────────
 model Document {
   id           String   @id @default(cuid())
