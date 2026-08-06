@@ -413,7 +413,7 @@ function RecordVisitModal({
   const [err, setErr] = useState("");
 
   const needsFollowupDate = visitType === "followup";
-  const needsPayment = visitType === "resolved" || visitType === "treatment";
+  const needsPayment = true; // every visit type is chargeable
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
