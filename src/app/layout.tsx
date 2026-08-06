@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import { Manrope, Lato } from "next/font/google";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { FloatingActions } from "@/components/layout/FloatingActions";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -98,10 +95,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <FloatingActions />
+        {children}
       </body>
     </html>
   );
