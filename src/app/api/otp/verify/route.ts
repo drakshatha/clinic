@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     if (!phone || !code) {
       return NextResponse.json({ error: "Phone and OTP are required" }, { status: 400 });
     }
-    const result = verifyOtp(phone, code);
+    const result = await verifyOtp(phone, code);
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }

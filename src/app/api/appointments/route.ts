@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createLead, isSlotTaken } from "@/lib/db";
-import { consumeVerifiedOtp } from "@/lib/otp";
+import { verifyOtp, consumeVerifiedOtp } from "@/lib/otp";
 import { getSlotsForDate } from "@/lib/slots";
 import { bookingLinks, normalizePhone } from "@/lib/whatsapp";
 
@@ -28,23 +28,20 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
-
   if (!otp) {
     return NextResponse.json({ error: "OTP is required to submit" }, { status: 400 });
   }
 
-  // Ensure OTP was verified (or verify now)
-  const { verifyOtp } = await import("@/lib/otp");
-  const verified = verifyOtp(phone, otp);
+  const verified = await verifyOtp(phone, otp);
   if (!verified.ok) {
     return NextResponse.json({ error: verified.error }, { status: 400 });
   }
-  consumeVerifiedOtp(phone);
+  await consumeVerifiedOtp(phone);
 
   try {
-    const daySlots = getSlotsForDate(slot_date);
+    const daySlots = await getSlotsForDate(slot_date);
     const match = daySlots.find((s) => s.time === slot_time);
-    if (!match?.available || isSlotTaken(slot_date, slot_time)) {
+    if (!match?.available || (await isSlotTaken(slot_date, slot_time))) {
       return NextResponse.json(
         {
           error: "That slot is no longer available. Please pick another time.",
@@ -57,7 +54,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid slot date" }, { status: 400 });
   }
 
-  const lead = createLead({
+  const lead = await createLead({
     name,
     phone: normalizePhone(phone).replace(/^91/, "+91 "),
     email,

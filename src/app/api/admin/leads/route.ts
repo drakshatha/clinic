@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth";
-import { readDb } from "@/lib/db";
+import { getAllLeads } from "@/lib/db";
 import { formatIstDateTime, formatSlotLabel } from "@/lib/time";
 
 export async function GET() {
@@ -9,7 +9,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const leads = readDb().leads.map((l) => ({
+  const leads = await getAllLeads();
+  const enriched = leads.map((l) => ({
     ...l,
     created_at_ist: formatIstDateTime(l.created_at),
     slot_label: formatSlotLabel(l.slot_date, l.slot_time),
@@ -18,6 +19,6 @@ export async function GET() {
 
   return NextResponse.json({
     user: { name: session.name, role: session.role },
-    leads,
+    leads: enriched,
   });
 }

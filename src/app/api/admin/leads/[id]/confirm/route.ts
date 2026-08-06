@@ -12,7 +12,7 @@ export async function POST(request: Request, ctx: Ctx) {
   }
 
   const { id } = await ctx.params;
-  const lead = getLead(id);
+  const lead = await getLead(id);
   if (!lead) {
     return NextResponse.json({ error: "Lead not found" }, { status: 404 });
   }
@@ -23,7 +23,7 @@ export async function POST(request: Request, ctx: Ctx) {
   const links = bookingLinks(lead);
   const apiSend = await sendWhatsAppText(lead.phone, links.confirmText);
 
-  const updated = updateLead(id, {
+  const updated = await updateLead(id, {
     status: "confirmed",
     confirmed_by: `${session.name} (${session.role})`,
     confirmed_at: new Date().toISOString(),

@@ -44,29 +44,34 @@ function isPastSlot(date: string, timeLabel: string) {
   return labelToMinutes(timeLabel) <= nowMins;
 }
 
-export function getSlotsForDate(date: string) {
+export async function getSlotsForDate(date: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     throw new Error("Invalid date");
   }
-  return generateDaySlots().map((time) => {
-    const past = isPastSlot(date, time);
-    const taken = isSlotTaken(date, time);
-    return {
-      time,
-      available: !past && !taken,
-      reason: past ? "past" : taken ? "booked" : null,
-    };
-  });
+  const times = generateDaySlots();
+  const results = await Promise.all(
+    times.map(async (time) => {
+      const past = isPastSlot(date, time);
+      const taken = past ? false : await isSlotTaken(date, time);
+      return {
+        time,
+        available: !past && !taken,
+        reason: past ? "past" : taken ? "booked" : null,
+      };
+    })
+  );
+  return results;
 }
 
-export function getOpenDates(daysAhead = 14) {
+export async function getOpenDates(daysAhead = 14) {
   const dates = [];
   const start = new Date(`${todayIst()}T12:00:00+05:30`);
   for (let i = 0; i < daysAhead; i++) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
     const iso = d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
-    const openCount = getSlotsForDate(iso).filter((s) => s.available).length;
+    const slots = await getSlotsForDate(iso);
+    const openCount = slots.filter((s) => s.available).length;
     dates.push({
       date: iso,
       label: d.toLocaleDateString("en-IN", {

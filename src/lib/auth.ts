@@ -1,33 +1,29 @@
 import { cookies } from "next/headers";
+import crypto from "crypto";
 import {
   hashPassword,
-  id,
-  readDb,
-  writeDb,
-  type Session,
+  getStaffByUsername,
+  createSession,
+  getSession as dbGetSession,
+  deleteSession,
   type StaffRole,
 } from "@/lib/db";
 
 const COOKIE = "akshatha_staff_session";
 
+function makeToken(prefix = "sess_") {
+  return `${prefix}${crypto.randomBytes(16).toString("hex")}`;
+}
+
 export async function loginStaff(username: string, password: string) {
-  const db = readDb();
-  const user = db.staff.find((s) => s.username === username.trim().toLowerCase());
+  const user = await getStaffByUsername(username.trim().toLowerCase());
   if (!user || user.passwordHash !== hashPassword(password)) {
     return { ok: false as const, error: "Invalid username or password" };
   }
 
-  const token = id("sess_");
-  const session: Session = {
-    token,
-    userId: user.id,
-    role: user.role,
-    name: user.name,
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-  };
-  db.sessions = db.sessions.filter((s) => s.userId !== user.id);
-  db.sessions.push(session);
-  writeDb(db);
+  const token = makeToken("sess_");
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  await createSession(token, user.id, user.role, user.name, expiresAt);
 
   const jar = await cookies();
   jar.set(COOKIE, token, {
@@ -40,18 +36,14 @@ export async function loginStaff(username: string, password: string) {
 
   return {
     ok: true as const,
-    user: { id: user.id, name: user.name, role: user.role, username: user.username },
+    user: { id: user.id, name: user.name, role: user.role as StaffRole, username: user.username },
   };
 }
 
 export async function logoutStaff() {
   const jar = await cookies();
   const token = jar.get(COOKIE)?.value;
-  if (token) {
-    const db = readDb();
-    db.sessions = db.sessions.filter((s) => s.token !== token);
-    writeDb(db);
-  }
+  if (token) await deleteSession(token);
   jar.delete(COOKIE);
 }
 
@@ -59,20 +51,19 @@ export async function getSession() {
   const jar = await cookies();
   const token = jar.get(COOKIE)?.value;
   if (!token) return null;
-  const db = readDb();
-  const session = db.sessions.find((s) => s.token === token);
+
+  const session = await dbGetSession(token);
   if (!session) return null;
   if (new Date(session.expiresAt).getTime() < Date.now()) {
-    db.sessions = db.sessions.filter((s) => s.token !== token);
-    writeDb(db);
+    await deleteSession(token);
     return null;
   }
-  return session;
+  return { token: session.token, userId: session.userId, role: session.role as StaffRole, name: session.name };
 }
 
 export async function requireStaff(roles?: StaffRole[]) {
   const session = await getSession();
   if (!session) return null;
-  if (roles && !roles.includes(session.role)) return null;
+  if (roles && !roles.includes(session.role as StaffRole)) return null;
   return session;
 }

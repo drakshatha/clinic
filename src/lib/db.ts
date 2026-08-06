@@ -1,11 +1,9 @@
-import fs from "fs";
-import path from "path";
+/**
+ * db.ts — thin wrappers over Prisma for backward-compatible use across API routes.
+ * All reads/writes now go to Neon PostgreSQL via Prisma instead of the JSON file.
+ */
+import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const DB_FILE = path.join(DATA_DIR, "clinic.json");
-
-export type StaffRole = "doctor" | "assistant";
 
 export type LeadStatus =
   | "pending"
@@ -14,123 +12,10 @@ export type LeadStatus =
   | "cancelled"
   | "no_show";
 
-export type Lead = {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  treatment: string;
-  message: string;
-  slot_date: string; // YYYY-MM-DD
-  slot_time: string; // e.g. 5:30 PM
-  status: LeadStatus;
-  source: string;
-  confirmed_by?: string;
-  confirmed_at?: string;
-  whatsapp_confirm_sent?: boolean;
-  created_at: string; // ISO UTC
-  updated_at: string;
-};
+export type StaffRole = "doctor" | "assistant";
 
-export type OtpRecord = {
-  phone: string;
-  codeHash: string;
-  expiresAt: string;
-  attempts: number;
-  verified: boolean;
-};
-
-export type StaffUser = {
-  id: string;
-  name: string;
-  username: string;
-  passwordHash: string;
-  role: StaffRole;
-};
-
-export type Session = {
-  token: string;
-  userId: string;
-  role: StaffRole;
-  name: string;
-  expiresAt: string;
-};
-
-export type DbShape = {
-  leads: Lead[];
-  blockedSlots: { id: string; date: string; time: string; reason: string }[];
-  otps: OtpRecord[];
-  sessions: Session[];
-  staff: StaffUser[];
-  updatedAt: string;
-};
-
-function hash(value: string) {
+export function hash(value: string) {
   return crypto.createHash("sha256").update(value).digest("hex");
-}
-
-function id(prefix = "") {
-  return `${prefix}${crypto.randomBytes(6).toString("hex")}`;
-}
-
-function defaultStaff(): StaffUser[] {
-  return [
-    {
-      id: "staff_doctor",
-      name: "Dr. Akshatha V",
-      username: "doctor",
-      // password: doctor2026
-      passwordHash: hash("doctor2026"),
-      role: "doctor",
-    },
-    {
-      id: "staff_assistant",
-      name: "Clinic Assistant",
-      username: "assistant",
-      // password: assist2026
-      passwordHash: hash("assist2026"),
-      role: "assistant",
-    },
-  ];
-}
-
-function defaultDb(): DbShape {
-  return {
-    leads: [],
-    blockedSlots: [],
-    otps: [],
-    sessions: [],
-    staff: defaultStaff(),
-    updatedAt: new Date().toISOString(),
-  };
-}
-
-function ensureDb() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(DB_FILE)) {
-    fs.writeFileSync(DB_FILE, JSON.stringify(defaultDb(), null, 2));
-  }
-}
-
-export function readDb(): DbShape {
-  ensureDb();
-  try {
-    const raw = JSON.parse(fs.readFileSync(DB_FILE, "utf8")) as DbShape;
-    if (!raw.staff?.length) raw.staff = defaultStaff();
-    if (!raw.leads) raw.leads = [];
-    if (!raw.otps) raw.otps = [];
-    if (!raw.sessions) raw.sessions = [];
-    if (!raw.blockedSlots) raw.blockedSlots = [];
-    return raw;
-  } catch {
-    return defaultDb();
-  }
-}
-
-export function writeDb(db: DbShape) {
-  ensureDb();
-  db.updatedAt = new Date().toISOString();
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
 }
 
 export function hashPassword(password: string) {
@@ -141,60 +26,246 @@ export function hashOtp(code: string, phone: string) {
   return hash(`${phone}:${code}`);
 }
 
-export function createLead(
-  input: Omit<Lead, "id" | "created_at" | "updated_at" | "status"> & {
-    status?: LeadStatus;
-  }
-): Lead {
-  const db = readDb();
-  const now = new Date().toISOString();
-  const lead: Lead = {
-    id: id("lead_"),
-    name: input.name,
-    phone: input.phone,
-    email: input.email || "",
-    treatment: input.treatment || "",
-    message: input.message || "",
-    slot_date: input.slot_date,
-    slot_time: input.slot_time,
-    status: input.status || "pending",
-    source: input.source || "website",
-    created_at: now,
-    updated_at: now,
+// ─── Leads ────────────────────────────────────────────────────────────────────
+
+export async function createLead(input: {
+  name: string;
+  phone: string;
+  email?: string;
+  treatment?: string;
+  message?: string;
+  slot_date: string;
+  slot_time: string;
+  source?: string;
+  status?: LeadStatus;
+}) {
+  const lead = await prisma.lead.create({
+    data: {
+      name: input.name,
+      phone: input.phone,
+      email: input.email ?? "",
+      treatment: input.treatment ?? "",
+      message: input.message ?? "",
+      slotDate: input.slot_date,
+      slotTime: input.slot_time,
+      source: input.source ?? "website",
+      status: input.status ?? "pending",
+      patientPhone: input.phone,
+    },
+  });
+
+  // Upsert patient record so history starts from first booking
+  await prisma.patient.upsert({
+    where: { phone: input.phone },
+    update: { name: input.name, email: input.email ?? "", lastSeen: new Date() },
+    create: { phone: input.phone, name: input.name, email: input.email ?? "" },
+  });
+
+  return leadToLegacy(lead);
+}
+
+export async function updateLead(leadId: string, patch: Record<string, unknown>) {
+  const data: Record<string, unknown> = {};
+  if ("status" in patch) data.status = patch.status;
+  if ("confirmed_by" in patch) data.confirmedById = patch.confirmed_by;
+  if ("confirmed_at" in patch) data.confirmedAt = patch.confirmed_at;
+  if ("whatsapp_confirm_sent" in patch) data.whatsappConfirmSent = patch.whatsapp_confirm_sent;
+
+  const lead = await prisma.lead.update({ where: { id: leadId }, data });
+  return leadToLegacy(lead);
+}
+
+export async function getLead(leadId: string) {
+  const lead = await prisma.lead.findUnique({ where: { id: leadId } });
+  return lead ? leadToLegacy(lead) : null;
+}
+
+export async function getAllLeads() {
+  const leads = await prisma.lead.findMany({ orderBy: { createdAt: "desc" } });
+  return leads.map(leadToLegacy);
+}
+
+export async function isSlotTaken(date: string, time: string) {
+  const booked = await prisma.lead.findFirst({
+    where: { slotDate: date, slotTime: time, status: { not: "cancelled" } },
+  });
+  const blocked = await prisma.blockedSlot.findUnique({
+    where: { date_time: { date, time } },
+  });
+  return !!(booked || blocked);
+}
+
+// ─── Blocked Slots ────────────────────────────────────────────────────────────
+
+export async function blockSlot(date: string, time: string, reason = "") {
+  return prisma.blockedSlot.upsert({
+    where: { date_time: { date, time } },
+    update: { reason },
+    create: { date, time, reason },
+  });
+}
+
+export async function unblockSlot(date: string, time: string) {
+  return prisma.blockedSlot.deleteMany({ where: { date, time } });
+}
+
+export async function getBlockedSlots(date?: string) {
+  return prisma.blockedSlot.findMany({ where: date ? { date } : undefined });
+}
+
+// ─── OTP ──────────────────────────────────────────────────────────────────────
+
+export async function upsertOtp(phone: string, codeHash: string, expiresAt: Date) {
+  return prisma.otpRecord.upsert({
+    where: { phone },
+    update: { codeHash, expiresAt, attempts: 0, verified: false },
+    create: { phone, codeHash, expiresAt, attempts: 0, verified: false },
+  });
+}
+
+export async function getOtp(phone: string) {
+  return prisma.otpRecord.findUnique({ where: { phone } });
+}
+
+export async function incrementOtpAttempts(phone: string) {
+  return prisma.otpRecord.update({
+    where: { phone },
+    data: { attempts: { increment: 1 } },
+  });
+}
+
+export async function markOtpVerified(phone: string) {
+  return prisma.otpRecord.update({ where: { phone }, data: { verified: true } });
+}
+
+export async function deleteOtp(phone: string) {
+  return prisma.otpRecord.deleteMany({ where: { phone } });
+}
+
+// ─── Staff / Auth ─────────────────────────────────────────────────────────────
+
+export async function getStaffByUsername(username: string) {
+  return prisma.staffUser.findUnique({ where: { username } });
+}
+
+export async function createSession(
+  token: string,
+  userId: string,
+  role: string,
+  name: string,
+  expiresAt: Date
+) {
+  return prisma.session.create({ data: { token, userId, role, name, expiresAt } });
+}
+
+export async function getSession(token: string) {
+  return prisma.session.findUnique({ where: { token }, include: { user: true } });
+}
+
+export async function deleteSession(token: string) {
+  return prisma.session.deleteMany({ where: { token } });
+}
+
+// ─── Patient Portal ───────────────────────────────────────────────────────────
+
+export async function getPatientByPhone(phone: string) {
+  return prisma.patient.findUnique({
+    where: { phone },
+    include: {
+      leads: { orderBy: { createdAt: "desc" } },
+      consultations: { orderBy: { completedAt: "desc" } },
+    },
+  });
+}
+
+export async function createPatientSession(token: string, phone: string, expiresAt: Date) {
+  return prisma.patientSession.create({ data: { token, phone, expiresAt } });
+}
+
+export async function getPatientSession(token: string) {
+  return prisma.patientSession.findUnique({
+    where: { token },
+    include: { patient: true },
+  });
+}
+
+export async function deletePatientSession(token: string) {
+  return prisma.patientSession.deleteMany({ where: { token } });
+}
+
+// ─── Consultations ────────────────────────────────────────────────────────────
+
+export async function createConsultation(input: {
+  leadId: string;
+  patientPhone: string;
+  treatmentDone?: string;
+  notes?: string;
+  nextVisitDate?: string;
+}) {
+  return prisma.consultation.create({
+    data: {
+      leadId: input.leadId,
+      patientPhone: input.patientPhone,
+      treatmentDone: input.treatmentDone ?? "",
+      notes: input.notes ?? "",
+      nextVisitDate: input.nextVisitDate,
+    },
+  });
+}
+
+// ─── Legacy shape adapter ─────────────────────────────────────────────────────
+// Keeps existing API routes working without changes
+
+export type Lead = {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  treatment: string;
+  message: string;
+  slot_date: string;
+  slot_time: string;
+  status: LeadStatus;
+  source: string;
+  confirmed_by?: string;
+  confirmed_at?: string;
+  whatsapp_confirm_sent: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+function leadToLegacy(lead: {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  treatment: string;
+  message: string;
+  slotDate: string;
+  slotTime: string;
+  status: string;
+  source: string;
+  confirmedById: string | null;
+  confirmedAt: Date | null;
+  whatsappConfirmSent: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}) {
+  return {
+    id: lead.id,
+    name: lead.name,
+    phone: lead.phone,
+    email: lead.email,
+    treatment: lead.treatment,
+    message: lead.message,
+    slot_date: lead.slotDate,
+    slot_time: lead.slotTime,
+    status: lead.status as LeadStatus,
+    source: lead.source,
+    confirmed_by: lead.confirmedById ?? undefined,
+    confirmed_at: lead.confirmedAt?.toISOString() ?? undefined,
+    whatsapp_confirm_sent: lead.whatsappConfirmSent,
+    created_at: lead.createdAt.toISOString(),
+    updated_at: lead.updatedAt.toISOString(),
   };
-  db.leads.unshift(lead);
-  writeDb(db);
-  return lead;
 }
-
-export function updateLead(leadId: string, patch: Partial<Lead>) {
-  const db = readDb();
-  const idx = db.leads.findIndex((l) => l.id === leadId);
-  if (idx < 0) return null;
-  db.leads[idx] = {
-    ...db.leads[idx],
-    ...patch,
-    id: leadId,
-    updated_at: new Date().toISOString(),
-  };
-  writeDb(db);
-  return db.leads[idx];
-}
-
-export function getLead(leadId: string) {
-  return readDb().leads.find((l) => l.id === leadId) || null;
-}
-
-export function isSlotTaken(date: string, time: string) {
-  const db = readDb();
-  const booked = db.leads.some(
-    (l) =>
-      l.slot_date === date &&
-      l.slot_time === time &&
-      l.status !== "cancelled"
-  );
-  const blocked = db.blockedSlots.some((b) => b.date === date && b.time === time);
-  return booked || blocked;
-}
-
-export { id, hash };

@@ -43,3 +43,5 @@ next-env.d.ts
 # clinic data
 /data
 
+
+/src/generated/prisma

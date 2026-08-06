@@ -1,4 +1,4 @@
-import { hashOtp, readDb, writeDb } from "@/lib/db";
+import { hashOtp, upsertOtp, getOtp, incrementOtpAttempts, markOtpVerified, deleteOtp } from "@/lib/db";
 import { normalizePhone, sendWhatsAppText } from "@/lib/whatsapp";
 
 function generateCode() {
@@ -47,28 +47,13 @@ async function sendSmsTwilio(phone: string, code: string) {
   return { sent: res.ok, provider: "twilio", data };
 }
 
-/**
- * OTP send strategy (first match wins):
- * 1. MSG91 (India SMS) — recommended for clinics
- * 2. Twilio SMS
- * 3. WhatsApp Cloud API text
- * 4. Dev mode — code returned in API + logged (local testing)
- */
 export async function sendOtp(phoneRaw: string) {
   const phone = normalizePhone(phoneRaw);
   if (phone.length < 10) throw new Error("Invalid phone number");
 
   const code = generateCode();
-  const db = readDb();
-  db.otps = db.otps.filter((o) => o.phone !== phone);
-  db.otps.push({
-    phone,
-    codeHash: hashOtp(code, phone),
-    expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-    attempts: 0,
-    verified: false,
-  });
-  writeDb(db);
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  await upsertOtp(phone, hashOtp(code, phone), expiresAt);
 
   const msg91 = await sendSmsMsg91(phone, code);
   if (msg91.sent) return { ok: true, channel: "sms_msg91", devCode: null as string | null };
@@ -82,26 +67,21 @@ export async function sendOtp(phoneRaw: string) {
   );
   if (wa.sent) return { ok: true, channel: "whatsapp", devCode: null as string | null };
 
-  // Dev / fallback
+  // Dev / fallback — shows OTP in response for local testing
   console.log(`[OTP] ${phone} => ${code}`);
   const allowDev = process.env.OTP_DEV_MODE !== "false";
   return {
     ok: true,
     channel: "dev",
     devCode: allowDev ? code : null,
-    hint: allowDev
-      ? "No SMS provider configured. Using dev OTP (shown once)."
-      : "Configure MSG91 / Twilio / WhatsApp to deliver OTP.",
   };
 }
 
-export function verifyOtp(phoneRaw: string, code: string) {
+export async function verifyOtp(phoneRaw: string, code: string) {
   const phone = normalizePhone(phoneRaw);
-  const db = readDb();
-  const idx = db.otps.findIndex((o) => o.phone === phone);
-  if (idx < 0) return { ok: false, error: "OTP not found. Please request a new code." };
+  const record = await getOtp(phone);
+  if (!record) return { ok: false, error: "OTP not found. Please request a new code." };
 
-  const record = db.otps[idx];
   if (new Date(record.expiresAt).getTime() < Date.now()) {
     return { ok: false, error: "OTP expired. Please request a new code." };
   }
@@ -109,24 +89,21 @@ export function verifyOtp(phoneRaw: string, code: string) {
     return { ok: false, error: "Too many attempts. Request a new OTP." };
   }
 
-  record.attempts += 1;
+  await incrementOtpAttempts(phone);
+
   if (record.codeHash !== hashOtp(code.trim(), phone)) {
-    writeDb(db);
     return { ok: false, error: "Invalid OTP." };
   }
 
-  record.verified = true;
-  writeDb(db);
+  await markOtpVerified(phone);
   return { ok: true };
 }
 
-export function consumeVerifiedOtp(phoneRaw: string) {
+export async function consumeVerifiedOtp(phoneRaw: string) {
   const phone = normalizePhone(phoneRaw);
-  const db = readDb();
-  const record = db.otps.find((o) => o.phone === phone);
+  const record = await getOtp(phone);
   if (!record?.verified) return false;
   if (new Date(record.expiresAt).getTime() < Date.now()) return false;
-  db.otps = db.otps.filter((o) => o.phone !== phone);
-  writeDb(db);
+  await deleteOtp(phone);
   return true;
 }

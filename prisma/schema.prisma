@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Staff (doctor + assistant logins) ───────────────────────────────────────
+model StaffUser {
+  id           String   @id @default(cuid())
+  name         String
+  username     String   @unique
+  passwordHash String
+  role         String   // "doctor" | "assistant"
+  createdAt    DateTime @default(now())
+
+  confirmedLeads Lead[] @relation("ConfirmedBy")
+  sessions       Session[]
+}
+
+model Session {
+  token     String    @id
+  userId    String
+  role      String
+  name      String
+  expiresAt DateTime
+  user      StaffUser @relation(fields: [userId], references: [id])
+}
+
+// ─── Appointment Leads ────────────────────────────────────────────────────────
+model Lead {
+  id                    String    @id @default(cuid())
+  name                  String
+  phone                 String
+  email                 String    @default("")
+  treatment             String    @default("")
+  message               String    @default("")
+  slotDate              String    // YYYY-MM-DD
+  slotTime              String    // e.g. "5:30 PM"
+  status                String    @default("pending") // pending | confirmed | completed | cancelled | no_show
+  source                String    @default("website")
+  confirmedById         String?
+  confirmedAt           DateTime?
+  whatsappConfirmSent   Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  confirmedBy   StaffUser?   @relation("ConfirmedBy", fields: [confirmedById], references: [id])
+  patient       Patient?     @relation(fields: [patientPhone], references: [phone])
+  patientPhone  String?
+  consultation  Consultation?
+}
+
+// ─── Blocked Slots ────────────────────────────────────────────────────────────
+model BlockedSlot {
+  id     String @id @default(cuid())
+  date   String // YYYY-MM-DD
+  time   String // e.g. "5:30 PM"
+  reason String @default("")
+
+  @@unique([date, time])
+}
+
+// ─── OTP Records ──────────────────────────────────────────────────────────────
+model OtpRecord {
+  phone     String   @id
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  verified  Boolean  @default(false)
+}
+
+// ─── Patient Portal ───────────────────────────────────────────────────────────
+model Patient {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  name      String   @default("")
+  email     String   @default("")
+  joinedAt  DateTime @default(now())
+  lastSeen  DateTime @default(now())
+
+  leads         Lead[]
+  consultations Consultation[]
+  portalSessions PatientSession[]
+}
+
+model PatientSession {
+  token     String   @id
+  phone     String
+  expiresAt DateTime
+  patient   Patient  @relation(fields: [phone], references: [phone])
+}
+
+// ─── Consultation History ─────────────────────────────────────────────────────
+model Consultation {
+  id              String   @id @default(cuid())
+  leadId          String   @unique
+  patientPhone    String
+  treatmentDone   String   @default("")
+  notes           String   @default("")
+  nextVisitDate   String?  // YYYY-MM-DD suggestion
+  completedAt     DateTime @default(now())
+
+  lead    Lead    @relation(fields: [leadId], references: [id])
+  patient Patient @relation(fields: [patientPhone], references: [phone])
+}
