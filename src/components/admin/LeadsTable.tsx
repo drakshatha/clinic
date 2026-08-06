@@ -20,7 +20,7 @@ type LeadRow = {
   whatsapp_confirm_sent?: boolean;
 };
 
-type User = { name: string; role: string };
+type User = { name: string; role: string; permissions: string[] };
 
 const STATUS_TABS = ["all", "pending", "confirmed", "completed", "cancelled", "no_show"] as const;
 type Tab = (typeof STATUS_TABS)[number];
@@ -206,7 +206,7 @@ export function LeadsTable() {
                           {busyId === l.id ? "…" : "✓ Confirm → WhatsApp"}
                         </button>
                       )}
-                      {l.status === "confirmed" && user?.role === "doctor" && (
+                      {l.status === "confirmed" && user?.permissions.includes("complete_visits") && (
                         <button
                           disabled={busyId === l.id}
                           onClick={() => setModal({ open: true, lead: l })}

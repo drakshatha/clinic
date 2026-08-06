@@ -5,7 +5,7 @@ import { getLead, markLeadCompleted } from "@/lib/db";
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, ctx: Ctx) {
-  const session = await requireStaff(["doctor"]);
+  const session = await requireStaff("complete_visits");
   if (!session) {
     return NextResponse.json({ error: "Doctor access required" }, { status: 403 });
   }

@@ -5,7 +5,7 @@ import { generateDaySlots } from "@/lib/slots";
 import { todayIst } from "@/lib/time";
 
 export async function GET(request: Request) {
-  const session = await requireStaff();
+  const session = await requireStaff("view_calendar");
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(request.url);

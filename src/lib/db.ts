@@ -12,7 +12,7 @@ export type LeadStatus =
   | "cancelled"
   | "no_show";
 
-export type StaffRole = "doctor" | "assistant";
+export type StaffRole = string; // free-text: "Doctor", "Receptionist", etc.
 
 export function hash(value: string) {
   return crypto.createHash("sha256").update(value).digest("hex");
@@ -153,9 +153,10 @@ export async function createSession(
   userId: string,
   role: string,
   name: string,
+  permissions: string,
   expiresAt: Date
 ) {
-  return prisma.session.create({ data: { token, userId, role, name, expiresAt } });
+  return prisma.session.create({ data: { token, userId, role, name, permissions, expiresAt } });
 }
 
 export async function getSession(token: string) {
@@ -177,6 +178,7 @@ export async function createStaff(input: {
   username: string;
   password: string;
   role: string;
+  permissions: string; // JSON array
 }) {
   return prisma.staffUser.create({
     data: {
@@ -184,18 +186,20 @@ export async function createStaff(input: {
       username: input.username.trim().toLowerCase(),
       passwordHash: hashPassword(input.password),
       role: input.role,
+      permissions: input.permissions,
     },
   });
 }
 
 export async function updateStaff(
   id: string,
-  patch: { name?: string; role?: string; password?: string }
+  patch: { name?: string; role?: string; password?: string; permissions?: string }
 ) {
   const data: Record<string, string> = {};
   if (patch.name) data.name = patch.name;
   if (patch.role) data.role = patch.role;
   if (patch.password) data.passwordHash = hashPassword(patch.password);
+  if (patch.permissions !== undefined) data.permissions = patch.permissions;
   return prisma.staffUser.update({ where: { id }, data });
 }
 

@@ -14,7 +14,9 @@ model StaffUser {
   name         String
   username     String   @unique
   passwordHash String
-  role         String   // "doctor" | "assistant"
+  role         String   // free-text display label e.g. "Doctor", "Receptionist"
+  permissions  String   @default("[]") // JSON array of permission keys
+  isOwner      Boolean  @default(false) // owner can never be deleted
   createdAt    DateTime @default(now())
 
   confirmedLeads Lead[] @relation("ConfirmedBy")
@@ -22,12 +24,13 @@ model StaffUser {
 }
 
 model Session {
-  token     String    @id
-  userId    String
-  role      String
-  name      String
-  expiresAt DateTime
-  user      StaffUser @relation(fields: [userId], references: [id])
+  token       String    @id
+  userId      String
+  role        String
+  name        String
+  permissions String    @default("[]") // JSON array of permission keys
+  expiresAt   DateTime
+  user        StaffUser @relation(fields: [userId], references: [id])
 }
 
 // ─── Appointment Leads ────────────────────────────────────────────────────────

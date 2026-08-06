@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 export default async function StaffPage() {
-  const session = await requireStaff(["doctor"]);
+  const session = await requireStaff("manage_staff");
   if (!session) redirect("/admin");
 
   return (

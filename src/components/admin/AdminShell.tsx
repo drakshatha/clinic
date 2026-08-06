@@ -3,25 +3,26 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import type { Permission } from "@/lib/permissions";
 
 type Props = {
-  user: { name: string; role: string };
+  user: { name: string; role: string; permissions: Permission[] };
   children: React.ReactNode;
 };
 
-const navItems = [
-  { href: "/admin/dashboard", label: "📋 Leads", roles: ["doctor", "assistant"] },
-  { href: "/admin/calendar", label: "📅 Calendar", roles: ["doctor", "assistant"] },
-  { href: "/admin/staff", label: "👤 Staff", roles: ["doctor"] },
+const NAV_ITEMS = [
+  { href: "/admin/dashboard", label: "📋 Leads",    permission: "view_leads"   as Permission },
+  { href: "/admin/calendar",  label: "📅 Calendar", permission: "view_calendar" as Permission },
+  { href: "/admin/staff",     label: "👤 Staff",    permission: "manage_staff"  as Permission },
 ];
 
 export function AdminShell({ user, children }: Props) {
   const pathname = usePathname();
-  const router = useRouter();
+  const router   = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
-  const links = navItems.filter((n) => n.roles.includes(user.role));
+  const links = NAV_ITEMS.filter((n) => user.permissions.includes(n.permission));
 
   async function logout() {
     setLoggingOut(true);
@@ -40,9 +41,7 @@ export function AdminShell({ user, children }: Props) {
             href={item.href}
             onClick={() => setMobileOpen(false)}
             className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
-              active
-                ? "bg-blue text-white"
-                : "text-navy hover:bg-bg-soft"
+              active ? "bg-blue text-white" : "text-navy hover:bg-bg-soft"
             }`}
           >
             {item.label}
@@ -52,20 +51,22 @@ export function AdminShell({ user, children }: Props) {
     </nav>
   );
 
+  const UserBadge = () => (
+    <div className="mb-6 px-2">
+      <p className="text-xs font-bold uppercase tracking-widest text-muted">Clinic Admin</p>
+      <p className="mt-1 text-sm font-semibold text-navy truncate">{user.name}</p>
+      <span className="mt-1 inline-block rounded-full bg-blue/10 px-2 py-0.5 text-[11px] font-bold text-blue">
+        {user.role}
+      </span>
+    </div>
+  );
+
   return (
     <div className="flex min-h-screen bg-bg">
       {/* ── Desktop sidebar ── */}
       <aside className="hidden md:flex w-56 flex-shrink-0 flex-col border-r border-line bg-white px-4 py-6">
-        <div className="mb-6 px-2">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted">Clinic Admin</p>
-          <p className="mt-1 text-sm font-semibold text-navy truncate">{user.name}</p>
-          <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-bold capitalize ${user.role === "doctor" ? "bg-blue/10 text-blue" : "bg-success/10 text-success"}`}>
-            {user.role}
-          </span>
-        </div>
-
+        <UserBadge />
         <NavLinks />
-
         <button
           onClick={logout}
           disabled={loggingOut}
@@ -77,7 +78,7 @@ export function AdminShell({ user, children }: Props) {
 
       {/* ── Mobile top bar ── */}
       <div className="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-white px-4 md:hidden">
-        <span className="text-sm font-bold text-navy">Clinic Admin</span>
+        <span className="text-sm font-bold text-navy">{user.name}</span>
         <button
           onClick={() => setMobileOpen((v) => !v)}
           className="rounded-lg p-2 text-navy hover:bg-bg-soft"
@@ -92,12 +93,7 @@ export function AdminShell({ user, children }: Props) {
         <div className="fixed inset-0 z-20 flex md:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
           <div className="relative z-10 flex w-56 flex-col bg-white px-4 py-6 pt-16">
-            <div className="mb-4 px-2">
-              <p className="text-sm font-semibold text-navy">{user.name}</p>
-              <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-bold capitalize ${user.role === "doctor" ? "bg-blue/10 text-blue" : "bg-success/10 text-success"}`}>
-                {user.role}
-              </span>
-            </div>
+            <UserBadge />
             <NavLinks />
             <button
               onClick={logout}

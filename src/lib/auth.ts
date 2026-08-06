@@ -6,8 +6,8 @@ import {
   createSession,
   getSession as dbGetSession,
   deleteSession,
-  type StaffRole,
 } from "@/lib/db";
+import { parsePermissions, type Permission } from "@/lib/permissions";
 
 const COOKIE = "akshatha_staff_session";
 
@@ -23,7 +23,7 @@ export async function loginStaff(username: string, password: string) {
 
   const token = makeToken("sess_");
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  await createSession(token, user.id, user.role, user.name, expiresAt);
+  await createSession(token, user.id, user.role, user.name, user.permissions, expiresAt);
 
   const jar = await cookies();
   jar.set(COOKIE, token, {
@@ -36,7 +36,7 @@ export async function loginStaff(username: string, password: string) {
 
   return {
     ok: true as const,
-    user: { id: user.id, name: user.name, role: user.role as StaffRole, username: user.username },
+    user: { id: user.id, name: user.name, role: user.role, username: user.username },
   };
 }
 
@@ -58,12 +58,22 @@ export async function getSession() {
     await deleteSession(token);
     return null;
   }
-  return { token: session.token, userId: session.userId, role: session.role as StaffRole, name: session.name };
+
+  const permissions = parsePermissions(session.permissions);
+  return {
+    token: session.token,
+    userId: session.userId,
+    role: session.role,
+    name: session.name,
+    permissions,
+    isOwner: session.user.isOwner,
+  };
 }
 
-export async function requireStaff(roles?: StaffRole[]) {
+/** Require a valid session. Optionally require a specific permission. */
+export async function requireStaff(permission?: Permission) {
   const session = await getSession();
   if (!session) return null;
-  if (roles && !roles.includes(session.role as StaffRole)) return null;
+  if (permission && !session.permissions.includes(permission)) return null;
   return session;
 }

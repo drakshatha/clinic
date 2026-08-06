@@ -1,13 +1,10 @@
 /**
  * prisma/seed.ts — run once after migrate to create default staff accounts.
  * Usage: npx prisma db seed
- *
- * Passwords come from env vars so they're never in source code:
- *   SEED_DOCTOR_PASSWORD   (default: doctor2026)
- *   SEED_ASSISTANT_PASSWORD (default: assist2026)
  */
 import { PrismaClient } from "../src/generated/prisma";
 import crypto from "crypto";
+import { OWNER_PERMISSIONS, DEFAULT_PERMISSIONS } from "../src/lib/permissions";
 
 const prisma = new PrismaClient();
 
@@ -21,29 +18,37 @@ async function main() {
 
   await prisma.staffUser.upsert({
     where: { username: "doctor" },
-    update: {},
+    update: {
+      permissions: JSON.stringify(OWNER_PERMISSIONS),
+      isOwner: true,
+    },
     create: {
       id: "staff_doctor",
       name: "Dr. Akshatha V",
       username: "doctor",
       passwordHash: hash(doctorPass),
-      role: "doctor",
+      role: "Doctor",
+      permissions: JSON.stringify(OWNER_PERMISSIONS),
+      isOwner: true,
     },
   });
 
   await prisma.staffUser.upsert({
     where: { username: "assistant" },
-    update: {},
+    update: {
+      permissions: JSON.stringify(DEFAULT_PERMISSIONS),
+    },
     create: {
       id: "staff_assistant",
       name: "Clinic Assistant",
       username: "assistant",
       passwordHash: hash(assistPass),
-      role: "assistant",
+      role: "Assistant",
+      permissions: JSON.stringify(DEFAULT_PERMISSIONS),
     },
   });
 
-  console.log("✅ Staff seeded — doctor + assistant accounts ready.");
+  console.log("✅ Staff seeded — doctor (owner, all permissions) + assistant (default permissions).");
 }
 
 main()

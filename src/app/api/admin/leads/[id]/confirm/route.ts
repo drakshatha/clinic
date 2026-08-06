@@ -6,7 +6,7 @@ import { bookingLinks, sendWhatsAppText } from "@/lib/whatsapp";
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, ctx: Ctx) {
-  const session = await requireStaff(["doctor", "assistant"]);
+  const session = await requireStaff("confirm_leads");
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

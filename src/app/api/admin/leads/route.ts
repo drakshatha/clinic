@@ -4,7 +4,7 @@ import { getAllLeads } from "@/lib/db";
 import { formatIstDateTime, formatSlotLabel } from "@/lib/time";
 
 export async function GET() {
-  const session = await requireStaff();
+  const session = await requireStaff("view_leads");
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -18,7 +18,7 @@ export async function GET() {
   }));
 
   return NextResponse.json({
-    user: { name: session.name, role: session.role },
+    user: { name: session.name, role: session.role, permissions: session.permissions },
     leads: enriched,
   });
 }

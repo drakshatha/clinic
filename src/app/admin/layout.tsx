@@ -5,12 +5,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await getSession();
 
   if (!session) {
-    // Login page — no shell
     return <>{children}</>;
   }
 
   return (
-    <AdminShell user={{ name: session.name, role: session.role }}>
+    <AdminShell user={{ name: session.name, role: session.role, permissions: session.permissions }}>
       {children}
     </AdminShell>
   );
