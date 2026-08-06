@@ -90,10 +90,16 @@ function isFollowupDue(lead: LeadRow): boolean {
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 
-export function LeadsTable() {
+export function LeadsTable({
+  initialLeads,
+  initialUser,
+}: {
+  initialLeads?: LeadRow[];
+  initialUser?: User;
+} = {}) {
   const router = useRouter();
-  const [leads, setLeads] = useState<LeadRow[]>([]);
-  const [user, setUser] = useState<User | null>(null);
+  const [leads, setLeads] = useState<LeadRow[]>(initialLeads ?? []);
+  const [user, setUser] = useState<User | null>(initialUser ?? null);
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("all");
@@ -109,7 +115,12 @@ export function LeadsTable() {
     setUser(data.user || null);
   }, [router]);
 
-  useEffect(() => { load().catch((e) => setError(e.message)); }, [load]);
+  // Only fetch on mount if we didn't receive server-side initial data
+  const hasInitial = useState(() => !!initialLeads)[0];
+  useEffect(() => {
+    if (!hasInitial) load().catch((e) => setError(e.message));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function confirmLead(id: string) {
     setBusyId(id);

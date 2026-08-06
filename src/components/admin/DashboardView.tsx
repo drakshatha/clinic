@@ -207,12 +207,12 @@ function Skeleton() {
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 
-export function DashboardView() {
+export function DashboardView({ initialData }: { initialData?: DashboardData }) {
   const [period, setPeriod]       = useState<Period>("today");
   const [customFrom, setFrom]     = useState("");
   const [customTo,   setTo]       = useState("");
-  const [data,       setData]     = useState<DashboardData | null>(null);
-  const [loading,    setLoading]  = useState(true);
+  const [data,       setData]     = useState<DashboardData | null>(initialData ?? null);
+  const [loading,    setLoading]  = useState(!initialData);
   const [error,      setError]    = useState("");
 
   const load = useCallback(async () => {
@@ -231,7 +231,14 @@ export function DashboardView() {
     }
   }, [period, customFrom, customTo]);
 
-  useEffect(() => { load(); }, [load]);
+  const isFirstRender = useState(() => true);
+  useEffect(() => {
+    // Skip the very first fetch if we already have server-provided initial data
+    if (isFirstRender[0] && initialData) { isFirstRender[1](false); return; }
+    isFirstRender[1](false);
+    load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [load]);
 
   const today       = istToday();
   const isToday     = period === "today";

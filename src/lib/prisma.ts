@@ -8,4 +8,7 @@ export const prisma =
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// Reuse the client across warm Lambda invocations in both dev AND production.
+// Without this, production creates a new PrismaClient (and reconnects to Neon)
+// on every request even when the Lambda container is already warm.
+globalForPrisma.prisma = prisma;
