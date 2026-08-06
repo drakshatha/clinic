@@ -25,7 +25,7 @@ export async function POST(request: Request, ctx: Ctx) {
 
   const updated = await updateLead(id, {
     status: "confirmed",
-    confirmed_by: `${session.name} (${session.role})`,
+    confirmed_by: session.userId,          // FK → StaffUser.id
     confirmed_at: new Date().toISOString(),
     whatsapp_confirm_sent: apiSend.sent,
   });

@@ -85,8 +85,11 @@ export async function getLead(leadId: string) {
 }
 
 export async function getAllLeads() {
-  const leads = await prisma.lead.findMany({ orderBy: { createdAt: "desc" } });
-  return leads.map(leadToLegacy);
+  const leads = await prisma.lead.findMany({
+    orderBy: { createdAt: "desc" },
+    include: { confirmedBy: { select: { name: true, role: true } } },
+  });
+  return leads.map((l) => leadToLegacy(l, l.confirmedBy ?? undefined));
 }
 
 export async function isSlotTaken(date: string, time: string) {
@@ -391,23 +394,26 @@ export type Lead = {
   updated_at: string;
 };
 
-function leadToLegacy(lead: {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  treatment: string;
-  message: string;
-  slotDate: string;
-  slotTime: string;
-  status: string;
-  source: string;
-  confirmedById: string | null;
-  confirmedAt: Date | null;
-  whatsappConfirmSent: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}) {
+function leadToLegacy(
+  lead: {
+    id: string;
+    name: string;
+    phone: string;
+    email: string;
+    treatment: string;
+    message: string;
+    slotDate: string;
+    slotTime: string;
+    status: string;
+    source: string;
+    confirmedById: string | null;
+    confirmedAt: Date | null;
+    whatsappConfirmSent: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  },
+  confirmedByStaff?: { name: string; role: string }
+) {
   return {
     id: lead.id,
     name: lead.name,
@@ -419,7 +425,9 @@ function leadToLegacy(lead: {
     slot_time: lead.slotTime,
     status: lead.status as LeadStatus,
     source: lead.source,
-    confirmed_by: lead.confirmedById ?? undefined,
+    confirmed_by: confirmedByStaff
+      ? `${confirmedByStaff.name} (${confirmedByStaff.role})`
+      : (lead.confirmedById ?? undefined),
     confirmed_at: lead.confirmedAt?.toISOString() ?? undefined,
     whatsapp_confirm_sent: lead.whatsappConfirmSent,
     created_at: lead.createdAt.toISOString(),
