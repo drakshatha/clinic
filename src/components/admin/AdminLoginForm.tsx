@@ -71,14 +71,11 @@ export function AdminLoginForm() {
         <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
       ) : null}
 
-      <div className="mt-5 rounded-xl bg-bg-soft p-3 text-xs text-muted">
-        <p>
-          <strong>Doctor:</strong> doctor / doctor2026
-        </p>
-        <p className="mt-1">
-          <strong>Assistant:</strong> assistant / assist2026
-        </p>
-      </div>
+      {process.env.NODE_ENV === "development" && (
+        <div className="mt-5 rounded-xl bg-bg-soft p-3 text-xs text-muted">
+          <p><strong>Dev:</strong> doctor / doctor2026 · assistant / assist2026</p>
+        </div>
+      )}
     </form>
   );
 }

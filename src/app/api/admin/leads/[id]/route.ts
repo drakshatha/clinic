@@ -18,7 +18,7 @@ export async function PATCH(request: Request, ctx: Ctx) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
-  const updated = updateLead(id, {
+  const updated = await updateLead(id, {
     status: status as "pending" | "confirmed" | "completed" | "cancelled" | "no_show",
   });
   if (!updated) {

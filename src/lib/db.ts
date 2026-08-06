@@ -166,6 +166,71 @@ export async function deleteSession(token: string) {
   return prisma.session.deleteMany({ where: { token } });
 }
 
+// ─── Staff CRUD (doctor only) ─────────────────────────────────────────────────
+
+export async function getAllStaff() {
+  return prisma.staffUser.findMany({ orderBy: { createdAt: "asc" } });
+}
+
+export async function createStaff(input: {
+  name: string;
+  username: string;
+  password: string;
+  role: string;
+}) {
+  return prisma.staffUser.create({
+    data: {
+      name: input.name,
+      username: input.username.trim().toLowerCase(),
+      passwordHash: hashPassword(input.password),
+      role: input.role,
+    },
+  });
+}
+
+export async function updateStaff(
+  id: string,
+  patch: { name?: string; role?: string; password?: string }
+) {
+  const data: Record<string, string> = {};
+  if (patch.name) data.name = patch.name;
+  if (patch.role) data.role = patch.role;
+  if (patch.password) data.passwordHash = hashPassword(patch.password);
+  return prisma.staffUser.update({ where: { id }, data });
+}
+
+export async function deleteStaff(id: string) {
+  await prisma.session.deleteMany({ where: { userId: id } });
+  return prisma.staffUser.delete({ where: { id } });
+}
+
+// ─── Calendar ─────────────────────────────────────────────────────────────────
+
+export async function getCalendarSlots(date: string) {
+  const leads = await prisma.lead.findMany({
+    where: { slotDate: date, status: { not: "cancelled" } },
+    select: { id: true, name: true, phone: true, treatment: true, slotTime: true, status: true },
+    orderBy: { createdAt: "asc" },
+  });
+  const blocked = await prisma.blockedSlot.findMany({ where: { date } });
+  return { leads, blocked };
+}
+
+// ─── Mark completed with consultation notes ───────────────────────────────────
+
+export async function markLeadCompleted(
+  leadId: string,
+  patientPhone: string,
+  input: { treatmentDone: string; notes: string; nextVisitDate?: string }
+) {
+  await prisma.lead.update({ where: { id: leadId }, data: { status: "completed" } });
+  return prisma.consultation.upsert({
+    where: { leadId },
+    update: { treatmentDone: input.treatmentDone, notes: input.notes, nextVisitDate: input.nextVisitDate ?? null, completedAt: new Date() },
+    create: { leadId, patientPhone, treatmentDone: input.treatmentDone, notes: input.notes, nextVisitDate: input.nextVisitDate },
+  });
+}
+
 // ─── Patient Portal ───────────────────────────────────────────────────────────
 
 export async function getPatientByPhone(phone: string) {
