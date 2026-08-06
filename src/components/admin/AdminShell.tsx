@@ -11,9 +11,10 @@ type Props = {
 };
 
 const NAV_ITEMS = [
-  { href: "/admin/dashboard", label: "📋 Leads",    permission: "view_leads"   as Permission },
-  { href: "/admin/calendar",  label: "📅 Calendar", permission: "view_calendar" as Permission },
-  { href: "/admin/staff",     label: "👤 Staff",    permission: "manage_staff"  as Permission },
+  { href: "/admin/dashboard", label: "📊 Dashboard", permission: "view_leads"    as Permission },
+  { href: "/admin/leads",     label: "📋 Leads",     permission: "view_leads"    as Permission },
+  { href: "/admin/calendar",  label: "📅 Calendar",  permission: "view_calendar" as Permission },
+  { href: "/admin/staff",     label: "👤 Staff",     permission: "manage_staff"  as Permission },
 ];
 
 export function AdminShell({ user, children }: Props) {
