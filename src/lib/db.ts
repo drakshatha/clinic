@@ -10,7 +10,11 @@ export type LeadStatus =
   | "confirmed"
   | "completed"
   | "cancelled"
-  | "no_show";
+  | "no_show"
+  | "followup";
+
+export type VisitType = "consultation" | "treatment" | "followup" | "resolved";
+export type PaymentMode = "cash" | "upi" | "card" | "online" | "waived" | "pending";
 
 export type StaffRole = string; // free-text: "Doctor", "Receptionist", etc.
 
@@ -220,19 +224,103 @@ export async function getCalendarSlots(date: string) {
   return { leads, blocked };
 }
 
-// ─── Mark completed with consultation notes ───────────────────────────────────
+// ─── Mark completed / follow-up with consultation notes ──────────────────────
 
 export async function markLeadCompleted(
   leadId: string,
   patientPhone: string,
-  input: { treatmentDone: string; notes: string; nextVisitDate?: string }
+  input: {
+    visitType?: VisitType;
+    treatmentDone: string;
+    notes: string;
+    nextVisitDate?: string;
+    paymentMode?: PaymentMode;
+    paymentAmount?: number;
+    transactionId?: string;
+  }
 ) {
-  await prisma.lead.update({ where: { id: leadId }, data: { status: "completed" } });
+  const visitType = input.visitType ?? "consultation";
+  // If visitType is followup, status becomes "followup"; otherwise "completed"
+  const newStatus: LeadStatus = visitType === "followup" ? "followup" : "completed";
+
+  await prisma.lead.update({ where: { id: leadId }, data: { status: newStatus } });
+
   return prisma.consultation.upsert({
     where: { leadId },
-    update: { treatmentDone: input.treatmentDone, notes: input.notes, nextVisitDate: input.nextVisitDate ?? null, completedAt: new Date() },
-    create: { leadId, patientPhone, treatmentDone: input.treatmentDone, notes: input.notes, nextVisitDate: input.nextVisitDate },
+    update: {
+      visitType,
+      treatmentDone: input.treatmentDone,
+      notes: input.notes,
+      nextVisitDate: input.nextVisitDate ?? null,
+      paymentMode: input.paymentMode ?? null,
+      paymentAmount: input.paymentAmount ?? null,
+      transactionId: input.transactionId ?? null,
+      completedAt: new Date(),
+    },
+    create: {
+      leadId,
+      patientPhone,
+      visitType,
+      treatmentDone: input.treatmentDone,
+      notes: input.notes,
+      nextVisitDate: input.nextVisitDate,
+      paymentMode: input.paymentMode,
+      paymentAmount: input.paymentAmount,
+      transactionId: input.transactionId,
+    },
   });
+}
+
+// ─── Invoice: load lead + consultation for a given lead ──────────────────────
+
+export async function getLeadForInvoice(leadId: string) {
+  return prisma.lead.findUnique({
+    where: { id: leadId },
+    include: {
+      consultation: true,
+      confirmedBy: { select: { name: true } },
+      documents: { orderBy: { createdAt: "desc" } },
+    },
+  });
+}
+
+// ─── Documents ────────────────────────────────────────────────────────────────
+
+export async function createDocument(input: {
+  leadId: string;
+  patientPhone: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize?: number;
+  mimeType?: string;
+  docType?: string;
+  uploadedById: string;
+  consultationId?: string;
+}) {
+  return prisma.document.create({
+    data: {
+      leadId: input.leadId,
+      patientPhone: input.patientPhone,
+      fileName: input.fileName,
+      fileUrl: input.fileUrl,
+      fileSize: input.fileSize,
+      mimeType: input.mimeType ?? "",
+      docType: input.docType ?? "other",
+      uploadedById: input.uploadedById,
+      consultationId: input.consultationId,
+    },
+  });
+}
+
+export async function getLeadDocuments(leadId: string) {
+  return prisma.document.findMany({
+    where: { leadId },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function deleteDocument(id: string) {
+  return prisma.document.delete({ where: { id } });
 }
 
 // ─── Patient Portal ───────────────────────────────────────────────────────────

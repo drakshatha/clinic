@@ -55,6 +55,7 @@ model Lead {
   patient       Patient?     @relation(fields: [patientPhone], references: [phone])
   patientPhone  String?
   consultation  Consultation?
+  documents     Document[]
 }
 
 // ─── Blocked Slots ────────────────────────────────────────────────────────────
@@ -102,11 +103,37 @@ model Consultation {
   id              String   @id @default(cuid())
   leadId          String   @unique
   patientPhone    String
+  visitType       String   @default("consultation") // consultation | treatment | followup | resolved
   treatmentDone   String   @default("")
   notes           String   @default("")
-  nextVisitDate   String?  // YYYY-MM-DD suggestion
+  nextVisitDate   String?  // YYYY-MM-DD (required when visitType = followup)
   completedAt     DateTime @default(now())
 
-  lead    Lead    @relation(fields: [leadId], references: [id])
-  patient Patient @relation(fields: [patientPhone], references: [phone])
+  // Payment
+  paymentMode     String?  // cash | upi | card | online | waived
+  paymentAmount   Float?
+  transactionId   String?  // for upi / online payments
+  invoiceSent     Boolean  @default(false)
+
+  lead      Lead       @relation(fields: [leadId], references: [id])
+  patient   Patient    @relation(fields: [patientPhone], references: [phone])
+  documents Document[]
+}
+
+// ─── Documents (X-rays, reports, prescriptions) ───────────────────────────────
+model Document {
+  id           String   @id @default(cuid())
+  leadId       String
+  patientPhone String   @default("")
+  fileName     String
+  fileUrl      String   // Vercel Blob URL
+  fileSize     Int?     // bytes
+  mimeType     String   @default("")
+  docType      String   @default("other") // xray | report | prescription | other
+  uploadedById String   // StaffUser id
+  createdAt    DateTime @default(now())
+
+  lead         Lead          @relation(fields: [leadId], references: [id])
+  consultation Consultation? @relation(fields: [consultationId], references: [id])
+  consultationId String?
 }

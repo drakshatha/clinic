@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+
+// ── Types ──────────────────────────────────────────────────────────────────────
 
 type LeadRow = {
   id: string;
@@ -20,29 +22,73 @@ type LeadRow = {
   whatsapp_confirm_sent?: boolean;
 };
 
+type Document = {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  docType: string;
+  createdAt: string;
+};
+
 type User = { name: string; role: string; permissions: string[] };
 
-const STATUS_TABS = ["all", "pending", "confirmed", "completed", "cancelled", "no_show"] as const;
+// ── Constants ──────────────────────────────────────────────────────────────────
+
+const STATUS_TABS = ["all", "pending", "confirmed", "followup", "completed", "cancelled", "no_show"] as const;
 type Tab = (typeof STATUS_TABS)[number];
 
 const STATUS_BADGE: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-800",
+  pending:   "bg-amber-100 text-amber-800",
   confirmed: "bg-green-100 text-green-800",
   completed: "bg-blue-100 text-blue-800",
   cancelled: "bg-red-100 text-red-700",
-  no_show: "bg-gray-100 text-gray-600",
+  no_show:   "bg-gray-100 text-gray-600",
+  followup:  "bg-purple-100 text-purple-800",
 };
 
 const TAB_LABEL: Record<Tab, string> = {
-  all: "All",
-  pending: "⏳ Pending",
+  all:       "All",
+  pending:   "⏳ Pending",
   confirmed: "✅ Confirmed",
+  followup:  "🔁 Follow-up Due",
   completed: "🏁 Completed",
   cancelled: "❌ Cancelled",
-  no_show: "🚫 No-show",
+  no_show:   "🚫 No-show",
 };
 
-type CompleteModal = { open: false } | { open: true; lead: LeadRow };
+const VISIT_LABELS: Record<string, string> = {
+  consultation: "1st Consultation",
+  treatment:    "Treatment Session",
+  followup:     "Follow-up",
+  resolved:     "Case Resolved",
+};
+
+const PAYMENT_LABELS: Record<string, string> = {
+  cash:    "💵 Cash",
+  upi:     "📱 UPI",
+  card:    "💳 Card",
+  online:  "🌐 Online",
+  waived:  "🎁 Waived",
+  pending: "⏳ Pending",
+};
+
+const DOC_TYPE_LABELS: Record<string, string> = {
+  xray:         "X-ray",
+  report:       "Report",
+  prescription: "Prescription",
+  other:        "Other",
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function isFollowupDue(lead: LeadRow): boolean {
+  // A followup is "due" if today >= slotDate (the next visit date stored in slot_date)
+  if (lead.status !== "followup") return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return lead.slot_date <= today;
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────────
 
 export function LeadsTable() {
   const router = useRouter();
@@ -51,17 +97,19 @@ export function LeadsTable() {
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("all");
-  const [modal, setModal] = useState<CompleteModal>({ open: false });
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [completeModal, setCompleteModal] = useState<{ open: false } | { open: true; lead: LeadRow }>({ open: false });
+  const [docPanel, setDocPanel] = useState<{ open: false } | { open: true; lead: LeadRow }>({ open: false });
 
-  async function load() {
+  const load = useCallback(async () => {
     const res = await fetch("/api/admin/leads");
     if (res.status === 401) { router.push("/admin"); return; }
     const data = await res.json();
     setLeads(data.leads || []);
     setUser(data.user || null);
-  }
+  }, [router]);
 
-  useEffect(() => { load().catch((e) => setError(e.message)); }, []);
+  useEffect(() => { load().catch((e) => setError(e.message)); }, [load]);
 
   async function confirmLead(id: string) {
     setBusyId(id);
@@ -94,23 +142,42 @@ export function LeadsTable() {
     } finally { setBusyId(null); }
   }
 
-  const filtered = tab === "all" ? leads : leads.filter((l) => l.status === tab);
-
+  // Tab counts
   const counts = STATUS_TABS.reduce((acc, t) => {
     acc[t] = t === "all" ? leads.length : leads.filter((l) => l.status === t).length;
     return acc;
   }, {} as Record<Tab, number>);
 
+  const followupDueCount = leads.filter(isFollowupDue).length;
+
+  const filtered = (() => {
+    if (tab === "all") return leads;
+    return leads.filter((l) => l.status === tab);
+  })();
+
+  // Sort: followup due + pending first, then by slot date
+  const sorted = [...filtered].sort((a, b) => {
+    const aPriority = (a.status === "pending" || isFollowupDue(a)) ? 0 : 1;
+    const bPriority = (b.status === "pending" || isFollowupDue(b)) ? 0 : 1;
+    if (aPriority !== bPriority) return aPriority - bPriority;
+    return a.slot_date.localeCompare(b.slot_date);
+  });
+
   return (
     <div>
       {/* Header */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-navy">Leads & Appointments</h1>
           {user && (
             <p className="text-xs text-muted mt-0.5">
               Signed in as <strong>{user.name}</strong> · {user.role}
             </p>
+          )}
+          {followupDueCount > 0 && (
+            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-800">
+              🔁 {followupDueCount} follow-up{followupDueCount > 1 ? "s" : ""} due today
+            </div>
           )}
         </div>
         <button
@@ -152,106 +219,181 @@ export function LeadsTable() {
         <table className="min-w-full text-left text-sm">
           <thead className="bg-bg-soft text-[11px] uppercase tracking-wide text-muted">
             <tr>
-              <th className="px-4 py-3 whitespace-nowrap">Booked slot</th>
+              <th className="px-4 py-3 whitespace-nowrap">Slot / Date</th>
               <th className="px-4 py-3">Patient</th>
               <th className="px-4 py-3">Phone</th>
               <th className="px-4 py-3">Treatment</th>
-              <th className="px-4 py-3">Message</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {sorted.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-sm text-muted">
+                <td colSpan={6} className="px-4 py-12 text-center text-sm text-muted">
                   {tab === "all" ? "No leads yet. Share the website link to get bookings!" : `No ${tab} leads.`}
                 </td>
               </tr>
             ) : (
-              filtered.map((l) => (
-                <tr key={l.id} className="border-t border-line align-top hover:bg-bg-soft/40 transition-colors">
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="font-semibold text-navy">{l.slot_label}</span>
-                    <br />
-                    <span className="text-[11px] text-muted">{l.created_at_ist}</span>
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-navy">{l.name}</td>
-                  <td className="px-4 py-3">
-                    <a href={`tel:${l.phone}`} className="text-blue hover:underline font-medium">
-                      {l.phone}
-                    </a>
-                  </td>
-                  <td className="px-4 py-3 text-muted">{l.treatment || "—"}</td>
-                  <td className="px-4 py-3 max-w-[200px] text-muted text-xs">{l.message || "—"}</td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${STATUS_BADGE[l.status] || "bg-gray-100 text-gray-600"}`}>
-                      {l.status.replace("_", " ")}
-                    </span>
-                    {l.confirmed_by && (
-                      <p className="mt-1 text-[10px] text-muted">
-                        {l.confirmed_by}
-                        {l.confirmed_at_ist ? ` · ${l.confirmed_at_ist}` : ""}
-                      </p>
+              sorted.map((l) => {
+                const isDue = isFollowupDue(l);
+                const isExpanded = expandedId === l.id;
+
+                return (
+                  <>
+                    <tr
+                      key={l.id}
+                      onClick={() => setExpandedId(isExpanded ? null : l.id)}
+                      className={`border-t border-line align-top cursor-pointer transition-colors ${
+                        isDue
+                          ? "bg-purple-50 hover:bg-purple-100/60"
+                          : "hover:bg-bg-soft/40"
+                      }`}
+                    >
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {isDue && (
+                          <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-purple-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                            DUE TODAY
+                          </div>
+                        )}
+                        <div className="font-semibold text-navy text-xs">{l.slot_label}</div>
+                        <div className="text-[11px] text-muted">{l.created_at_ist}</div>
+                      </td>
+                      <td className="px-4 py-3 font-semibold text-navy">{l.name}</td>
+                      <td className="px-4 py-3">
+                        <a
+                          href={`tel:${l.phone}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-blue hover:underline font-medium text-xs"
+                        >
+                          {l.phone}
+                        </a>
+                      </td>
+                      <td className="px-4 py-3 text-muted text-xs max-w-[140px] truncate">{l.treatment || "—"}</td>
+                      <td className="px-4 py-3">
+                        <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${STATUS_BADGE[l.status] || "bg-gray-100 text-gray-600"}`}>
+                          {l.status.replace("_", " ")}
+                        </span>
+                        {l.confirmed_by && (
+                          <p className="mt-1 text-[10px] text-muted">{l.confirmed_by}</p>
+                        )}
+                      </td>
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex flex-col gap-1.5 min-w-[140px]">
+                          {l.status === "pending" && (
+                            <button
+                              disabled={busyId === l.id}
+                              onClick={() => confirmLead(l.id)}
+                              className="rounded-full bg-green-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-green-700 disabled:opacity-60 transition-colors"
+                            >
+                              {busyId === l.id ? "…" : "✓ Confirm → WhatsApp"}
+                            </button>
+                          )}
+                          {(l.status === "confirmed" || l.status === "followup") &&
+                            user?.permissions.includes("complete_visits") && (
+                              <button
+                                disabled={busyId === l.id}
+                                onClick={() => setCompleteModal({ open: true, lead: l })}
+                                className="rounded-full bg-blue px-3 py-1.5 text-[11px] font-bold text-white hover:bg-blue-deep disabled:opacity-60 transition-colors"
+                              >
+                                📋 Record Visit
+                              </button>
+                            )}
+                          {(l.status === "completed" || l.status === "followup" || l.status === "confirmed") && (
+                            <button
+                              onClick={() => setDocPanel({ open: true, lead: l })}
+                              className="rounded-full border border-line px-3 py-1.5 text-[11px] font-semibold text-navy hover:border-blue hover:text-blue transition-colors"
+                            >
+                              📎 Documents
+                            </button>
+                          )}
+                          {(l.status === "completed" || l.status === "resolved") && (
+                            <a
+                              href={`/admin/leads/${l.id}/invoice`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="rounded-full border border-line px-3 py-1.5 text-[11px] font-semibold text-navy hover:border-blue hover:text-blue text-center transition-colors"
+                            >
+                              🧾 Invoice
+                            </a>
+                          )}
+                          {l.status !== "cancelled" && l.status !== "completed" && l.status !== "resolved" && (
+                            <button
+                              disabled={busyId === l.id}
+                              onClick={() => {
+                                if (confirm(`Cancel appointment for ${l.name}?`)) {
+                                  setStatus(l.id, "cancelled");
+                                }
+                              }}
+                              className="rounded-full border border-red-200 px-3 py-1.5 text-[11px] font-bold text-red-700 hover:bg-red-50 disabled:opacity-60 transition-colors"
+                            >
+                              ✕ Cancel
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Expanded detail row */}
+                    {isExpanded && (
+                      <tr key={`${l.id}-detail`} className="border-t border-line bg-bg-soft/60">
+                        <td colSpan={6} className="px-6 py-4">
+                          <div className="grid gap-2 text-xs text-muted sm:grid-cols-3">
+                            <div>
+                              <span className="font-bold text-navy uppercase tracking-wide text-[10px]">Message</span>
+                              <p className="mt-0.5">{l.message || "—"}</p>
+                            </div>
+                            <div>
+                              <span className="font-bold text-navy uppercase tracking-wide text-[10px]">Email</span>
+                              <p className="mt-0.5">{l.email || "—"}</p>
+                            </div>
+                            <div>
+                              <span className="font-bold text-navy uppercase tracking-wide text-[10px]">Confirmed by</span>
+                              <p className="mt-0.5">{l.confirmed_by || "—"} {l.confirmed_at_ist ? `· ${l.confirmed_at_ist}` : ""}</p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
                     )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col gap-1.5 min-w-[150px]">
-                      {l.status === "pending" && (
-                        <button
-                          disabled={busyId === l.id}
-                          onClick={() => confirmLead(l.id)}
-                          className="rounded-full bg-green-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-green-700 disabled:opacity-60 transition-colors"
-                        >
-                          {busyId === l.id ? "…" : "✓ Confirm → WhatsApp"}
-                        </button>
-                      )}
-                      {l.status === "confirmed" && user?.permissions.includes("complete_visits") && (
-                        <button
-                          disabled={busyId === l.id}
-                          onClick={() => setModal({ open: true, lead: l })}
-                          className="rounded-full bg-blue px-3 py-1.5 text-[11px] font-bold text-white hover:bg-blue-deep disabled:opacity-60 transition-colors"
-                        >
-                          🏁 Mark Completed
-                        </button>
-                      )}
-                      {l.status !== "cancelled" && l.status !== "completed" && (
-                        <button
-                          disabled={busyId === l.id}
-                          onClick={() => {
-                            if (confirm(`Cancel appointment for ${l.name} on ${l.slot_label}?`)) {
-                              setStatus(l.id, "cancelled");
-                            }
-                          }}
-                          className="rounded-full border border-red-200 px-3 py-1.5 text-[11px] font-bold text-red-700 hover:bg-red-50 disabled:opacity-60 transition-colors"
-                        >
-                          ✕ Cancel
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
+                  </>
+                );
+              })
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Mark Completed Modal */}
-      {modal.open && (
-        <CompleteModal
-          lead={modal.lead}
-          onClose={() => setModal({ open: false })}
-          onDone={async () => { setModal({ open: false }); await load(); }}
+      {/* Modals */}
+      {completeModal.open && (
+        <RecordVisitModal
+          lead={completeModal.lead}
+          onClose={() => setCompleteModal({ open: false })}
+          onDone={async () => { setCompleteModal({ open: false }); await load(); }}
+        />
+      )}
+      {docPanel.open && (
+        <DocumentPanel
+          lead={docPanel.lead}
+          onClose={() => setDocPanel({ open: false })}
         />
       )}
     </div>
   );
 }
 
-// ── Complete with notes modal ──────────────────────────────────────────────────
+// ── Record Visit Modal ─────────────────────────────────────────────────────────
 
-function CompleteModal({
+type VisitType = "consultation" | "treatment" | "followup" | "resolved";
+type PaymentMode = "cash" | "upi" | "card" | "online" | "waived" | "pending";
+
+const VISIT_OPTIONS: { value: VisitType; label: string; desc: string }[] = [
+  { value: "consultation", label: "1st Consultation",   desc: "Initial assessment, treatment plan discussed" },
+  { value: "treatment",    label: "Treatment Session",  desc: "Procedure carried out (crown, implant, etc.)" },
+  { value: "followup",     label: "Follow-up Needed",   desc: "Visit done, patient to return on a specific date" },
+  { value: "resolved",     label: "Case Resolved",      desc: "Treatment complete, case closed" },
+];
+
+function RecordVisitModal({
   lead,
   onClose,
   onDone,
@@ -260,21 +402,40 @@ function CompleteModal({
   onClose: () => void;
   onDone: () => void;
 }) {
+  const [visitType, setVisitType] = useState<VisitType>("consultation");
   const [treatmentDone, setTreatmentDone] = useState(lead.treatment || "");
   const [notes, setNotes] = useState("");
   const [nextVisitDate, setNextVisitDate] = useState("");
+  const [paymentMode, setPaymentMode] = useState<PaymentMode>("cash");
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [transactionId, setTransactionId] = useState("");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
 
+  const needsFollowupDate = visitType === "followup";
+  const needsPayment = visitType === "resolved" || visitType === "treatment";
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (needsFollowupDate && !nextVisitDate) {
+      setErr("Please select a follow-up date.");
+      return;
+    }
     setSaving(true);
     setErr("");
     try {
       const res = await fetch(`/api/admin/leads/${lead.id}/complete`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ treatmentDone, notes, nextVisitDate: nextVisitDate || undefined }),
+        body: JSON.stringify({
+          visitType,
+          treatmentDone,
+          notes,
+          nextVisitDate: nextVisitDate || undefined,
+          paymentMode: needsPayment ? paymentMode : undefined,
+          paymentAmount: needsPayment && paymentAmount ? Number(paymentAmount) : undefined,
+          transactionId: (paymentMode === "upi" || paymentMode === "online") ? transactionId : undefined,
+        }),
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed"); }
       onDone();
@@ -284,44 +445,140 @@ function CompleteModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-[var(--shadow)]">
-        <h2 className="text-lg font-bold text-navy">Mark Completed</h2>
-        <p className="mt-1 text-sm text-muted">
-          {lead.name} · {lead.slot_label}
-        </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 overflow-y-auto">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-[var(--shadow)] my-auto">
+        <h2 className="text-lg font-bold text-navy">Record Visit</h2>
+        <p className="mt-1 text-sm text-muted">{lead.name} · {lead.slot_label}</p>
 
-        <form onSubmit={submit} className="mt-5 flex flex-col gap-4">
-          <label className="grid gap-1 text-sm font-semibold text-navy">
-            Treatment Done
+        <form onSubmit={submit} className="mt-5 flex flex-col gap-5">
+
+          {/* Visit type */}
+          <div>
+            <p className="mb-2 text-xs font-bold text-navy uppercase tracking-wide">Visit Type</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {VISIT_OPTIONS.map((opt) => (
+                <label
+                  key={opt.value}
+                  className={`flex cursor-pointer flex-col gap-0.5 rounded-xl border p-3 transition-colors ${
+                    visitType === opt.value
+                      ? "border-blue bg-blue/5"
+                      : "border-line hover:border-blue/40"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="visitType"
+                      value={opt.value}
+                      checked={visitType === opt.value}
+                      onChange={() => setVisitType(opt.value)}
+                      className="accent-blue"
+                    />
+                    <span className="text-xs font-bold text-navy">{opt.label}</span>
+                  </div>
+                  <span className="text-[11px] text-muted pl-5">{opt.desc}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Treatment done */}
+          <label className="grid gap-1 text-xs font-semibold text-navy">
+            Treatment / Work Done
             <input
               value={treatmentDone}
               onChange={(e) => setTreatmentDone(e.target.value)}
-              placeholder="e.g. Porcelain crown #36"
+              placeholder="e.g. Porcelain crown #36, X-ray taken"
               className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue"
             />
           </label>
 
-          <label className="grid gap-1 text-sm font-semibold text-navy">
-            Notes / Observations
+          {/* Notes */}
+          <label className="grid gap-1 text-xs font-semibold text-navy">
+            Clinical Notes
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
-              placeholder="Clinical notes, patient feedback, follow-up instructions…"
+              placeholder="Observations, patient feedback, next steps…"
               className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue resize-none"
             />
           </label>
 
-          <label className="grid gap-1 text-sm font-semibold text-navy">
-            Next Visit Date <span className="font-normal text-muted">(optional)</span>
-            <input
-              type="date"
-              value={nextVisitDate}
-              onChange={(e) => setNextVisitDate(e.target.value)}
-              className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue"
-            />
-          </label>
+          {/* Follow-up date (required if visitType = followup) */}
+          {needsFollowupDate && (
+            <label className="grid gap-1 text-xs font-semibold text-navy">
+              <span>Follow-up Date <span className="text-red-500">*</span></span>
+              <input
+                type="date"
+                required
+                value={nextVisitDate}
+                min={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => setNextVisitDate(e.target.value)}
+                className="rounded-xl border border-blue px-3 py-2.5 text-sm font-normal outline-none focus:border-blue"
+              />
+              <span className="text-[11px] text-muted font-normal">Patient will appear as "Follow-up Due" on this date in the CRM.</span>
+            </label>
+          )}
+
+          {/* Optional next visit date for non-followup */}
+          {!needsFollowupDate && (
+            <label className="grid gap-1 text-xs font-semibold text-navy">
+              Suggest Next Visit Date <span className="font-normal text-muted">(optional)</span>
+              <input
+                type="date"
+                value={nextVisitDate}
+                onChange={(e) => setNextVisitDate(e.target.value)}
+                className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue"
+              />
+            </label>
+          )}
+
+          {/* Payment (for treatment + resolved) */}
+          {needsPayment && (
+            <div className="rounded-xl border border-line p-4 flex flex-col gap-3">
+              <p className="text-xs font-bold text-navy uppercase tracking-wide">Payment</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-1 text-xs font-semibold text-navy">
+                  Mode
+                  <select
+                    value={paymentMode}
+                    onChange={(e) => setPaymentMode(e.target.value as PaymentMode)}
+                    className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue bg-white"
+                  >
+                    <option value="cash">💵 Cash</option>
+                    <option value="upi">📱 UPI / GPay / PhonePe</option>
+                    <option value="card">💳 Card</option>
+                    <option value="online">🌐 Online Transfer</option>
+                    <option value="waived">🎁 Waived / Complimentary</option>
+                    <option value="pending">⏳ Payment Pending</option>
+                  </select>
+                </label>
+                <label className="grid gap-1 text-xs font-semibold text-navy">
+                  Amount (₹)
+                  <input
+                    type="number"
+                    min="0"
+                    value={paymentAmount}
+                    onChange={(e) => setPaymentAmount(e.target.value)}
+                    placeholder="e.g. 15000"
+                    className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue"
+                  />
+                </label>
+              </div>
+              {(paymentMode === "upi" || paymentMode === "online") && (
+                <label className="grid gap-1 text-xs font-semibold text-navy">
+                  Transaction / UTR ID
+                  <input
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value)}
+                    placeholder="e.g. T2408XXXXXXXXX"
+                    className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue"
+                  />
+                </label>
+              )}
+            </div>
+          )}
 
           {err && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
 
@@ -338,10 +595,155 @@ function CompleteModal({
               disabled={saving}
               className="flex-1 rounded-full bg-blue py-2.5 text-sm font-bold text-white hover:bg-blue-deep disabled:opacity-60 transition-colors"
             >
-              {saving ? "Saving…" : "Save & Complete"}
+              {saving ? "Saving…" : visitType === "followup" ? "Save & Set Follow-up" : "Save Visit Record"}
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+// ── Document Panel ─────────────────────────────────────────────────────────────
+
+const DOC_TYPES = ["xray", "report", "prescription", "other"] as const;
+
+function DocumentPanel({ lead, onClose }: { lead: LeadRow; onClose: () => void }) {
+  const [docs, setDocs] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [docType, setDocType] = useState<string>("xray");
+  const [error, setError] = useState("");
+  const [blobNotConfigured, setBlobNotConfigured] = useState(false);
+
+  const loadDocs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/leads/${lead.id}/documents`);
+      const data = await res.json();
+      setDocs(data.documents || []);
+    } finally { setLoading(false); }
+  }, [lead.id]);
+
+  useEffect(() => { loadDocs(); }, [loadDocs]);
+
+  async function upload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setError("");
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("docType", docType);
+      const res = await fetch(`/api/admin/leads/${lead.id}/documents`, { method: "POST", body: form });
+      const data = await res.json();
+      if (data.setup_needed) {
+        setBlobNotConfigured(true);
+        return;
+      }
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+      await loadDocs();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally { setUploading(false); e.target.value = ""; }
+  }
+
+  async function remove(docId: string) {
+    if (!confirm("Delete this document?")) return;
+    await fetch(`/api/admin/leads/${lead.id}/documents?docId=${docId}`, { method: "DELETE" });
+    await loadDocs();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/40">
+      <div className="h-full w-full max-w-md overflow-y-auto bg-white shadow-[var(--shadow)] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-line px-5 py-4">
+          <div>
+            <h2 className="font-bold text-navy">Documents</h2>
+            <p className="text-xs text-muted mt-0.5">{lead.name} · {lead.slot_label}</p>
+          </div>
+          <button onClick={onClose} className="rounded-full p-2 hover:bg-bg-soft transition-colors text-muted">✕</button>
+        </div>
+
+        <div className="flex-1 px-5 py-4 flex flex-col gap-4">
+          {/* Blob not configured notice */}
+          {blobNotConfigured && (
+            <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800">
+              <p className="font-bold">Storage not set up yet</p>
+              <p className="mt-1 text-xs">To enable document uploads, go to <strong>Vercel Dashboard → Storage → Create Blob</strong>, then add the <code>BLOB_READ_WRITE_TOKEN</code> environment variable. See the setup guide for details.</p>
+            </div>
+          )}
+
+          {/* Upload area */}
+          {!blobNotConfigured && (
+            <div className="rounded-xl border border-dashed border-line p-4">
+              <p className="text-xs font-bold text-navy mb-3">Upload Document</p>
+              <div className="flex gap-2 mb-3">
+                {DOC_TYPES.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setDocType(t)}
+                    className={`rounded-full px-3 py-1 text-[11px] font-bold transition-colors ${
+                      docType === t
+                        ? "bg-navy text-white"
+                        : "border border-line text-muted hover:border-blue hover:text-blue"
+                    }`}
+                  >
+                    {DOC_TYPE_LABELS[t]}
+                  </button>
+                ))}
+              </div>
+              <label className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-line bg-bg-soft px-4 py-6 text-sm font-semibold text-muted hover:border-blue hover:text-blue transition-colors ${uploading ? "opacity-60 pointer-events-none" : ""}`}>
+                <span>{uploading ? "Uploading…" : "📎 Choose file to upload"}</span>
+                <input type="file" className="sr-only" onChange={upload} accept="image/*,.pdf,.dcm" />
+              </label>
+              <p className="mt-1.5 text-[11px] text-muted">JPG, PNG, PDF, DICOM · max 20 MB</p>
+              {error && <p className="mt-2 text-xs text-red-700">{error}</p>}
+            </div>
+          )}
+
+          {/* Document list */}
+          <div>
+            <p className="text-xs font-bold text-navy mb-2">Uploaded Files</p>
+            {loading ? (
+              <p className="text-sm text-muted">Loading…</p>
+            ) : docs.length === 0 ? (
+              <p className="text-sm text-muted py-4 text-center">No documents yet.</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {docs.map((d) => (
+                  <div key={d.id} className="flex items-center gap-3 rounded-xl border border-line p-3">
+                    <span className="text-2xl flex-shrink-0">
+                      {d.docType === "xray" ? "🦷" : d.docType === "report" ? "📄" : d.docType === "prescription" ? "💊" : "📎"}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-navy truncate">{d.fileName}</p>
+                      <p className="text-[10px] text-muted">{DOC_TYPE_LABELS[d.docType] || d.docType}</p>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <a
+                        href={d.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full border border-line px-2.5 py-1 text-[11px] font-semibold text-navy hover:border-blue hover:text-blue transition-colors"
+                      >
+                        View
+                      </a>
+                      <button
+                        onClick={() => remove(d.id)}
+                        className="rounded-full border border-red-100 px-2.5 py-1 text-[11px] font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
