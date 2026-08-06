@@ -1,0 +1,22 @@
+<svg width="560" height="170" viewBox="0 0 560 170" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">Akshatha Dental Clinic Bengaluru</title>
+  <desc id="logoDesc">Akshatha Dental Clinic logo with orange tooth and A mark.</desc>
+  <defs>
+    <linearGradient id="akshathaOrangeFull" x1="18" y1="27" x2="181" y2="151" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ff9a1e"/>
+      <stop offset="0.48" stop-color="#f47b20"/>
+      <stop offset="1" stop-color="#e76616"/>
+    </linearGradient>
+    <filter id="fullSoftOrangeGlow" x="0" y="4" width="206" height="158" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#ffb86d" flood-opacity="0.42"/>
+    </filter>
+  </defs>
+  <g filter="url(#fullSoftOrangeGlow)" stroke="url(#akshathaOrangeFull)" stroke-width="8.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M61.6 30.2C48.1 30.6 43.6 41.7 45.2 61.3C47.3 85.9 54.2 110.9 67.8 138C69.8 142.1 75.1 142.1 78.4 136.8C88.6 120.8 94.8 95.4 108.7 71.6C112 66.3 116.9 67.1 118.5 73.3C123 92.1 121.4 120.4 115.2 151.6C130.4 135.6 145.2 114.2 153.4 92.9C161.2 73.3 162.4 49.1 153.4 38C144.8 27.8 128 34 111.2 45.8C98.5 33.9 78.8 27.4 61.6 30.2Z"/>
+    <path d="M24.3 133.1C39.9 113.4 74 90.5 116.1 68.8C149.3 51.6 177.6 36.8 187.4 44.2C197.2 51.6 168.1 83.1 126.8 107.7C85 132.7 33.3 147.5 23.1 139.3C20.2 136.8 21 135.6 24.3 133.1Z"/>
+    <path d="M75.1 151.2C87 125 101.8 95 115.7 69.2C116.1 96.2 113.2 124.9 107.9 152"/>
+  </g>
+  <text x="218" y="70" fill="#d95b24" font-size="58" font-family="'Brush Script MT', 'Segoe Script', 'Lucida Handwriting', cursive" font-style="italic">Akshatha</text>
+  <text x="286" y="102" fill="#2c525d" font-size="22" font-family="'Avenir Next', 'Trebuchet MS', sans-serif" letter-spacing="4">DENTAL CLINIC</text>
+  <text x="288" y="128" fill="#6a8a94" font-size="19" font-family="'Avenir Next', 'Trebuchet MS', sans-serif" letter-spacing="3.6">BENGALURU</text>
+</svg>

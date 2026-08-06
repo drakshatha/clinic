@@ -1,0 +1,18 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="logoMarkTitle">
+  <title id="logoMarkTitle">Akshatha Dental Clinic logo mark</title>
+  <defs>
+    <linearGradient id="akshathaOrange" x1="86" y1="98" x2="466" y2="399" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ff9a1e"/>
+      <stop offset="0.48" stop-color="#f47b20"/>
+      <stop offset="1" stop-color="#e76616"/>
+    </linearGradient>
+    <filter id="softOrangeGlow" x="52" y="60" width="430" height="390" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#ffb86d" flood-opacity="0.42"/>
+    </filter>
+  </defs>
+  <g filter="url(#softOrangeGlow)" stroke="url(#akshathaOrange)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M183 102C150 103 139 130 143 178C148 238 165 299 198 365C203 375 216 375 224 362C249 323 264 261 298 203C306 190 318 192 322 207C333 253 329 322 314 398C351 359 387 307 407 255C426 207 429 148 407 121C386 96 345 111 304 140C273 111 225 95 183 102Z"/>
+    <path d="M92 354C130 306 213 250 316 197C397 155 466 119 490 137C514 155 443 232 342 292C240 353 114 389 89 369C82 363 84 360 92 354Z"/>
+    <path d="M216 398C245 334 281 261 315 198C316 264 309 334 296 400"/>
+  </g>
+</svg>
