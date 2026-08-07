@@ -28,7 +28,8 @@ export async function GET() {
   const leads = await prisma.lead.findMany({
     where: { status: "confirmed" },
     select: {
-      id: true, name: true, slotDate: true, slotTime: true,
+      id: true, name: true, phone: true, treatment: true,
+      slotDate: true, slotTime: true,
       reminder24hSent: true, reminder1hSent: true,
     },
     orderBy: [{ slotDate: "asc" }, { slotTime: "asc" }],

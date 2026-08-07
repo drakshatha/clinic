@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { paymentReminderMessage, waLink, normalizePhone } from "@/lib/whatsapp";
-import { formatSlotLabel } from "@/lib/time";
 
 type OutstandingItem = {
-  id: string;
+  id: string;           // consultationId
   patientPhone: string;
   treatmentDone: string;
   paymentMode: string | null;
@@ -21,32 +20,67 @@ type OutstandingItem = {
   };
 };
 
-export function PaymentsTracker() {
-  const [items, setItems] = useState<OutstandingItem[]>([]);
-  const [loading, setLoading] = useState(true);
+const MODES = [
+  { value: "cash",    label: "💵 Cash" },
+  { value: "upi",     label: "📱 UPI" },
+  { value: "card",    label: "💳 Card" },
+  { value: "waived",  label: "🤝 Waived" },
+];
 
-  useEffect(() => {
-    fetch("/api/admin/payments")
-      .then((r) => r.json())
-      .then((d) => setItems(d.items ?? []))
-      .finally(() => setLoading(false));
-  }, []);
+export function PaymentsTracker() {
+  const [items, setItems]     = useState<OutstandingItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  /** which consultation row is expanded for payment entry */
+  const [recording, setRecording] = useState<string | null>(null);
+  const [form, setForm] = useState<{ mode: string; amount: string; txn: string }>({
+    mode: "cash", amount: "", txn: "",
+  });
+  const [saving, setSaving] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    const r = await fetch("/api/admin/payments");
+    const d = await r.json();
+    setItems(d.items ?? []);
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  function openRecord(id: string, existingAmount?: number | null) {
+    setRecording(id);
+    setForm({ mode: "cash", amount: existingAmount ? String(existingAmount) : "", txn: "" });
+  }
+
+  async function savePayment(consultationId: string) {
+    setSaving(true);
+    await fetch("/api/admin/payments", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        consultationId,
+        paymentMode: form.mode,
+        paymentAmount: form.amount ? Number(form.amount) : null,
+        transactionId: form.txn || null,
+      }),
+    });
+    setSaving(false);
+    setRecording(null);
+    load();
+  }
 
   const totalOutstanding = items.reduce((s, i) => s + (i.paymentAmount ?? 0), 0);
+  const uniquePatients   = new Set(items.map((i) => i.lead.phone)).size;
 
   if (loading) return <div className="py-12 text-center text-muted">Loading…</div>;
 
   return (
     <div className="space-y-6">
-      {/* ── Stats row ── */}
+      {/* Stats */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <StatCard label="Outstanding" value={items.length.toString()} sub="consultations" />
-        <StatCard
-          label="Pending Amount"
-          value={totalOutstanding > 0 ? `₹${totalOutstanding.toLocaleString("en-IN")}` : "—"}
-          sub="total unpaid"
-        />
-        <StatCard label="Patients" value={new Set(items.map((i) => i.lead.phone)).size.toString()} sub="unique" />
+        <StatCard label="Outstanding"    value={items.length.toString()}                                                                 sub="consultations" />
+        <StatCard label="Pending Amount" value={totalOutstanding > 0 ? `₹${totalOutstanding.toLocaleString("en-IN")}` : "—"}            sub="total unpaid" />
+        <StatCard label="Patients"       value={uniquePatients.toString()}                                                               sub="unique" />
       </div>
 
       {items.length === 0 ? (
@@ -66,7 +100,83 @@ export function PaymentsTracker() {
           </div>
           <div className="divide-y divide-line">
             {items.map((item) => (
-              <PaymentRow key={item.id} item={item} />
+              <div key={item.id}>
+                <PaymentRow
+                  item={item}
+                  onRecord={() => openRecord(item.id, item.paymentAmount)}
+                  isRecording={recording === item.id}
+                />
+
+                {/* Inline record-payment form */}
+                {recording === item.id && (
+                  <div className="bg-blue/5 border-t border-line px-5 py-4">
+                    <p className="text-xs font-bold uppercase tracking-wide text-muted mb-3">
+                      Record Payment — {item.lead.name}
+                    </p>
+                    <div className="flex flex-wrap items-end gap-3">
+                      {/* Mode */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[11px] text-muted font-semibold uppercase tracking-wide">Mode</label>
+                        <div className="flex gap-1.5 flex-wrap">
+                          {MODES.map((m) => (
+                            <button
+                              key={m.value}
+                              onClick={() => setForm((f) => ({ ...f, mode: m.value }))}
+                              className={`rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors ${
+                                form.mode === m.value
+                                  ? "bg-blue text-white border-blue"
+                                  : "border-line text-navy bg-white hover:border-blue/40"
+                              }`}
+                            >
+                              {m.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      {/* Amount */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[11px] text-muted font-semibold uppercase tracking-wide">Amount (₹)</label>
+                        <input
+                          type="number"
+                          placeholder="e.g. 1500"
+                          value={form.amount}
+                          onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))}
+                          className="rounded-xl border border-line px-3 py-2 text-sm text-navy w-32 focus:outline-none focus:ring-2 focus:ring-blue/30"
+                        />
+                      </div>
+                      {/* UPI/Card transaction ref */}
+                      {(form.mode === "upi" || form.mode === "card" || form.mode === "online") && (
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[11px] text-muted font-semibold uppercase tracking-wide">Txn Ref</label>
+                          <input
+                            type="text"
+                            placeholder="Optional reference"
+                            value={form.txn}
+                            onChange={(e) => setForm((f) => ({ ...f, txn: e.target.value }))}
+                            className="rounded-xl border border-line px-3 py-2 text-sm text-navy w-40 focus:outline-none focus:ring-2 focus:ring-blue/30"
+                          />
+                        </div>
+                      )}
+                      {/* Actions */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => savePayment(item.id)}
+                          disabled={saving || !form.mode}
+                          className="rounded-xl bg-blue px-4 py-2 text-sm font-bold text-white hover:bg-blue-deep transition-colors disabled:opacity-50"
+                        >
+                          {saving ? "Saving…" : "✓ Save"}
+                        </button>
+                        <button
+                          onClick={() => setRecording(null)}
+                          className="rounded-xl border border-line px-4 py-2 text-sm font-semibold text-muted hover:bg-bg transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
@@ -75,14 +185,20 @@ export function PaymentsTracker() {
   );
 }
 
-function PaymentRow({ item }: { item: OutstandingItem }) {
-  const msg = paymentReminderMessage(item.lead.name, item.paymentAmount);
-  const phone = normalizePhone(item.lead.phone);
+function PaymentRow({
+  item,
+  onRecord,
+  isRecording,
+}: {
+  item: OutstandingItem;
+  onRecord: () => void;
+  isRecording: boolean;
+}) {
+  const msg    = paymentReminderMessage(item.lead.name, item.paymentAmount);
+  const phone  = normalizePhone(item.lead.phone);
   const waHref = waLink(phone, msg);
   const visitDate = new Date(item.completedAt).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
+    day: "numeric", month: "short", year: "numeric",
   });
 
   return (
@@ -105,10 +221,28 @@ function PaymentRow({ item }: { item: OutstandingItem }) {
           {item.treatmentDone || item.lead.treatment || "Consultation"} · Visited {visitDate}
         </p>
       </div>
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0 flex-wrap">
+        <button
+          onClick={onRecord}
+          className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            isRecording
+              ? "bg-blue text-white"
+              : "border border-blue/30 bg-blue/5 text-blue hover:bg-blue hover:text-white"
+          }`}
+        >
+          {isRecording ? "▲ Recording" : "✏️ Record"}
+        </button>
+        <a
+          href={`/api/admin/invoice/${item.lead.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-navy hover:bg-bg transition"
+        >
+          🧾 Invoice
+        </a>
         <a
           href={`tel:${item.lead.phone}`}
-          className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-navy hover:bg-bg-soft transition"
+          className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-navy hover:bg-bg transition"
         >
           📞 Call
         </a>
