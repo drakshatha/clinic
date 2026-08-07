@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getPatientSession, getMedicalHistory, upsertMedicalHistory } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 async function getPatient() {
   const jar = await cookies();
@@ -16,7 +17,7 @@ export async function GET() {
   if (!patient) return NextResponse.json({ error: "Not logged in" }, { status: 401 });
 
   const history = await getMedicalHistory(patient.phone);
-  return NextResponse.json({ history });
+  return NextResponse.json({ history, dob: patient.dob });
 }
 
 export async function PUT(req: NextRequest) {
@@ -34,6 +35,7 @@ export async function PUT(req: NextRequest) {
     dentalConcerns,
     emergencyContactName,
     emergencyContactPhone,
+    dob,
   } = body as Record<string, string>;
 
   const history = await upsertMedicalHistory(patient.phone, {
@@ -47,6 +49,14 @@ export async function PUT(req: NextRequest) {
     emergencyContactName: emergencyContactName ?? "",
     emergencyContactPhone: emergencyContactPhone ?? "",
   });
+
+  // Save DOB on patient record if provided
+  if (dob !== undefined) {
+    await prisma.patient.update({
+      where: { phone: patient.phone },
+      data: { dob: dob || null },
+    });
+  }
 
   return NextResponse.json({ ok: true, history });
 }

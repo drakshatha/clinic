@@ -1,0 +1,18 @@
+name: Monthly Patient Recall
+
+on:
+  schedule:
+    - cron: "30 3 1 * *"   # 1st of every month at 9 AM IST (UTC+5:30)
+  workflow_dispatch:         # allow manual trigger from GitHub UI
+
+jobs:
+  recall:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send recall WhatsApps to inactive patients
+        run: |
+          RESPONSE=$(curl -sf -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://drakshatha.in/api/admin/recall)
+          echo "$RESPONSE"
+          echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(f\"Sent recall to {d.get('sent', 0)} patients\")"

@@ -1,0 +1,18 @@
+name: Daily Birthday WhatsApp
+
+on:
+  schedule:
+    - cron: "30 3 * * *"   # every day at 9 AM IST (UTC+5:30)
+  workflow_dispatch:         # allow manual trigger from GitHub UI
+
+jobs:
+  birthday:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send birthday wishes to patients celebrating today
+        run: |
+          RESPONSE=$(curl -sf -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://drakshatha.in/api/admin/birthday)
+          echo "$RESPONSE"
+          echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(f\"Birthday wishes sent to {d.get('sent', 0)} patients\")"

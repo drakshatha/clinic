@@ -130,3 +130,61 @@ export function bookingLinks(lead: Lead) {
     confirmText: patientConfirmMessage(lead),
   };
 }
+
+// ─── Post-Visit Feedback WhatsApp ────────────────────────────────────────────
+
+export function feedbackRequestMessage(name: string, feedbackUrl: string) {
+  return (
+    `Hi ${name} 👋\n\n` +
+    `Thank you for visiting *${site.name}*! We hope your experience was comfortable.\n\n` +
+    `We'd love to hear your feedback — it takes just 10 seconds:\n` +
+    `⭐ ${feedbackUrl}\n\n` +
+    `Your feedback helps us serve you better. Thank you! 🙏`
+  );
+}
+
+export function recallMessage(name: string) {
+  return (
+    `Hi ${name} 👋\n\n` +
+    `It's been a while since your last visit at *${site.name}*! Regular dental checkups help keep your smile healthy and catch small issues early.\n\n` +
+    `Book your checkup today:\n` +
+    `🔗 ${site.url}/contact\n` +
+    `📞 ${site.phoneDisplay}\n\n` +
+    `See you soon! 😊`
+  );
+}
+
+export function birthdayMessage(name: string) {
+  return (
+    `🎂 Happy Birthday, ${name}!\n\n` +
+    `Wishing you a wonderful year ahead. From all of us at *${site.name}*, we hope your smile stays bright and beautiful!\n\n` +
+    `As our gift to you — mention this message at your next visit for a special complimentary consultation. 🎁\n\n` +
+    `Have a fantastic day! 🎉`
+  );
+}
+
+export function treatmentPlanMessage(
+  name: string,
+  planTitle: string,
+  phases: Array<{ phaseNumber: number; title: string; estimatedCost: number; duration: string }>,
+  totalCost: number,
+  notes?: string
+) {
+  const phaseLines = phases
+    .map(
+      (p) =>
+        `   Phase ${p.phaseNumber}: ${p.title} — ₹${p.estimatedCost.toLocaleString("en-IN")}${p.duration ? ` (${p.duration})` : ""}`
+    )
+    .join("\n");
+
+  return (
+    `Hi ${name} 👋\n\n` +
+    `Here is your treatment plan from *${site.name}*:\n\n` +
+    `📋 *${planTitle}*\n\n` +
+    `${phaseLines}\n\n` +
+    `💰 *Total Estimated Cost: ₹${totalCost.toLocaleString("en-IN")}*\n\n` +
+    (notes ? `📝 Notes: ${notes}\n\n` : "") +
+    `This is an estimate. Exact costs may vary based on examination findings.\n` +
+    `To proceed or ask questions:\n📞 ${site.phoneDisplay}`
+  );
+}

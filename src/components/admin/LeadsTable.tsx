@@ -455,9 +455,9 @@ export function LeadsTable({
                               📎 Documents
                             </button>
                           )}
-                          {(l.status === "completed" || l.status === "resolved") && (
+                          {(l.status === "completed" || l.status === "followup" || l.status === "resolved") && (
                             <a
-                              href={`/admin/leads/${l.id}/invoice`}
+                              href={`/api/admin/invoice/${l.id}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="rounded-full border border-line px-3 py-1.5 text-[11px] font-semibold text-navy hover:border-blue hover:text-blue text-center transition-colors"

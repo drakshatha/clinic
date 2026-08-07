@@ -439,6 +439,286 @@ export async function upsertMedicalHistory(
   });
 }
 
+// ─── Treatment Plans ──────────────────────────────────────────────────────────
+
+export async function getTreatmentPlans(patientPhone?: string) {
+  return prisma.treatmentPlan.findMany({
+    where: patientPhone ? { patientPhone } : undefined,
+    include: {
+      phases: { orderBy: { phaseNumber: "asc" } },
+      patient: { select: { name: true, phone: true } },
+      createdBy: { select: { name: true, role: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function getTreatmentPlan(id: string) {
+  return prisma.treatmentPlan.findUnique({
+    where: { id },
+    include: {
+      phases: { orderBy: { phaseNumber: "asc" } },
+      patient: { select: { name: true, phone: true } },
+      createdBy: { select: { name: true, role: true } },
+    },
+  });
+}
+
+export async function createTreatmentPlan(input: {
+  patientPhone: string;
+  title: string;
+  notes?: string;
+  createdById: string;
+  phases: Array<{ title: string; description?: string; estimatedCost: number; duration?: string }>;
+}) {
+  const totalCost = input.phases.reduce((s, p) => s + p.estimatedCost, 0);
+  return prisma.treatmentPlan.create({
+    data: {
+      patientPhone: input.patientPhone,
+      title: input.title,
+      notes: input.notes ?? "",
+      totalCost,
+      createdById: input.createdById,
+      phases: {
+        create: input.phases.map((p, i) => ({
+          phaseNumber: i + 1,
+          title: p.title,
+          description: p.description ?? "",
+          estimatedCost: p.estimatedCost,
+          duration: p.duration ?? "",
+        })),
+      },
+    },
+    include: {
+      phases: { orderBy: { phaseNumber: "asc" } },
+      patient: { select: { name: true, phone: true } },
+    },
+  });
+}
+
+export async function updateTreatmentPlan(
+  id: string,
+  patch: {
+    title?: string;
+    notes?: string;
+    status?: string;
+    sharedAt?: Date | null;
+    phases?: Array<{ title: string; description?: string; estimatedCost: number; duration?: string }>;
+  }
+) {
+  const data: Record<string, unknown> = {};
+  if (patch.title !== undefined) data.title = patch.title;
+  if (patch.notes !== undefined) data.notes = patch.notes;
+  if (patch.status !== undefined) data.status = patch.status;
+  if (patch.sharedAt !== undefined) data.sharedAt = patch.sharedAt;
+
+  if (patch.phases) {
+    data.totalCost = patch.phases.reduce((s, p) => s + p.estimatedCost, 0);
+    // Replace all phases
+    await prisma.treatmentPlanPhase.deleteMany({ where: { planId: id } });
+    await prisma.treatmentPlanPhase.createMany({
+      data: patch.phases.map((p, i) => ({
+        planId: id,
+        phaseNumber: i + 1,
+        title: p.title,
+        description: p.description ?? "",
+        estimatedCost: p.estimatedCost,
+        duration: p.duration ?? "",
+      })),
+    });
+  }
+
+  return prisma.treatmentPlan.update({
+    where: { id },
+    data,
+    include: {
+      phases: { orderBy: { phaseNumber: "asc" } },
+      patient: { select: { name: true, phone: true } },
+    },
+  });
+}
+
+export async function deleteTreatmentPlan(id: string) {
+  return prisma.treatmentPlan.delete({ where: { id } });
+}
+
+export async function markPhaseCompleted(phaseId: string, isCompleted: boolean) {
+  return prisma.treatmentPlanPhase.update({ where: { id: phaseId }, data: { isCompleted } });
+}
+
+// ─── Visit Feedback ───────────────────────────────────────────────────────────
+
+export async function createFeedbackToken(leadId: string, patientPhone: string) {
+  const { randomBytes } = await import("crypto");
+  const token = randomBytes(12).toString("base64url");
+  return prisma.visitFeedback.upsert({
+    where: { leadId },
+    update: { token, submittedAt: null, rating: null, comment: "" },
+    create: { token, leadId, patientPhone },
+  });
+}
+
+export async function getFeedback(token: string) {
+  return prisma.visitFeedback.findUnique({
+    where: { token },
+    include: { lead: { select: { name: true, treatment: true, patientPhone: true } } },
+  });
+}
+
+export async function submitFeedback(token: string, rating: number, comment: string) {
+  return prisma.visitFeedback.update({
+    where: { token },
+    data: { rating, comment, submittedAt: new Date() },
+  });
+}
+
+export async function markReviewRequested(token: string) {
+  return prisma.visitFeedback.update({ where: { token }, data: { reviewRequested: true } });
+}
+
+export async function getRecentFeedback(limit = 50) {
+  return prisma.visitFeedback.findMany({
+    where: { submittedAt: { not: null } },
+    include: { lead: { select: { name: true, treatment: true, slotDate: true } } },
+    orderBy: { submittedAt: "desc" },
+    take: limit,
+  });
+}
+
+// ─── Lab Work ─────────────────────────────────────────────────────────────────
+
+export async function getAllLabWork() {
+  return prisma.labWork.findMany({
+    include: { lead: { select: { name: true, phone: true, treatment: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function createLabWork(input: {
+  leadId: string;
+  patientPhone: string;
+  patientName: string;
+  labName: string;
+  workType: string;
+  description?: string;
+  sentDate: string;
+  expectedDate?: string;
+  notes?: string;
+}) {
+  return prisma.labWork.create({
+    data: {
+      leadId: input.leadId,
+      patientPhone: input.patientPhone,
+      patientName: input.patientName,
+      labName: input.labName,
+      workType: input.workType,
+      description: input.description ?? "",
+      sentDate: input.sentDate,
+      expectedDate: input.expectedDate,
+      notes: input.notes ?? "",
+    },
+  });
+}
+
+export async function updateLabWork(
+  id: string,
+  patch: { status?: string; receivedDate?: string; notes?: string; expectedDate?: string }
+) {
+  return prisma.labWork.update({ where: { id }, data: patch });
+}
+
+export async function deleteLabWork(id: string) {
+  return prisma.labWork.delete({ where: { id } });
+}
+
+// ─── Gallery ──────────────────────────────────────────────────────────────────
+
+export async function getAllGallery(publicOnly = false) {
+  return prisma.galleryCase.findMany({
+    where: publicOnly ? { isPublic: true } : undefined,
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+  });
+}
+
+export async function createGalleryCase(input: {
+  title: string;
+  treatment?: string;
+  beforeUrl: string;
+  afterUrl: string;
+  description?: string;
+  isPublic?: boolean;
+}) {
+  return prisma.galleryCase.create({
+    data: {
+      title: input.title,
+      treatment: input.treatment ?? "",
+      beforeUrl: input.beforeUrl,
+      afterUrl: input.afterUrl,
+      description: input.description ?? "",
+      isPublic: input.isPublic ?? true,
+    },
+  });
+}
+
+export async function updateGalleryCase(
+  id: string,
+  patch: { title?: string; treatment?: string; description?: string; isPublic?: boolean; sortOrder?: number }
+) {
+  return prisma.galleryCase.update({ where: { id }, data: patch });
+}
+
+export async function deleteGalleryCase(id: string) {
+  return prisma.galleryCase.delete({ where: { id } });
+}
+
+// ─── Recall System ────────────────────────────────────────────────────────────
+
+/** Patients whose last consultation was >6 months ago (or never) and haven't been recalled recently */
+export async function getPatientsForRecall() {
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  return prisma.patient.findMany({
+    where: {
+      leads: { some: {} }, // has at least one lead
+      AND: [
+        // Last recall was >5 months ago or never
+        {
+          OR: [
+            { lastRecallAt: null },
+            { lastRecallAt: { lt: new Date(Date.now() - 150 * 24 * 3600_000) } }, // 5 months
+          ],
+        },
+        // No recent completed visits in last 6 months
+        {
+          consultations: {
+            none: { completedAt: { gte: sixMonthsAgo } },
+          },
+        },
+      ],
+    },
+    select: { phone: true, name: true, lastRecallAt: true, lastSeen: true },
+    orderBy: { lastSeen: "asc" },
+  });
+}
+
+export async function markRecallSent(phone: string) {
+  return prisma.patient.update({ where: { phone }, data: { lastRecallAt: new Date() } });
+}
+
+// ─── Birthday System ──────────────────────────────────────────────────────────
+
+export async function getPatientsWithBirthdayToday() {
+  // IST today MMDD
+  const now = new Date(Date.now() + 5.5 * 3600_000);
+  const mmdd = `${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
+  // dob is stored as YYYY-MM-DD; match last 5 chars = -MM-DD
+  return prisma.patient.findMany({
+    where: { dob: { endsWith: `-${mmdd}` } },
+    select: { phone: true, name: true, dob: true },
+  });
+}
+
 // ─── Consultations ────────────────────────────────────────────────────────────
 
 export async function createConsultation(input: {

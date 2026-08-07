@@ -19,6 +19,7 @@ type Patient = {
   phone: string;
   name: string;
   email: string;
+  dob: string | null;
   lastSeen: string;
   leads: { id: string; status: string; slotDate: string; treatment: string }[];
   consultations: { id: string; paymentAmount: number | null; visitType: string }[];
@@ -39,6 +40,8 @@ export function PatientsManager() {
   const [loading,  setLoading]  = useState(true);
   const [search,   setSearch]   = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [savingDob, setSavingDob] = useState<string | null>(null);
+  const [dobDraft,  setDobDraft]  = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -49,6 +52,17 @@ export function PatientsManager() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  async function saveDob(phone: string, dob: string) {
+    setSavingDob(phone);
+    await fetch("/api/admin/patients", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, dob }),
+    });
+    setPatients((prev) => prev.map((p) => p.phone === phone ? { ...p, dob } : p));
+    setSavingDob(null);
+  }
 
   const filtered = patients.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -152,6 +166,36 @@ export function PatientsManager() {
                       >
                         💬 WhatsApp
                       </a>
+                    </div>
+
+                    {/* Quick actions */}
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <a
+                        href={`/admin/treatment-plans?phone=${p.phone}`}
+                        className="rounded-full bg-blue/10 text-blue px-3 py-1.5 text-xs font-semibold hover:bg-blue hover:text-white transition-colors"
+                      >
+                        📋 Treatment Plans
+                      </a>
+                    </div>
+
+                    {/* DOB */}
+                    <div className="mb-3 flex items-center gap-3">
+                      <span className="text-xs font-semibold text-muted w-20">Birthday</span>
+                      <input
+                        type="date"
+                        value={dobDraft[p.phone] ?? p.dob ?? ""}
+                        onChange={(e) => setDobDraft((d) => ({ ...d, [p.phone]: e.target.value }))}
+                        className="rounded-xl border border-line px-3 py-1.5 text-xs text-navy focus:outline-none focus:ring-2 focus:ring-blue/30"
+                      />
+                      {(dobDraft[p.phone] !== undefined && dobDraft[p.phone] !== (p.dob ?? "")) && (
+                        <button
+                          onClick={() => saveDob(p.phone, dobDraft[p.phone])}
+                          disabled={savingDob === p.phone}
+                          className="rounded-full bg-blue px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-deep transition-colors disabled:opacity-50"
+                        >
+                          {savingDob === p.phone ? "..." : "Save"}
+                        </button>
+                      )}
                     </div>
 
                     {/* Appointment list */}

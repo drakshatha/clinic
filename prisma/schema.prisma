@@ -19,8 +19,9 @@ model StaffUser {
   isOwner      Boolean  @default(false) // owner can never be deleted
   createdAt    DateTime @default(now())
 
-  confirmedLeads Lead[] @relation("ConfirmedBy")
-  sessions       Session[]
+  confirmedLeads  Lead[]          @relation("ConfirmedBy")
+  sessions        Session[]
+  treatmentPlans  TreatmentPlan[]
 }
 
 model Session {
@@ -58,6 +59,8 @@ model Lead {
   patientPhone  String?
   consultation  Consultation?
   documents     Document[]
+  feedback      VisitFeedback?
+  labWork       LabWork[]
 }
 
 // ─── Blocked Slots ────────────────────────────────────────────────────────────
@@ -81,17 +84,20 @@ model OtpRecord {
 
 // ─── Patient Portal ───────────────────────────────────────────────────────────
 model Patient {
-  id        String   @id @default(cuid())
-  phone     String   @unique
-  name      String   @default("")
-  email     String   @default("")
-  joinedAt  DateTime @default(now())
-  lastSeen  DateTime @default(now())
+  id           String    @id @default(cuid())
+  phone        String    @unique
+  name         String    @default("")
+  email        String    @default("")
+  dob          String?   // YYYY-MM-DD for birthday WhatsApp
+  joinedAt     DateTime  @default(now())
+  lastSeen     DateTime  @default(now())
+  lastRecallAt DateTime? // when we last sent a recall WhatsApp
 
   leads          Lead[]
   consultations  Consultation[]
   portalSessions PatientSession[]
   medicalHistory MedicalHistory?
+  treatmentPlans TreatmentPlan[]
 }
 
 model PatientSession {
@@ -170,4 +176,85 @@ model Document {
   lead         Lead          @relation(fields: [leadId], references: [id])
   consultation Consultation? @relation(fields: [consultationId], references: [id])
   consultationId String?
+}
+
+// ─── Treatment Plan Builder ───────────────────────────────────────────────────
+model TreatmentPlan {
+  id           String   @id @default(cuid())
+  patientPhone String
+  title        String                    // e.g. "Full Mouth Rehabilitation Plan"
+  notes        String   @default("")    // overall notes for the doctor
+  totalCost    Float    @default(0)     // sum of phase costs (auto-computed)
+  status       String   @default("draft") // draft | shared | accepted
+  createdById  String
+  sharedAt     DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  patient   Patient   @relation(fields: [patientPhone], references: [phone])
+  createdBy StaffUser @relation(fields: [createdById], references: [id])
+  phases    TreatmentPlanPhase[]
+}
+
+model TreatmentPlanPhase {
+  id            String   @id @default(cuid())
+  planId        String
+  phaseNumber   Int
+  title         String                  // e.g. "Phase 1: Extractions"
+  description   String   @default("")
+  estimatedCost Float    @default(0)
+  duration      String   @default("")  // e.g. "1-2 weeks", "Same day"
+  isCompleted   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  plan TreatmentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+}
+
+// ─── Visit Feedback + Google Review ──────────────────────────────────────────
+model VisitFeedback {
+  id              String    @id @default(cuid())
+  token           String    @unique   // random token for feedback URL
+  leadId          String    @unique
+  patientPhone    String
+  rating          Int?                // 1-5; null until patient submits
+  comment         String    @default("")
+  reviewRequested Boolean   @default(false)  // true when we sent Google review link
+  submittedAt     DateTime?
+  createdAt       DateTime  @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id])
+}
+
+// ─── Lab Work Tracker ─────────────────────────────────────────────────────────
+model LabWork {
+  id           String   @id @default(cuid())
+  leadId       String
+  patientPhone String
+  patientName  String   @default("")
+  labName      String
+  workType     String   @default("other") // crown | bridge | denture | implant-crown | other
+  description  String   @default("")
+  sentDate     String                     // YYYY-MM-DD
+  expectedDate String?                    // YYYY-MM-DD
+  receivedDate String?                    // YYYY-MM-DD
+  status       String   @default("sent")  // sent | received | fitted
+  notes        String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  lead Lead @relation(fields: [leadId], references: [id])
+}
+
+// ─── Before/After Gallery ─────────────────────────────────────────────────────
+model GalleryCase {
+  id          String   @id @default(cuid())
+  title       String                    // e.g. "Full Mouth Rehabilitation"
+  treatment   String   @default("")
+  beforeUrl   String                    // Vercel Blob URL
+  afterUrl    String                    // Vercel Blob URL
+  description String   @default("")
+  isPublic    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

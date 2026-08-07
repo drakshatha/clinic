@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth";
-import { getLead, markLeadCompleted, type VisitType, type PaymentMode } from "@/lib/db";
+import { getLead, markLeadCompleted, createFeedbackToken, type VisitType, type PaymentMode } from "@/lib/db";
+import { sendWhatsAppText, normalizePhone, feedbackRequestMessage } from "@/lib/whatsapp";
+import { site } from "@/lib/site";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -40,6 +42,20 @@ export async function POST(request: Request, ctx: Ctx) {
     paymentAmount,
     transactionId,
   });
+
+  // Auto-send feedback request if status is completed/treatment/resolved (not followup)
+  const shouldSendFeedback = visitType !== "followup" && lead.phone;
+  if (shouldSendFeedback) {
+    try {
+      const fb = await createFeedbackToken(id, lead.phone);
+      const feedbackUrl = `${site.url}/patient/feedback/${fb.token}`;
+      const msg = feedbackRequestMessage(lead.name, feedbackUrl);
+      await sendWhatsAppText(normalizePhone(lead.phone), msg);
+    } catch (err) {
+      // Don't fail the completion if feedback send errors
+      console.error("[feedback] failed to send:", err);
+    }
+  }
 
   return NextResponse.json({ ok: true });
 }

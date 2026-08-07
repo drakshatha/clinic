@@ -37,7 +37,28 @@ type MedicalHistory = {
   emergencyContactPhone: string;
 };
 
-type Patient = { phone: string; name: string; email: string };
+type TreatmentPhase = {
+  id: string;
+  phaseNumber: number;
+  title: string;
+  description: string;
+  estimatedCost: number;
+  duration: string;
+  isCompleted: boolean;
+};
+
+type TreatmentPlan = {
+  id: string;
+  title: string;
+  notes: string;
+  totalCost: number;
+  status: string;
+  sharedAt: string | null;
+  phases: TreatmentPhase[];
+  createdBy: { name: string; role: string };
+};
+
+type Patient = { phone: string; name: string; email: string; dob?: string | null };
 
 const STATUS_BADGE: Record<string, string> = {
   pending:   "bg-amber-100 text-amber-800",
@@ -82,13 +103,18 @@ export default function PatientDashboard() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [history,      setHistory]      = useState<HistoryEntry[]>([]);
   const [loading,      setLoading]      = useState(true);
-  const [tab,          setTab]          = useState<"upcoming" | "history" | "health">("upcoming");
+  const [tab,          setTab]          = useState<"upcoming" | "history" | "plans" | "health">("upcoming");
 
   // Health form state
   const [health,        setHealth]        = useState<MedicalHistory>(EMPTY_HEALTH);
+  const [dob,           setDob]           = useState("");
   const [healthLoading, setHealthLoading] = useState(false);
   const [healthSaving,  setHealthSaving]  = useState(false);
   const [healthSaved,   setHealthSaved]   = useState(false);
+
+  // Treatment plans state
+  const [plans,        setPlans]        = useState<TreatmentPlan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/patient/me")
@@ -106,7 +132,7 @@ export default function PatientDashboard() {
       .finally(() => setLoading(false));
   }, [router]);
 
-  // Load health info when switching to that tab
+  // Load health info when switching to health tab
   useEffect(() => {
     if (tab !== "health") return;
     setHealthLoading(true);
@@ -114,8 +140,19 @@ export default function PatientDashboard() {
       .then((r) => r.json())
       .then((d) => {
         if (d.history) setHealth({ ...EMPTY_HEALTH, ...d.history });
+        if (d.dob) setDob(d.dob);
       })
       .finally(() => setHealthLoading(false));
+  }, [tab]);
+
+  // Load treatment plans when switching to plans tab
+  useEffect(() => {
+    if (tab !== "plans") return;
+    setPlansLoading(true);
+    fetch("/api/patient/treatment-plans")
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d)) setPlans(d); })
+      .finally(() => setPlansLoading(false));
   }, [tab]);
 
   async function saveHealth(e: React.FormEvent) {
@@ -125,7 +162,7 @@ export default function PatientDashboard() {
     await fetch("/api/patient/health", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(health),
+      body: JSON.stringify({ ...health, dob }),
     });
     setHealthSaving(false);
     setHealthSaved(true);
@@ -203,18 +240,19 @@ export default function PatientDashboard() {
       </Link>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl bg-bg p-1">
-        {(["upcoming", "history", "health"] as const).map((t) => {
+      <div className="flex gap-1 rounded-xl bg-bg p-1 overflow-x-auto">
+        {(["upcoming", "history", "plans", "health"] as const).map((t) => {
           const labels: Record<string, string> = {
-            upcoming: `📅 Upcoming (${upcoming.length})`,
+            upcoming: `📅 (${upcoming.length})`,
             history:  `📋 History`,
-            health:   `🏥 Health Info`,
+            plans:    `💊 Plans`,
+            health:   `🏥 Health`,
           };
           return (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`flex-1 rounded-lg py-2 text-xs font-semibold transition-colors ${
+              className={`flex-1 whitespace-nowrap rounded-lg py-2 px-2 text-xs font-semibold transition-colors ${
                 tab === t ? "bg-white text-navy shadow-sm" : "text-muted hover:text-navy"
               }`}
             >
@@ -310,6 +348,75 @@ export default function PatientDashboard() {
         </div>
       )}
 
+      {/* ── Treatment Plans tab ── */}
+      {tab === "plans" && (
+        <div className="space-y-4">
+          {plansLoading ? (
+            <div className="py-8 text-center text-muted text-sm">Loading…</div>
+          ) : plans.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-line bg-white p-8 text-center">
+              <p className="text-3xl mb-2">📋</p>
+              <p className="text-sm font-semibold text-navy">No treatment plans yet</p>
+              <p className="text-xs text-muted mt-1">
+                Your doctor will share your treatment plan here once it&apos;s ready.
+              </p>
+            </div>
+          ) : plans.map((plan) => (
+            <div key={plan.id} className="rounded-2xl border border-line bg-white p-5 shadow-[var(--shadow-sm)]">
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div>
+                  <h3 className="text-base font-bold text-navy">{plan.title}</h3>
+                  <p className="text-xs text-muted mt-0.5">by {plan.createdBy.name}</p>
+                  {plan.notes && <p className="text-xs text-navy mt-2 leading-relaxed bg-navy/5 rounded-lg px-3 py-2">{plan.notes}</p>}
+                </div>
+                <span className="text-lg font-bold text-navy shrink-0">
+                  ₹{plan.totalCost.toLocaleString("en-IN")}
+                </span>
+              </div>
+
+              {/* Phases */}
+              <div className="space-y-2">
+                {plan.phases.map((phase) => (
+                  <div
+                    key={phase.id}
+                    className={`rounded-xl p-3 ${phase.isCompleted ? "bg-green-50 border border-green-200" : "bg-bg border border-line"}`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-lg ${phase.isCompleted ? "text-green-600" : "text-muted"}`}>
+                          {phase.isCompleted ? "✅" : "○"}
+                        </span>
+                        <div>
+                          <p className={`text-sm font-semibold ${phase.isCompleted ? "text-green-800 line-through" : "text-navy"}`}>
+                            Phase {phase.phaseNumber}: {phase.title}
+                          </p>
+                          {phase.description && (
+                            <p className="text-xs text-muted mt-0.5">{phase.description}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold text-navy">₹{phase.estimatedCost.toLocaleString("en-IN")}</p>
+                        {phase.duration && <p className="text-xs text-muted">{phase.duration}</p>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 flex items-center justify-between rounded-xl bg-navy/5 px-4 py-3">
+                <span className="text-xs font-semibold text-muted uppercase tracking-wide">Total Estimated</span>
+                <span className="text-base font-bold text-navy">₹{plan.totalCost.toLocaleString("en-IN")}</span>
+              </div>
+
+              <p className="mt-3 text-[11px] text-muted">
+                * Costs are estimates. Final amounts may vary based on examination findings.
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ── Health Info tab ── */}
       {tab === "health" && (
         <div className="space-y-4">
@@ -324,6 +431,16 @@ export default function PatientDashboard() {
             <div className="py-8 text-center text-muted text-sm">Loading…</div>
           ) : (
             <form onSubmit={saveHealth} className="space-y-4">
+
+              {/* DOB */}
+              <HealthField label="Date of Birth" hint="Used for birthday wishes">
+                <input
+                  type="date"
+                  value={dob}
+                  onChange={(e) => setDob(e.target.value)}
+                  className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-blue/30"
+                />
+              </HealthField>
 
               {/* Blood group */}
               <HealthField label="Blood Group">
@@ -374,7 +491,7 @@ export default function PatientDashboard() {
 
               {/* Smoking status */}
               <HealthField label="Smoking Status">
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                   {[["never","Never"], ["former","Former smoker"], ["current","Current smoker"]].map(([val, label]) => (
                     <label key={val} className="flex items-center gap-1.5 cursor-pointer">
                       <input
