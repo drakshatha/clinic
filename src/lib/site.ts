@@ -19,9 +19,9 @@ export const site = {
   rating: "4.9",
   reviewCount: 50,
   url: "https://drakshatha.in",
-  // Get this from: Google Business Profile → Get more reviews → Copy link
-  // Format: https://g.page/r/XXXXXXXXXXXXXXXX/review  OR  https://search.google.com/local/writereview?placeid=ChIJ...
-  googleReviewUrl: "https://www.google.com/search?q=Akshatha+Dental+Clinic+Mahalakshmi+Layout+Bengaluru",
+  // Direct write-review link — CID derived from Google Maps listing (confirmed correct)
+  // When patient is logged into Google, this opens the review form directly
+  googleReviewUrl: "https://g.page/r/ym02-GcX-qQ/review",
   mapsEmbed:
     "https://maps.google.com/maps?q=Akshatha+Dental+Clinic+KM+Arcade+Mahalakshmi+Layout+Bengaluru&z=15&output=embed",
 } as const;
