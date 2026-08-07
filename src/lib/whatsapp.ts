@@ -75,6 +75,54 @@ export async function sendWhatsAppText(toPhone: string, text: string) {
   }
 }
 
+export function reminder24hMessage(lead: {
+  name: string;
+  phone: string;
+  treatment: string;
+  slotDate: string;
+  slotTime: string;
+}) {
+  const label = formatSlotLabel(lead.slotDate, lead.slotTime);
+  return (
+    `Hi ${lead.name} 👋\n\n` +
+    `This is a friendly reminder from *${site.name}*.\n\n` +
+    `Your appointment is *tomorrow*:\n` +
+    `📅 ${label}\n` +
+    (lead.treatment ? `🦷 Treatment: ${lead.treatment}\n` : "") +
+    `\n📍 ${site.address}\n` +
+    `📞 ${site.phoneDisplay}\n\n` +
+    `Please arrive 10 minutes early. Reply here or call us to reschedule.`
+  );
+}
+
+export function reminder1hMessage(lead: {
+  name: string;
+  phone: string;
+  treatment: string;
+  slotDate: string;
+  slotTime: string;
+}) {
+  return (
+    `Hi ${lead.name} 👋\n\n` +
+    `Your appointment at *${site.name}* is in about *1 hour*.\n\n` +
+    `⏰ Today at *${lead.slotTime}*\n` +
+    (lead.treatment ? `🦷 Treatment: ${lead.treatment}\n` : "") +
+    `\n📍 ${site.address}\n\n` +
+    `We look forward to seeing you! 🦷`
+  );
+}
+
+export function paymentReminderMessage(name: string, amount?: number | null) {
+  const amt = amount ? `₹${amount.toLocaleString("en-IN")}` : "your treatment amount";
+  return (
+    `Hi ${name} 👋\n\n` +
+    `This is a gentle reminder from *${site.name}* regarding a pending payment of *${amt}*.\n\n` +
+    `Please make the payment at your earliest convenience.\n` +
+    `📞 ${site.phoneDisplay}\n\n` +
+    `Thank you! 🙏`
+  );
+}
+
 export function bookingLinks(lead: Lead) {
   return {
     clinicInbox: waLink(site.whatsapp, clinicNotifyMessage(lead)),

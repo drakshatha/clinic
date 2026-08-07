@@ -107,6 +107,63 @@ export function LeadsTable({
   const [completeModal, setCompleteModal] = useState<{ open: false } | { open: true; lead: LeadRow }>({ open: false });
   const [docPanel, setDocPanel] = useState<{ open: false } | { open: true; lead: LeadRow }>({ open: false });
 
+  // ── Add appointment form ──
+  const [showAdd,    setShowAdd]    = useState(false);
+  const [addSaving,  setAddSaving]  = useState(false);
+  const [addError,   setAddError]   = useState("");
+  const [addName,    setAddName]    = useState("");
+  const [addPhone,   setAddPhone]   = useState("");
+  const [addEmail,   setAddEmail]   = useState("");
+  const [addTreat,   setAddTreat]   = useState("");
+  const [addDate,    setAddDate]    = useState("");
+  const [addTime,    setAddTime]    = useState("");
+  const [addStatus,  setAddStatus]  = useState<"confirmed" | "pending">("confirmed");
+  const [addSlots,   setAddSlots]   = useState<string[]>([]);
+  const [loadSlots,  setLoadSlots]  = useState(false);
+
+  useEffect(() => {
+    if (!addDate) { setAddSlots([]); setAddTime(""); return; }
+    setLoadSlots(true);
+    fetch(`/api/slots?date=${addDate}`)
+      .then((r) => r.json())
+      .then((d) => {
+        const open = (d.slots || []).filter((s: { available: boolean; time: string }) => s.available).map((s: { time: string }) => s.time);
+        setAddSlots(open);
+        setAddTime(open[0] || "");
+      })
+      .catch(() => {})
+      .finally(() => setLoadSlots(false));
+  }, [addDate]);
+
+  function resetAddForm() {
+    setAddName(""); setAddPhone(""); setAddEmail(""); setAddTreat("");
+    setAddDate(""); setAddTime(""); setAddStatus("confirmed"); setAddError("");
+  }
+
+  async function submitAdd(e: React.FormEvent) {
+    e.preventDefault();
+    setAddSaving(true); setAddError("");
+    try {
+      const res = await fetch("/api/admin/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: addName, phone: addPhone, email: addEmail,
+          treatment: addTreat, slot_date: addDate, slot_time: addTime,
+          status: addStatus,
+        }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Failed to add");
+      resetAddForm(); setShowAdd(false);
+      await load();
+    } catch (err) {
+      setAddError(err instanceof Error ? err.message : "Failed");
+    } finally { setAddSaving(false); }
+  }
+
+  const todayIst = new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
+
   const load = useCallback(async () => {
     const res = await fetch("/api/admin/leads");
     if (res.status === 401) { router.push("/admin"); return; }
@@ -191,13 +248,93 @@ export function LeadsTable({
             </div>
           )}
         </div>
-        <button
-          onClick={() => load()}
-          className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-navy hover:border-blue hover:text-blue transition-colors"
-        >
-          ↺ Refresh
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => { setShowAdd((v) => !v); if (showAdd) resetAddForm(); }}
+            className="rounded-full bg-navy px-4 py-2 text-xs font-bold text-white hover:bg-navy-soft transition-colors"
+          >
+            {showAdd ? "✕ Cancel" : "+ Add Appointment"}
+          </button>
+          <button
+            onClick={() => load()}
+            className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-navy hover:border-blue hover:text-blue transition-colors"
+          >
+            ↺ Refresh
+          </button>
+        </div>
       </div>
+
+      {/* ── Add Appointment Form ── */}
+      {showAdd && (
+        <form onSubmit={submitAdd} className="mb-5 rounded-2xl border border-blue/30 bg-blue/5 p-5 space-y-4">
+          <p className="text-sm font-bold text-navy">New Appointment</p>
+          {addError && <p className="text-xs text-red-600">{addError}</p>}
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1 text-xs font-bold text-navy">
+              Patient Name <span className="text-red-500">*</span>
+              <input required value={addName} onChange={(e) => setAddName(e.target.value)}
+                placeholder="Full name"
+                className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue bg-white" />
+            </label>
+            <label className="grid gap-1 text-xs font-bold text-navy">
+              Phone <span className="text-red-500">*</span>
+              <input required type="tel" value={addPhone} onChange={(e) => setAddPhone(e.target.value)}
+                placeholder="91XXXXXXXXXX or 10-digit"
+                className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue bg-white" />
+            </label>
+            <label className="grid gap-1 text-xs font-bold text-navy">
+              Email <span className="font-normal text-muted">(optional)</span>
+              <input type="email" value={addEmail} onChange={(e) => setAddEmail(e.target.value)}
+                placeholder="patient@email.com"
+                className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue bg-white" />
+            </label>
+            <label className="grid gap-1 text-xs font-bold text-navy">
+              Treatment <span className="font-normal text-muted">(optional)</span>
+              <input value={addTreat} onChange={(e) => setAddTreat(e.target.value)}
+                placeholder="e.g. Implant, Cleaning, Crown"
+                className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue bg-white" />
+            </label>
+            <label className="grid gap-1 text-xs font-bold text-navy">
+              Date <span className="text-red-500">*</span>
+              <input required type="date" value={addDate} min={todayIst}
+                onChange={(e) => setAddDate(e.target.value)}
+                className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue bg-white" />
+            </label>
+            <label className="grid gap-1 text-xs font-bold text-navy">
+              Time Slot <span className="text-red-500">*</span>
+              {loadSlots ? (
+                <div className="rounded-xl border border-line px-3 py-2.5 text-xs text-muted bg-white">Loading slots…</div>
+              ) : addSlots.length > 0 ? (
+                <select required value={addTime} onChange={(e) => setAddTime(e.target.value)}
+                  className="rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-blue bg-white">
+                  {addSlots.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              ) : (
+                <input required value={addTime} onChange={(e) => setAddTime(e.target.value)}
+                  placeholder={addDate ? "No open slots — type manually" : "Pick date first"}
+                  className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue bg-white" />
+              )}
+            </label>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <label className="text-xs font-bold text-navy">Status</label>
+            {(["confirmed", "pending"] as const).map((s) => (
+              <label key={s} className="flex items-center gap-1.5 text-xs text-navy cursor-pointer">
+                <input type="radio" name="addStatus" value={s} checked={addStatus === s}
+                  onChange={() => setAddStatus(s)} className="accent-blue" />
+                {s === "confirmed" ? "✅ Confirmed" : "⏳ Pending"}
+              </label>
+            ))}
+          </div>
+
+          <button type="submit" disabled={addSaving}
+            className="rounded-full bg-blue px-6 py-2.5 text-sm font-bold text-white hover:bg-blue-deep disabled:opacity-60 transition-colors">
+            {addSaving ? "Adding…" : "Add Appointment"}
+          </button>
+        </form>
+      )}
 
       {error && (
         <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>

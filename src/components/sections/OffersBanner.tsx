@@ -8,6 +8,7 @@ type Offer = {
   badge: string;
   title: string;
   description: string;
+  imageUrl: string | null;
   validUntil: string | null;
 };
 

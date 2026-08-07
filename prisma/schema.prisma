@@ -48,6 +48,8 @@ model Lead {
   confirmedById         String?
   confirmedAt           DateTime?
   whatsappConfirmSent   Boolean   @default(false)
+  reminder24hSent       Boolean   @default(false)
+  reminder1hSent        Boolean   @default(false)
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
@@ -86,9 +88,10 @@ model Patient {
   joinedAt  DateTime @default(now())
   lastSeen  DateTime @default(now())
 
-  leads         Lead[]
-  consultations Consultation[]
+  leads          Lead[]
+  consultations  Consultation[]
   portalSessions PatientSession[]
+  medicalHistory MedicalHistory?
 }
 
 model PatientSession {
@@ -126,10 +129,29 @@ model Offer {
   badge       String   @default("OFFER")   // e.g. "20% OFF", "FREE", "LIMITED"
   title       String                        // e.g. "Free Consultation This Week"
   description String   @default("")         // optional sub-text
+  imageUrl    String?                       // optional Vercel Blob image URL
   validUntil  String?                       // YYYY-MM-DD, null = no expiry
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ─── Medical History (patient intake form) ────────────────────────────────────
+model MedicalHistory {
+  id                    String   @id @default(cuid())
+  patientPhone          String   @unique
+  bloodGroup            String   @default("")
+  allergies             String   @default("") // free text
+  currentMedications    String   @default("") // free text
+  medicalConditions     String   @default("") // e.g. diabetes, hypertension
+  smokingStatus         String   @default("") // never | former | current
+  isPregnant            String   @default("") // yes | no | na
+  dentalConcerns        String   @default("") // free text chief complaint
+  emergencyContactName  String   @default("")
+  emergencyContactPhone String   @default("")
+  updatedAt             DateTime @updatedAt
+
+  patient Patient @relation(fields: [patientPhone], references: [phone])
 }
 
 // ─── Documents (X-rays, reports, prescriptions) ───────────────────────────────

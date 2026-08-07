@@ -328,6 +328,17 @@ export async function deleteDocument(id: string) {
 
 // ─── Patient Portal ───────────────────────────────────────────────────────────
 
+export async function getAllPatients() {
+  return prisma.patient.findMany({
+    orderBy: { lastSeen: "desc" },
+    include: {
+      leads: { select: { id: true, status: true, slotDate: true, slotTime: true, treatment: true } },
+      consultations: { select: { id: true, completedAt: true, paymentAmount: true, visitType: true } },
+      medicalHistory: true,
+    },
+  });
+}
+
 export async function getPatientByPhone(phone: string) {
   return prisma.patient.findUnique({
     where: { phone },
@@ -351,6 +362,81 @@ export async function getPatientSession(token: string) {
 
 export async function deletePatientSession(token: string) {
   return prisma.patientSession.deleteMany({ where: { token } });
+}
+
+// ─── Appointment Reminders ────────────────────────────────────────────────────
+
+/** Returns confirmed leads that need a 24h or 1h reminder, filtered by the
+ *  caller — pass which window to check. Does NOT update the flags; caller does. */
+export async function getLeadsNeedingReminders() {
+  return prisma.lead.findMany({
+    where: {
+      status: "confirmed",
+      OR: [{ reminder24hSent: false }, { reminder1hSent: false }],
+    },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      treatment: true,
+      slotDate: true,
+      slotTime: true,
+      reminder24hSent: true,
+      reminder1hSent: true,
+    },
+  });
+}
+
+export async function markReminderSent(leadId: string, type: "24h" | "1h") {
+  const data =
+    type === "24h" ? { reminder24hSent: true } : { reminder1hSent: true };
+  return prisma.lead.update({ where: { id: leadId }, data });
+}
+
+// ─── Outstanding Payments ─────────────────────────────────────────────────────
+
+export async function getOutstandingPayments() {
+  return prisma.consultation.findMany({
+    where: {
+      OR: [
+        { paymentMode: null },
+        { paymentMode: "pending" },
+        { paymentAmount: null },
+      ],
+      lead: { status: { notIn: ["cancelled", "pending"] } },
+    },
+    orderBy: { completedAt: "desc" },
+    include: {
+      lead: { select: { id: true, name: true, phone: true, treatment: true, slotDate: true, slotTime: true } },
+    },
+  });
+}
+
+// ─── Medical History ──────────────────────────────────────────────────────────
+
+export async function getMedicalHistory(patientPhone: string) {
+  return prisma.medicalHistory.findUnique({ where: { patientPhone } });
+}
+
+export async function upsertMedicalHistory(
+  patientPhone: string,
+  data: {
+    bloodGroup?: string;
+    allergies?: string;
+    currentMedications?: string;
+    medicalConditions?: string;
+    smokingStatus?: string;
+    isPregnant?: string;
+    dentalConcerns?: string;
+    emergencyContactName?: string;
+    emergencyContactPhone?: string;
+  }
+) {
+  return prisma.medicalHistory.upsert({
+    where: { patientPhone },
+    update: data,
+    create: { patientPhone, ...data },
+  });
 }
 
 // ─── Consultations ────────────────────────────────────────────────────────────

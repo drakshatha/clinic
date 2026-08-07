@@ -54,6 +54,12 @@ export function Header() {
               {l.label}
             </Link>
           ))}
+          <Link
+            href="/patient"
+            className="text-sm font-semibold text-muted hover:text-blue transition"
+          >
+            Patient Login
+          </Link>
           <Button href="/contact#book" className="!py-2.5 !px-5">
             Book Appointment
           </Button>
@@ -85,6 +91,13 @@ export function Header() {
                 {l.label}
               </Link>
             ))}
+            <Link
+              href="/patient"
+              className="rounded-xl px-3 py-2 font-semibold text-muted hover:bg-bg-soft"
+              onClick={() => setOpen(false)}
+            >
+              🦷 Patient Login
+            </Link>
             <Button href="/contact#book" onClick={() => setOpen(false)}>
               Book Appointment
             </Button>

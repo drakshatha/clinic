@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const session = await requireStaff("manage_staff");
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { badge, title, description, validUntil } = await req.json();
+  const { badge, title, description, imageUrl, validUntil } = await req.json();
   if (!title?.trim()) return NextResponse.json({ error: "Title is required" }, { status: 400 });
 
   const offer = await prisma.offer.create({
@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       badge:       badge?.trim()       || "OFFER",
       title:       title.trim(),
       description: description?.trim() || "",
+      imageUrl:    imageUrl?.trim()    || null,
       validUntil:  validUntil || null,
     },
   });

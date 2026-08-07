@@ -11,7 +11,7 @@ export async function GET() {
       OR: [{ validUntil: null }, { validUntil: { gte: today } }],
     },
     orderBy: { createdAt: "desc" },
-    select: { id: true, badge: true, title: true, description: true, validUntil: true },
+    select: { id: true, badge: true, title: true, description: true, imageUrl: true, validUntil: true },
   });
 
   return NextResponse.json({ offers }, {

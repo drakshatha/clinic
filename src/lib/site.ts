@@ -18,10 +18,10 @@ export const site = {
   patientsServed: "1000+",
   rating: "4.9",
   reviewCount: 50,
-  url: "https://akshathadental.com",
-  // Get this from: Google Maps → search your clinic → Share → Copy link
-  // Format: https://g.page/r/XXXXXXXXXXXXXXXX/review
-  googleReviewUrl: "https://www.google.com/maps/search/Akshatha+Dental+Clinic+KM+Arcade+Mahalakshmi+Layout+Bengaluru",
+  url: "https://drakshatha.in",
+  // Get this from: Google Business Profile → Get more reviews → Copy link
+  // Format: https://g.page/r/XXXXXXXXXXXXXXXX/review  OR  https://search.google.com/local/writereview?placeid=ChIJ...
+  googleReviewUrl: "https://www.google.com/search?q=Akshatha+Dental+Clinic+Mahalakshmi+Layout+Bengaluru",
   mapsEmbed:
     "https://maps.google.com/maps?q=Akshatha+Dental+Clinic+KM+Arcade+Mahalakshmi+Layout+Bengaluru&z=15&output=embed",
 } as const;
