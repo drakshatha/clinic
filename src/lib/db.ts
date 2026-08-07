@@ -84,12 +84,28 @@ export async function createLead(input: {
 
 export async function updateLead(leadId: string, patch: Record<string, unknown>) {
   const data: Record<string, unknown> = {};
-  if ("status" in patch) data.status = patch.status;
-  if ("confirmed_by" in patch) data.confirmedById = patch.confirmed_by;
-  if ("confirmed_at" in patch) data.confirmedAt = patch.confirmed_at;
+  if ("status"               in patch) data.status             = patch.status;
+  if ("confirmed_by"         in patch) data.confirmedById       = patch.confirmed_by;
+  if ("confirmed_at"         in patch) data.confirmedAt         = patch.confirmed_at;
   if ("whatsapp_confirm_sent" in patch) data.whatsappConfirmSent = patch.whatsapp_confirm_sent;
+  // Editable fields
+  if ("name"      in patch) data.name      = patch.name;
+  if ("email"     in patch) data.email     = patch.email;
+  if ("treatment" in patch) data.treatment = patch.treatment;
+  if ("message"   in patch) data.message   = patch.message;
+  if ("slot_date" in patch) data.slotDate  = patch.slot_date;
+  if ("slot_time" in patch) data.slotTime  = patch.slot_time;
 
   const lead = await prisma.lead.update({ where: { id: leadId }, data });
+
+  // Sync patient name when corrected
+  if ("name" in patch && patch.name && lead.patientPhone) {
+    await prisma.patient.updateMany({
+      where: { phone: lead.patientPhone },
+      data: { name: String(patch.name) },
+    });
+  }
+
   return leadToLegacy(lead);
 }
 

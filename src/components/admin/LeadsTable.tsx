@@ -3,6 +3,19 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
+// All clinic time slots (11:00 AM – 9:30 PM, every 30 min) — admin always sees all slots
+const CLINIC_SLOTS: string[] = (() => {
+  const slots: string[] = [];
+  for (let mins = 11 * 60; mins <= 21 * 60 + 30; mins += 30) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    const ampm = h < 12 ? "AM" : "PM";
+    const h12 = h % 12 || 12;
+    slots.push(`${h12}:${String(m).padStart(2, "0")} ${ampm}`);
+  }
+  return slots;
+})();
+
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 type LeadRow = {
@@ -120,27 +133,51 @@ export function LeadsTable({
   const [addDob,     setAddDob]     = useState("");
   const [addGender,  setAddGender]  = useState("");
   const [addStatus,  setAddStatus]  = useState<"confirmed" | "pending">("confirmed");
-  const [addSlots,   setAddSlots]   = useState<string[]>([]);
-  const [loadSlots,  setLoadSlots]  = useState(false);
 
-  useEffect(() => {
-    if (!addDate) { setAddSlots([]); setAddTime(""); return; }
-    setLoadSlots(true);
-    fetch(`/api/slots?date=${addDate}`)
-      .then((r) => r.json())
-      .then((d) => {
-        const open = (d.slots || []).filter((s: { available: boolean; time: string }) => s.available).map((s: { time: string }) => s.time);
-        setAddSlots(open);
-        setAddTime(open[0] || "");
-      })
-      .catch(() => {})
-      .finally(() => setLoadSlots(false));
-  }, [addDate]);
+  // ── Edit lead state ──
+  const [editId,     setEditId]     = useState<string | null>(null);
+  const [editName,   setEditName]   = useState("");
+  const [editEmail,  setEditEmail]  = useState("");
+  const [editTreat,  setEditTreat]  = useState("");
+  const [editDate,   setEditDate]   = useState("");
+  const [editTime,   setEditTime]   = useState("");
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError,  setEditError]  = useState("");
 
   function resetAddForm() {
     setAddName(""); setAddPhone(""); setAddEmail(""); setAddTreat("");
     setAddDate(""); setAddTime(""); setAddDob(""); setAddGender("");
     setAddStatus("confirmed"); setAddError("");
+  }
+
+  function openEdit(l: LeadRow) {
+    setEditId(l.id);
+    setEditName(l.name);
+    setEditEmail(l.email);
+    setEditTreat(l.treatment);
+    setEditDate(l.slot_date);
+    setEditTime(l.slot_time);
+    setEditError("");
+  }
+
+  async function saveEdit(id: string) {
+    setEditSaving(true); setEditError("");
+    try {
+      const res = await fetch(`/api/admin/leads/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editName, email: editEmail, treatment: editTreat,
+          slot_date: editDate, slot_time: editTime,
+        }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Update failed");
+      setEditId(null);
+      await load();
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : "Failed");
+    } finally { setEditSaving(false); }
   }
 
   async function submitAdd(e: React.FormEvent) {
@@ -323,18 +360,11 @@ export function LeadsTable({
             </label>
             <label className="grid gap-1 text-xs font-bold text-navy">
               Time Slot <span className="text-red-500">*</span>
-              {loadSlots ? (
-                <div className="rounded-xl border border-line px-3 py-2.5 text-xs text-muted bg-white">Loading slots…</div>
-              ) : addSlots.length > 0 ? (
-                <select required value={addTime} onChange={(e) => setAddTime(e.target.value)}
-                  className="rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-blue bg-white">
-                  {addSlots.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
-              ) : (
-                <input required value={addTime} onChange={(e) => setAddTime(e.target.value)}
-                  placeholder={addDate ? "No open slots — type manually" : "Pick date first"}
-                  className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue bg-white" />
-              )}
+              <select required value={addTime} onChange={(e) => setAddTime(e.target.value)}
+                className="rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-blue bg-white">
+                <option value="">— Select time —</option>
+                {CLINIC_SLOTS.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
             </label>
           </div>
 
@@ -498,6 +528,15 @@ export function LeadsTable({
                               ✕ Cancel
                             </button>
                           )}
+                          <button
+                            onClick={() => {
+                              openEdit(l);
+                              setExpandedId(l.id);
+                            }}
+                            className="rounded-full border border-line px-3 py-1.5 text-[11px] font-semibold text-navy hover:border-blue hover:text-blue transition-colors"
+                          >
+                            ✏️ Edit
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -506,20 +545,69 @@ export function LeadsTable({
                     {isExpanded && (
                       <tr key={`${l.id}-detail`} className="border-t border-line bg-bg-soft/60">
                         <td colSpan={6} className="px-6 py-4">
-                          <div className="grid gap-2 text-xs text-muted sm:grid-cols-3">
-                            <div>
-                              <span className="font-bold text-navy uppercase tracking-wide text-[10px]">Message</span>
-                              <p className="mt-0.5">{l.message || "—"}</p>
+                          {editId === l.id ? (
+                            /* ── Inline edit form ── */
+                            <div className="max-w-2xl">
+                              <p className="mb-3 text-xs font-bold text-navy uppercase tracking-wide">Edit Details</p>
+                              {editError && <p className="mb-2 text-xs text-red-600">{editError}</p>}
+                              <div className="grid gap-3 sm:grid-cols-2">
+                                <label className="grid gap-1 text-xs font-semibold text-navy">
+                                  Patient Name
+                                  <input value={editName} onChange={(e) => setEditName(e.target.value)}
+                                    className="rounded-xl border border-line px-3 py-2 text-sm font-normal outline-none focus:border-blue bg-white" />
+                                </label>
+                                <label className="grid gap-1 text-xs font-semibold text-navy">
+                                  Email
+                                  <input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)}
+                                    className="rounded-xl border border-line px-3 py-2 text-sm font-normal outline-none focus:border-blue bg-white" />
+                                </label>
+                                <label className="grid gap-1 text-xs font-semibold text-navy">
+                                  Treatment
+                                  <input value={editTreat} onChange={(e) => setEditTreat(e.target.value)}
+                                    className="rounded-xl border border-line px-3 py-2 text-sm font-normal outline-none focus:border-blue bg-white" />
+                                </label>
+                                <label className="grid gap-1 text-xs font-semibold text-navy">
+                                  Appointment Date
+                                  <input type="date" value={editDate} onChange={(e) => setEditDate(e.target.value)}
+                                    className="rounded-xl border border-line px-3 py-2 text-sm font-normal outline-none focus:border-blue bg-white" />
+                                </label>
+                                <label className="grid gap-1 text-xs font-semibold text-navy">
+                                  Time Slot
+                                  <select value={editTime} onChange={(e) => setEditTime(e.target.value)}
+                                    className="rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-blue bg-white">
+                                    <option value="">— Select time —</option>
+                                    {CLINIC_SLOTS.map((s) => <option key={s} value={s}>{s}</option>)}
+                                  </select>
+                                </label>
+                              </div>
+                              <div className="mt-3 flex gap-2">
+                                <button onClick={() => saveEdit(l.id)} disabled={editSaving}
+                                  className="rounded-full bg-blue px-5 py-2 text-xs font-bold text-white hover:bg-blue-deep disabled:opacity-60 transition-colors">
+                                  {editSaving ? "Saving…" : "💾 Save Changes"}
+                                </button>
+                                <button onClick={() => setEditId(null)}
+                                  className="rounded-full border border-line px-5 py-2 text-xs font-semibold text-muted hover:bg-bg-soft transition-colors">
+                                  Cancel
+                                </button>
+                              </div>
                             </div>
-                            <div>
-                              <span className="font-bold text-navy uppercase tracking-wide text-[10px]">Email</span>
-                              <p className="mt-0.5">{l.email || "—"}</p>
+                          ) : (
+                            /* ── Static info view ── */
+                            <div className="grid gap-2 text-xs text-muted sm:grid-cols-3">
+                              <div>
+                                <span className="font-bold text-navy uppercase tracking-wide text-[10px]">Message</span>
+                                <p className="mt-0.5">{l.message || "—"}</p>
+                              </div>
+                              <div>
+                                <span className="font-bold text-navy uppercase tracking-wide text-[10px]">Email</span>
+                                <p className="mt-0.5">{l.email || "—"}</p>
+                              </div>
+                              <div>
+                                <span className="font-bold text-navy uppercase tracking-wide text-[10px]">Confirmed by</span>
+                                <p className="mt-0.5">{l.confirmed_by || "—"} {l.confirmed_at_ist ? `· ${l.confirmed_at_ist}` : ""}</p>
+                              </div>
                             </div>
-                            <div>
-                              <span className="font-bold text-navy uppercase tracking-wide text-[10px]">Confirmed by</span>
-                              <p className="mt-0.5">{l.confirmed_by || "—"} {l.confirmed_at_ist ? `· ${l.confirmed_at_ist}` : ""}</p>
-                            </div>
-                          </div>
+                          )}
                         </td>
                       </tr>
                     )}
