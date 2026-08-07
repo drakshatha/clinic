@@ -18,11 +18,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Upsert patient record
-  const patient = await prisma.patient.upsert({
+  // Only allow existing patients (those with at least one appointment)
+  const existing = await prisma.patient.findUnique({
     where: { phone },
-    update: { lastSeen: new Date(), ...(name ? { name } : {}) },
-    create: { phone, name: name || "" },
+    include: { leads: { select: { id: true }, take: 1 } },
+  });
+
+  if (!existing || existing.leads.length === 0) {
+    return NextResponse.json(
+      { error: "No account found for this number. Please book an appointment first at drakshatha.in/contact" },
+      { status: 404 }
+    );
+  }
+
+  // Update last seen
+  const patient = await prisma.patient.update({
+    where: { phone },
+    data: { lastSeen: new Date(), ...(name ? { name } : {}) },
   });
 
   // Create session (30 days)
