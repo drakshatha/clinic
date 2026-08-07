@@ -1,3 +1,6 @@
+// Revalidate every 5 minutes — serves from CDN cache, near-instant for all visitors
+export const revalidate = 300;
+
 import { Hero } from "@/components/sections/Hero";
 import { ServicesGrid } from "@/components/sections/ServicesGrid";
 import { BeforeAfterGallery } from "@/components/sections/BeforeAfterGallery";

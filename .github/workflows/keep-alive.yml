@@ -9,6 +9,7 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping health endpoint
+      - name: Ping health + warm homepage
         run: |
-          curl -sf https://clinic-two-rose.vercel.app/api/health || true
+          curl -sf https://drakshatha.in/api/health || true
+          curl -sf https://drakshatha.in/ -o /dev/null || true

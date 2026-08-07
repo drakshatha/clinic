@@ -3,45 +3,26 @@
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
-type Offer = {
-  id: string;
-  badge: string;
-  title: string;
-  description: string;
-  imageUrl: string | null;
-  validUntil: string | null;
-};
+import type { PublicOffer } from "./OffersBanner";
 
 const SESSION_KEY = "offers_popup_seen";
 
-export function OffersPopup() {
-  const [offer, setOffer] = useState<Offer | null>(null);
+export function OffersPopup({ initialOffers = [] }: { initialOffers?: PublicOffer[] }) {
+  const imageOffer = initialOffers.find((o) => o.imageUrl) ?? null;
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Only show once per browser session
+    if (!imageOffer) return;
     if (sessionStorage.getItem(SESSION_KEY)) return;
-
-    fetch("/api/public/offers")
-      .then((r) => r.json())
-      .then((d: { offers: Offer[] }) => {
-        // Show only image-based offers in popup; text-only go to ticker
-        const imageOffer = (d.offers || []).find((o) => o.imageUrl);
-        if (!imageOffer) return;
-        setOffer(imageOffer);
-        // Small delay so page loads first
-        setTimeout(() => setVisible(true), 1200);
-      })
-      .catch(() => {});
-  }, []);
+    const t = setTimeout(() => setVisible(true), 1200);
+    return () => clearTimeout(t);
+  }, [imageOffer]);
 
   const close = useCallback(() => {
     setVisible(false);
     sessionStorage.setItem(SESSION_KEY, "1");
   }, []);
 
-  // Close on Escape
   useEffect(() => {
     if (!visible) return;
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
@@ -49,7 +30,7 @@ export function OffersPopup() {
     return () => window.removeEventListener("keydown", handler);
   }, [visible, close]);
 
-  if (!offer || !visible) return null;
+  if (!imageOffer || !visible) return null;
 
   return (
     <div
@@ -61,7 +42,6 @@ export function OffersPopup() {
         className="relative w-full max-w-md rounded-3xl overflow-hidden bg-white shadow-2xl animate-fade-up"
         style={{ animationDuration: "280ms" }}
       >
-        {/* Close button */}
         <button
           onClick={close}
           className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow text-navy text-lg font-bold hover:bg-white transition-colors"
@@ -70,12 +50,11 @@ export function OffersPopup() {
           ✕
         </button>
 
-        {/* Image */}
-        {offer.imageUrl && (
+        {imageOffer.imageUrl && (
           <div className="relative w-full" style={{ paddingBottom: "52%" }}>
             <Image
-              src={offer.imageUrl}
-              alt={offer.title}
+              src={imageOffer.imageUrl}
+              alt={imageOffer.title}
               fill
               className="object-cover"
               sizes="448px"
@@ -84,17 +63,16 @@ export function OffersPopup() {
           </div>
         )}
 
-        {/* Content */}
         <div className="px-6 pb-6 pt-4">
           <span className="inline-block rounded-full bg-navy px-3 py-0.5 text-[11px] font-extrabold tracking-widest text-white">
-            {offer.badge}
+            {imageOffer.badge}
           </span>
-          <h2 className="mt-2 text-xl font-bold text-navy leading-tight">{offer.title}</h2>
-          {offer.description && (
-            <p className="mt-1 text-sm text-muted leading-relaxed">{offer.description}</p>
+          <h2 className="mt-2 text-xl font-bold text-navy leading-tight">{imageOffer.title}</h2>
+          {imageOffer.description && (
+            <p className="mt-1 text-sm text-muted leading-relaxed">{imageOffer.description}</p>
           )}
-          {offer.validUntil && (
-            <p className="mt-1 text-xs text-muted/70">Valid until {offer.validUntil}</p>
+          {imageOffer.validUntil && (
+            <p className="mt-1 text-xs text-muted/70">Valid until {imageOffer.validUntil}</p>
           )}
 
           <div className="mt-5 flex gap-3">

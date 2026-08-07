@@ -1,3 +1,5 @@
+export const revalidate = 3600;
+
 import type { Metadata } from "next";
 import { site } from "@/lib/site";
 import { Section } from "@/components/ui/Section";

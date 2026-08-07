@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 
-type Offer = {
+export type PublicOffer = {
   id: string;
   badge: string;
   title: string;
@@ -12,20 +11,11 @@ type Offer = {
   validUntil: string | null;
 };
 
-export function OffersBanner() {
-  const [offers, setOffers] = useState<Offer[]>([]);
-
-  useEffect(() => {
-    fetch("/api/public/offers")
-      .then((r) => r.json())
-      .then((d) => setOffers(d.offers || []))
-      .catch(() => {});
-  }, []);
-
-  if (offers.length === 0) return null;
+export function OffersBanner({ initialOffers = [] }: { initialOffers?: PublicOffer[] }) {
+  if (initialOffers.length === 0) return null;
 
   // Duplicate items for seamless loop
-  const items = [...offers, ...offers];
+  const items = [...initialOffers, ...initialOffers];
 
   return (
     <div className="bg-navy text-white overflow-hidden">
