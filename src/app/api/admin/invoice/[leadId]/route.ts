@@ -8,6 +8,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth";
 import { getLeadForInvoice } from "@/lib/db";
 import { site } from "@/lib/site";
+import * as fs from "fs";
+import * as path from "path";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ leadId: string }> }) {
   const session = await requireStaff("view_leads");
@@ -16,6 +18,15 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ lea
   const { leadId } = await params;
   const lead = await getLeadForInvoice(leadId);
   if (!lead) return new NextResponse("Not found", { status: 404 });
+
+  // Inline the SVG logo (works when printed to PDF)
+  let logoSvg = "";
+  try {
+    const logoPath = path.join(process.cwd(), "public", "images", "logo-akshatha.svg");
+    logoSvg = fs.readFileSync(logoPath, "utf-8");
+  } catch {
+    // If logo file missing, fall back to text
+  }
 
   const c = lead.consultation;
   const invoiceNo = `INV-${lead.id.slice(-8).toUpperCase()}`;
@@ -34,6 +45,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ lea
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:system-ui,sans-serif;font-size:14px;color:#1a1a2e;background:#fff;padding:40px;max-width:800px;margin:0 auto}
     .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;padding-bottom:24px;border-bottom:2px solid #1a2357}
+    .logo-wrap{max-width:220px;margin-bottom:6px}
+    .logo-wrap svg{width:100%;height:auto;display:block}
     .clinic-name{font-size:22px;font-weight:700;color:#1a2357}
     .clinic-sub{font-size:12px;color:#666;margin-top:4px}
     .clinic-info{font-size:12px;color:#555;margin-top:8px;line-height:1.7}
@@ -71,7 +84,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ lea
 
 <div class="header">
   <div>
-    <div class="clinic-name">${site.name}</div>
+    ${logoSvg ? `<div class="logo-wrap">${logoSvg}</div>` : `<div class="clinic-name">${site.name}</div>`}
     <div class="clinic-sub">${site.doctor} · ${site.credentials}</div>
     <div class="clinic-info">
       ${site.address}<br>
