@@ -42,6 +42,8 @@ export async function createLead(input: {
   slot_time: string;
   source?: string;
   status?: LeadStatus;
+  dob?: string;    // YYYY-MM-DD
+  gender?: string; // "male" | "female" | "other"
 }) {
   const lead = await prisma.lead.create({
     data: {
@@ -58,11 +60,23 @@ export async function createLead(input: {
     },
   });
 
-  // Upsert patient record so history starts from first booking
+  // Upsert patient record — persist dob/gender when provided
   await prisma.patient.upsert({
     where: { phone: input.phone },
-    update: { name: input.name, email: input.email ?? "", lastSeen: new Date() },
-    create: { phone: input.phone, name: input.name, email: input.email ?? "" },
+    update: {
+      name: input.name,
+      email: input.email ?? "",
+      lastSeen: new Date(),
+      ...(input.dob    ? { dob: input.dob }       : {}),
+      ...(input.gender ? { gender: input.gender }  : {}),
+    },
+    create: {
+      phone: input.phone,
+      name: input.name,
+      email: input.email ?? "",
+      dob: input.dob ?? null,
+      gender: input.gender ?? null,
+    },
   });
 
   return leadToLegacy(lead);

@@ -13,6 +13,8 @@ export function AppointmentForm() {
   const [message, setMessage] = useState("");
   const [slotDate, setSlotDate] = useState(todayIst());
   const [slotTime, setSlotTime] = useState("");
+  const [dob, setDob]       = useState("");
+  const [gender, setGender] = useState("");
   const [slots, setSlots] = useState<Slot[]>([]);
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -105,6 +107,8 @@ export function AppointmentForm() {
       slot_time: slotTime,
       otp: otp.trim(),
       source: "website",
+      dob: dob || undefined,
+      gender: gender || undefined,
     };
 
     if (!payload.name || !payload.phone || !payload.slot_date || !payload.slot_time) {
@@ -136,6 +140,8 @@ export function AppointmentForm() {
       setOtpVerified(false);
       setDevCode(null);
       setSlotTime("");
+      setDob("");
+      setGender("");
 
       if (json.whatsappUrl) {
         window.open(json.whatsappUrl, "_blank", "noopener,noreferrer");
@@ -200,6 +206,31 @@ export function AppointmentForm() {
             className="rounded-xl border border-line px-3 py-3 font-medium outline-none transition focus:border-blue"
             placeholder="you@email.com"
           />
+        </label>
+
+        <label className="grid gap-1.5 text-sm font-semibold text-navy">
+          Date of Birth
+          <input
+            type="date"
+            value={dob}
+            onChange={(e) => setDob(e.target.value)}
+            max={todayIst()}
+            className="rounded-xl border border-line px-3 py-3 font-medium outline-none transition focus:border-blue"
+          />
+        </label>
+
+        <label className="grid gap-1.5 text-sm font-semibold text-navy">
+          Gender
+          <select
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            className="rounded-xl border border-line px-3 py-3 font-medium outline-none transition focus:border-blue"
+          >
+            <option value="">Prefer not to say</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
         </label>
 
         <label className="grid gap-1.5 text-sm font-semibold text-navy">

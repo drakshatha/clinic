@@ -28,14 +28,16 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
-  const name       = String(body.name || "").trim();
-  const phone      = String(body.phone || "").trim();
-  const email      = String(body.email || "").trim();
+  const name       = String(body.name      || "").trim();
+  const phone      = String(body.phone     || "").trim();
+  const email      = String(body.email     || "").trim();
   const treatment  = String(body.treatment || "").trim();
-  const message    = String(body.message || "").trim();
+  const message    = String(body.message   || "").trim();
   const slot_date  = String(body.slot_date || "").trim();
   const slot_time  = String(body.slot_time || "").trim();
   const status     = body.status === "pending" ? "pending" : "confirmed";
+  const dob        = String(body.dob    || "").trim() || undefined;
+  const gender     = String(body.gender || "").trim() || undefined;
 
   if (!name || !phone || !slot_date || !slot_time) {
     return NextResponse.json({ error: "Name, phone, date and time are required" }, { status: 400 });
@@ -56,6 +58,8 @@ export async function POST(req: NextRequest) {
     slot_time,
     source: "admin",
     status,
+    dob,
+    gender,
   });
 
   // Auto-confirm if status is confirmed

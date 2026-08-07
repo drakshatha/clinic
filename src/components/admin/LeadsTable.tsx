@@ -117,6 +117,8 @@ export function LeadsTable({
   const [addTreat,   setAddTreat]   = useState("");
   const [addDate,    setAddDate]    = useState("");
   const [addTime,    setAddTime]    = useState("");
+  const [addDob,     setAddDob]     = useState("");
+  const [addGender,  setAddGender]  = useState("");
   const [addStatus,  setAddStatus]  = useState<"confirmed" | "pending">("confirmed");
   const [addSlots,   setAddSlots]   = useState<string[]>([]);
   const [loadSlots,  setLoadSlots]  = useState(false);
@@ -137,7 +139,8 @@ export function LeadsTable({
 
   function resetAddForm() {
     setAddName(""); setAddPhone(""); setAddEmail(""); setAddTreat("");
-    setAddDate(""); setAddTime(""); setAddStatus("confirmed"); setAddError("");
+    setAddDate(""); setAddTime(""); setAddDob(""); setAddGender("");
+    setAddStatus("confirmed"); setAddError("");
   }
 
   async function submitAdd(e: React.FormEvent) {
@@ -150,6 +153,7 @@ export function LeadsTable({
         body: JSON.stringify({
           name: addName, phone: addPhone, email: addEmail,
           treatment: addTreat, slot_date: addDate, slot_time: addTime,
+          dob: addDob || undefined, gender: addGender || undefined,
           status: addStatus,
         }),
       });
@@ -288,6 +292,22 @@ export function LeadsTable({
               <input type="email" value={addEmail} onChange={(e) => setAddEmail(e.target.value)}
                 placeholder="patient@email.com"
                 className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue bg-white" />
+            </label>
+            <label className="grid gap-1 text-xs font-bold text-navy">
+              Date of Birth <span className="font-normal text-muted">(optional)</span>
+              <input type="date" value={addDob} max={todayIst}
+                onChange={(e) => setAddDob(e.target.value)}
+                className="rounded-xl border border-line px-3 py-2.5 text-sm font-normal outline-none focus:border-blue bg-white" />
+            </label>
+            <label className="grid gap-1 text-xs font-bold text-navy">
+              Gender <span className="font-normal text-muted">(optional)</span>
+              <select value={addGender} onChange={(e) => setAddGender(e.target.value)}
+                className="rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-blue bg-white">
+                <option value="">— Select —</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
             </label>
             <label className="grid gap-1 text-xs font-bold text-navy">
               Treatment <span className="font-normal text-muted">(optional)</span>

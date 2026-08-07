@@ -12,15 +12,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const name = String(body.name || "").trim();
-  const phone = String(body.phone || "").trim();
-  const email = String(body.email || "").trim();
+  const name      = String(body.name      || "").trim();
+  const phone     = String(body.phone     || "").trim();
+  const email     = String(body.email     || "").trim();
   const treatment = String(body.treatment || "").trim();
-  const message = String(body.message || "").trim();
+  const message   = String(body.message   || "").trim();
   const slot_date = String(body.slot_date || "").trim();
   const slot_time = String(body.slot_time || "").trim();
-  const otp = String(body.otp || "").trim();
-  const source = String(body.source || "website").trim();
+  const otp       = String(body.otp       || "").trim();
+  const source    = String(body.source    || "website").trim();
+  const dob       = String(body.dob    || "").trim() || undefined;
+  const gender    = String(body.gender || "").trim() || undefined;
 
   if (!name || !phone || !slot_date || !slot_time) {
     return NextResponse.json(
@@ -64,6 +66,8 @@ export async function POST(request: Request) {
     slot_time,
     source,
     status: "pending",
+    dob,
+    gender,
   });
 
   const links = bookingLinks(lead);

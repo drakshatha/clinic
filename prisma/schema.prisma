@@ -89,6 +89,7 @@ model Patient {
   name         String    @default("")
   email        String    @default("")
   dob          String?   // YYYY-MM-DD for birthday WhatsApp
+  gender       String?   // "male" | "female" | "other"
   joinedAt     DateTime  @default(now())
   lastSeen     DateTime  @default(now())
   lastRecallAt DateTime? // when we last sent a recall WhatsApp
