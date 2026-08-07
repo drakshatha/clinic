@@ -1,0 +1,22 @@
+name: Appointment Reminders
+
+on:
+  schedule:
+    # Run every hour at :05 minutes past (IST offset: +5:30)
+    - cron: "5 * * * *"
+  workflow_dispatch:   # Allow manual trigger from GitHub UI
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send appointment reminders
+        run: |
+          echo "Triggering reminder cron at $(date -u)"
+          RESPONSE=$(curl -sf -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            https://drakshatha.in/api/admin/reminders)
+          echo "Response: $RESPONSE"
+          # Fail the step if curl returned an error (non-2xx)
+          echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('ok'), f'Unexpected response: {d}'"
