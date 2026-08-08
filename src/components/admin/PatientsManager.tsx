@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { DentalChartModal } from "./DentalChartModal";
+import { PrescriptionModal } from "./PrescriptionModal";
 
 type MedicalHistory = {
   bloodGroup: string;
@@ -42,6 +44,8 @@ export function PatientsManager() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [savingDob, setSavingDob] = useState<string | null>(null);
   const [dobDraft,  setDobDraft]  = useState<Record<string, string>>({});
+  const [chartPatient, setChartPatient] = useState<{ phone: string; name: string } | null>(null);
+  const [rxPatient,    setRxPatient]    = useState<{ phone: string; name: string } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -176,6 +180,18 @@ export function PatientsManager() {
                       >
                         📋 Treatment Plans
                       </a>
+                      <button
+                        onClick={() => setChartPatient({ phone: p.phone, name: p.name })}
+                        className="rounded-full bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1.5 text-xs font-semibold hover:bg-teal-700 hover:text-white transition-colors"
+                      >
+                        🦷 Dental Chart
+                      </button>
+                      <button
+                        onClick={() => setRxPatient({ phone: p.phone, name: p.name })}
+                        className="rounded-full bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1.5 text-xs font-semibold hover:bg-purple-700 hover:text-white transition-colors"
+                      >
+                        💊 Prescription
+                      </button>
                     </div>
 
                     {/* DOB */}
@@ -246,6 +262,21 @@ export function PatientsManager() {
             );
           })}
         </div>
+      )}
+
+      {chartPatient && (
+        <DentalChartModal
+          patientPhone={chartPatient.phone}
+          patientName={chartPatient.name}
+          onClose={() => setChartPatient(null)}
+        />
+      )}
+      {rxPatient && (
+        <PrescriptionModal
+          patientPhone={rxPatient.phone}
+          patientName={rxPatient.name}
+          onClose={() => setRxPatient(null)}
+        />
       )}
     </div>
   );

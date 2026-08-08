@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { PrescriptionModal } from "./PrescriptionModal";
 
 // All clinic time slots (11:00 AM – 9:30 PM, every 30 min) — admin always sees all slots
 const CLINIC_SLOTS: string[] = (() => {
@@ -119,6 +120,7 @@ export function LeadsTable({
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [completeModal, setCompleteModal] = useState<{ open: false } | { open: true; lead: LeadRow }>({ open: false });
   const [docPanel, setDocPanel] = useState<{ open: false } | { open: true; lead: LeadRow }>({ open: false });
+  const [rxLead, setRxLead] = useState<LeadRow | null>(null);
 
   // ── Add appointment form ──
   const [showAdd,    setShowAdd]    = useState(false);
@@ -505,6 +507,14 @@ export function LeadsTable({
                               📎 Documents
                             </button>
                           )}
+                          {(l.status === "confirmed" || l.status === "completed" || l.status === "followup") && (
+                            <button
+                              onClick={() => setRxLead(l)}
+                              className="rounded-full border border-purple-200 bg-purple-50 px-3 py-1.5 text-[11px] font-semibold text-purple-700 hover:bg-purple-700 hover:text-white transition-colors"
+                            >
+                              💊 Rx
+                            </button>
+                          )}
                           {(l.status === "completed" || l.status === "followup" || l.status === "resolved") && (
                             <a
                               href={`/api/admin/invoice/${l.id}`}
@@ -631,6 +641,14 @@ export function LeadsTable({
         <DocumentPanel
           lead={docPanel.lead}
           onClose={() => setDocPanel({ open: false })}
+        />
+      )}
+      {rxLead && (
+        <PrescriptionModal
+          patientPhone={rxLead.phone}
+          patientName={rxLead.name}
+          leadId={rxLead.id}
+          onClose={() => setRxLead(null)}
         />
       )}
     </div>

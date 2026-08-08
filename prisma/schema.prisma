@@ -22,6 +22,7 @@ model StaffUser {
   confirmedLeads  Lead[]          @relation("ConfirmedBy")
   sessions        Session[]
   treatmentPlans  TreatmentPlan[]
+  prescriptions   Prescription[]
 }
 
 model Session {
@@ -61,6 +62,7 @@ model Lead {
   documents     Document[]
   feedback      VisitFeedback?
   labWork       LabWork[]
+  prescriptions Prescription[]
 }
 
 // ─── Blocked Slots ────────────────────────────────────────────────────────────
@@ -99,6 +101,8 @@ model Patient {
   portalSessions PatientSession[]
   medicalHistory MedicalHistory?
   treatmentPlans TreatmentPlan[]
+  dentalChart    DentalChart?
+  prescriptions  Prescription[]
 }
 
 model PatientSession {
@@ -258,4 +262,35 @@ model GalleryCase {
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ─── Dental Chart ─────────────────────────────────────────────────────────────
+model DentalChart {
+  id           String   @id @default(cuid())
+  patientPhone String   @unique
+  // JSON object: { "11": "cavity", "14": "crown", ... }
+  // Conditions: healthy | cavity | filling | crown | implant | missing | root_canal | extraction_needed | bridge | veneer
+  teeth        String   @default("{}")
+  updatedAt    DateTime @updatedAt
+
+  patient Patient @relation(fields: [patientPhone], references: [phone])
+}
+
+// ─── Prescriptions ────────────────────────────────────────────────────────────
+model Prescription {
+  id             String   @id @default(cuid())
+  patientPhone   String
+  patientName    String   @default("")
+  leadId         String?
+  chiefComplaint String   @default("")
+  diagnosis      String   @default("")
+  // JSON array: [{ drug, dosage, frequency, duration, instructions }]
+  medications    String   @default("[]")
+  advice         String   @default("")
+  createdById    String
+  createdAt      DateTime @default(now())
+
+  patient   Patient   @relation(fields: [patientPhone], references: [phone])
+  createdBy StaffUser @relation(fields: [createdById], references: [id])
+  lead      Lead?     @relation(fields: [leadId], references: [id])
 }
