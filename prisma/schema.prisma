@@ -103,6 +103,8 @@ model Patient {
   treatmentPlans TreatmentPlan[]
   dentalChart    DentalChart?
   prescriptions  Prescription[]
+  images         PatientImage[]
+  consentForms   ConsentForm[]
 }
 
 model PatientSession {
@@ -274,6 +276,59 @@ model DentalChart {
   updatedAt    DateTime @updatedAt
 
   patient Patient @relation(fields: [patientPhone], references: [phone])
+}
+
+// ─── Patient X-rays / Images ──────────────────────────────────────────────────
+model PatientImage {
+  id           String   @id @default(cuid())
+  patientPhone String
+  label        String   @default("")   // e.g. "OPG", "CBCT", "Periapical #15"
+  imageData    String                  // base64 data URI (TEXT in postgres)
+  uploadedById String   @default("")
+  createdAt    DateTime @default(now())
+
+  patient Patient @relation(fields: [patientPhone], references: [phone])
+}
+
+// ─── Consent Forms ────────────────────────────────────────────────────────────
+model ConsentForm {
+  id            String    @id @default(cuid())
+  patientPhone  String
+  title         String                 // "Extraction Consent", "Implant Consent"
+  content       String                 // full consent text
+  signatureData String    @default("") // base64 canvas signature
+  signedAt      DateTime?
+  createdById   String    @default("")
+  createdAt     DateTime  @default(now())
+
+  patient Patient @relation(fields: [patientPhone], references: [phone])
+}
+
+// ─── Inventory / Consumables ──────────────────────────────────────────────────
+model InventoryItem {
+  id           String   @id @default(cuid())
+  name         String
+  category     String   @default("general") // anesthesia | composites | instruments | ppe | general
+  unit         String   @default("pcs")     // pcs | box | ml | gm | roll
+  currentStock Int      @default(0)
+  minStock     Int      @default(5)
+  costPerUnit  Float    @default(0)
+  notes        String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  logs InventoryLog[]
+}
+
+model InventoryLog {
+  id        String   @id @default(cuid())
+  itemId    String
+  change    Int                        // positive = restocked, negative = used
+  note      String   @default("")
+  staffId   String   @default("")
+  createdAt DateTime @default(now())
+
+  item InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 }
 
 // ─── Prescriptions ────────────────────────────────────────────────────────────

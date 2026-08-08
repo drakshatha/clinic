@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { DentalChartModal } from "./DentalChartModal";
 import { PrescriptionModal } from "./PrescriptionModal";
+import { PatientImagesModal } from "./PatientImagesModal";
+import { ConsentFormModal } from "./ConsentFormModal";
 
 type MedicalHistory = {
   bloodGroup: string;
@@ -44,8 +46,10 @@ export function PatientsManager() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [savingDob, setSavingDob] = useState<string | null>(null);
   const [dobDraft,  setDobDraft]  = useState<Record<string, string>>({});
-  const [chartPatient, setChartPatient] = useState<{ phone: string; name: string } | null>(null);
-  const [rxPatient,    setRxPatient]    = useState<{ phone: string; name: string } | null>(null);
+  const [chartPatient,   setChartPatient]   = useState<{ phone: string; name: string } | null>(null);
+  const [rxPatient,      setRxPatient]      = useState<{ phone: string; name: string } | null>(null);
+  const [imgPatient,     setImgPatient]     = useState<{ phone: string; name: string } | null>(null);
+  const [consentPatient, setConsentPatient] = useState<{ phone: string; name: string } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -192,6 +196,18 @@ export function PatientsManager() {
                       >
                         💊 Prescription
                       </button>
+                      <button
+                        onClick={() => setImgPatient({ phone: p.phone, name: p.name })}
+                        className="rounded-full bg-sky-50 text-sky-700 border border-sky-200 px-3 py-1.5 text-xs font-semibold hover:bg-sky-700 hover:text-white transition-colors"
+                      >
+                        🩻 X-rays
+                      </button>
+                      <button
+                        onClick={() => setConsentPatient({ phone: p.phone, name: p.name })}
+                        className="rounded-full bg-orange-50 text-orange-700 border border-orange-200 px-3 py-1.5 text-xs font-semibold hover:bg-orange-700 hover:text-white transition-colors"
+                      >
+                        📋 Consent
+                      </button>
                     </div>
 
                     {/* DOB */}
@@ -276,6 +292,20 @@ export function PatientsManager() {
           patientPhone={rxPatient.phone}
           patientName={rxPatient.name}
           onClose={() => setRxPatient(null)}
+        />
+      )}
+      {imgPatient && (
+        <PatientImagesModal
+          patientPhone={imgPatient.phone}
+          patientName={imgPatient.name}
+          onClose={() => setImgPatient(null)}
+        />
+      )}
+      {consentPatient && (
+        <ConsentFormModal
+          patientPhone={consentPatient.phone}
+          patientName={consentPatient.name}
+          onClose={() => setConsentPatient(null)}
         />
       )}
     </div>

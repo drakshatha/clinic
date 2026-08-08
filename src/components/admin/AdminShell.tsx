@@ -18,6 +18,8 @@ const NAV_ITEMS = [
   { href: "/admin/treatment-plans",  label: "📋 Treatment Plans",  permission: "view_leads"    as Permission },
   { href: "/admin/lab-work",         label: "🔬 Lab Work",         permission: "view_leads"    as Permission },
   { href: "/admin/payments",         label: "💰 Payments",         permission: "view_leads"    as Permission },
+  { href: "/admin/analytics",        label: "📈 Analytics",        permission: "view_leads"    as Permission },
+  { href: "/admin/inventory",        label: "🗃 Inventory",         permission: "view_leads"    as Permission },
   { href: "/admin/reminders",        label: "🔔 Reminders",        permission: "view_leads"    as Permission },
   { href: "/admin/recall",           label: "🔄 Recall",           permission: "view_leads"    as Permission },
   { href: "/admin/gallery",          label: "📸 Gallery",          permission: "view_leads"    as Permission },
