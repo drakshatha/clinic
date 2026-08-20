@@ -19,9 +19,9 @@ export const site = {
   rating: "4.9",
   reviewCount: 50,
   url: "https://drakshatha.in",
-  // Direct write-review link — CID derived from Google Maps listing (confirmed correct)
+  // Direct write-review link (confirmed from Google Business Profile)
   // When patient is logged into Google, this opens the review form directly
-  googleReviewUrl: "https://g.page/r/ym02-GcX-qQ/review",
+  googleReviewUrl: "https://g.page/r/CcptNvhnF_qkEBE/review",
   mapsEmbed:
     "https://maps.google.com/maps?q=Akshatha+Dental+Clinic+KM+Arcade+Mahalakshmi+Layout+Bengaluru&z=15&output=embed",
 } as const;
