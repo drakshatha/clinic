@@ -1,7 +1,6 @@
-import { requireStaff } from "@/lib/auth";
-import { ContentManager } from "@/components/admin/ContentManager";
+import { redirect } from "next/navigation";
 
-export default async function ContentPage() {
-  await requireStaff("view_leads");
-  return <ContentManager />;
+/** Moved to /edit — separate login, separate area. */
+export default function ContentRedirectPage() {
+  redirect("/edit");
 }

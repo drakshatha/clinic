@@ -223,7 +223,7 @@ function FaqPairsEditor({ faqs, onChange }: { faqs: FaqItem[]; onChange: (v: Faq
 // ──────────────────────────────────────────────────────────────────────────────
 // Service Editor (one card per service)
 // ──────────────────────────────────────────────────────────────────────────────
-function ServiceEditor({ slug, dbRow }: { slug: string; dbRow: ServiceRow | null }) {
+function ServiceEditor({ slug, dbRow, apiBase }: { slug: string; dbRow: ServiceRow | null; apiBase: string }) {
   const staticSvc = STATIC_SERVICES.find((s) => s.slug === slug);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -249,7 +249,7 @@ function ServiceEditor({ slug, dbRow }: { slug: string; dbRow: ServiceRow | null
     setSaving(true);
     setMsg(null);
     try {
-      const res = await fetch(`/api/admin/content/services/${slug}`, {
+      const res = await fetch(`${apiBase}/content/services/${slug}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -400,7 +400,7 @@ function ServiceEditor({ slug, dbRow }: { slug: string; dbRow: ServiceRow | null
 // ──────────────────────────────────────────────────────────────────────────────
 // FAQ Manager tab
 // ──────────────────────────────────────────────────────────────────────────────
-function FaqManager() {
+function FaqManager({ apiBase }: { apiBase: string }) {
   const [faqs, setFaqs] = useState<SiteFaqRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [newQ, setNewQ] = useState("");
@@ -412,7 +412,7 @@ function FaqManager() {
   const [msg, setMsg] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/admin/content/faqs");
+    const res = await fetch(`${apiBase}/content/faqs`);
     const data = await res.json();
     setFaqs(data.faqs ?? []);
     setLoading(false);
@@ -424,7 +424,7 @@ function FaqManager() {
     setSeeding(true);
     setMsg(null);
     try {
-      const res = await fetch("/api/admin/content/faqs", {
+      const res = await fetch(`${apiBase}/content/faqs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "seed", items: DEFAULT_FAQS.map(f => ({ question: f.question, answer: f.answer })) }),
@@ -441,7 +441,7 @@ function FaqManager() {
 
   async function addFaq() {
     if (!newQ.trim() || !newA.trim()) return;
-    const res = await fetch("/api/admin/content/faqs", {
+    const res = await fetch(`${apiBase}/content/faqs`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question: newQ.trim(), answer: newA.trim(), sortOrder: faqs.length }),
@@ -451,13 +451,13 @@ function FaqManager() {
 
   async function deleteFaq(id: string) {
     if (!confirm("Delete this FAQ?")) return;
-    await fetch(`/api/admin/content/faqs/${id}`, { method: "DELETE" });
+    await fetch(`${apiBase}/content/faqs/${id}`, { method: "DELETE" });
     await load();
   }
 
   async function saveEdit() {
     if (!editId) return;
-    await fetch(`/api/admin/content/faqs/${editId}`, {
+    await fetch(`${apiBase}/content/faqs/${editId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question: editQ, answer: editA }),
@@ -467,7 +467,7 @@ function FaqManager() {
   }
 
   async function toggleActive(id: string, isActive: boolean) {
-    await fetch(`/api/admin/content/faqs/${id}`, {
+    await fetch(`${apiBase}/content/faqs/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isActive: !isActive }),
@@ -597,7 +597,7 @@ function FaqManager() {
 // ──────────────────────────────────────────────────────────────────────────────
 // Settings Manager tab — editable site stats
 // ──────────────────────────────────────────────────────────────────────────────
-function SettingsManager() {
+function SettingsManager({ apiBase }: { apiBase: string }) {
   // ── Google live connection state ──────────────────────────────────────────
   const [testing, setTesting] = useState(false);
   const [googleStatus, setGoogleStatus] = useState<{
@@ -615,7 +615,7 @@ function SettingsManager() {
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   useEffect(() => {
-    fetch("/api/admin/settings")
+    fetch(`${apiBase}/settings`)
       .then((r) => r.json())
       .then((d) => {
         const s = d.settings ?? {};
@@ -628,7 +628,7 @@ function SettingsManager() {
     setTesting(true);
     setGoogleStatus(null);
     try {
-      const res = await fetch("/api/admin/settings/google-test");
+      const res = await fetch(`${apiBase}/settings/google-test`);
       const data = await res.json();
       setGoogleStatus(data);
     } catch {
@@ -645,7 +645,7 @@ function SettingsManager() {
       const body: Record<string, string> = {};
       if (yearsExp) body.years_experience = yearsExp;
       if (patients) body.patients_served = patients;
-      const res = await fetch("/api/admin/settings", {
+      const res = await fetch(`${apiBase}/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -817,7 +817,7 @@ function SettingsManager() {
 // ──────────────────────────────────────────────────────────────────────────────
 // Main ContentManager
 // ──────────────────────────────────────────────────────────────────────────────
-export function ContentManager() {
+export function ContentManager({ apiBase = "/api/admin" }: { apiBase?: string } = {}) {
   const [tab, setTab] = useState<"services" | "faqs" | "settings">("services");
   const [dbServices, setDbServices] = useState<ServiceRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -825,7 +825,7 @@ export function ContentManager() {
   const [seedMsg, setSeedMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/admin/content/services")
+    fetch(`${apiBase}/content/services`)
       .then((r) => r.json())
       .then((d) => {
         setDbServices((d.services ?? []).map(rowToService));
@@ -837,9 +837,9 @@ export function ContentManager() {
     setSeeding(true);
     setSeedMsg(null);
     try {
-      const res = await fetch("/api/admin/content/services", { method: "POST" });
+      const res = await fetch(`${apiBase}/content/services`, { method: "POST" });
       if (!res.ok) throw new Error();
-      const freshRes = await fetch("/api/admin/content/services");
+      const freshRes = await fetch(`${apiBase}/content/services`);
       const data = await freshRes.json();
       setDbServices((data.services ?? []).map(rowToService));
       setSeedMsg("All 5 service pages loaded with professional content!");
@@ -922,6 +922,7 @@ export function ContentManager() {
                   key={s.slug}
                   slug={s.slug}
                   dbRow={dbServices.find((r) => r.slug === s.slug) ?? null}
+                  apiBase={apiBase}
                 />
               ))}
             </div>
@@ -930,10 +931,10 @@ export function ContentManager() {
       )}
 
       {/* FAQs tab */}
-      {tab === "faqs" && <FaqManager />}
+      {tab === "faqs" && <FaqManager apiBase={apiBase} />}
 
       {/* Settings tab */}
-      {tab === "settings" && <SettingsManager />}
+      {tab === "settings" && <SettingsManager apiBase={apiBase} />}
     </div>
   );
 }

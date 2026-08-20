@@ -23,7 +23,6 @@ const NAV_ITEMS = [
   { href: "/admin/reminders",        label: "🔔 Reminders",        permission: "view_leads"    as Permission },
   { href: "/admin/recall",           label: "🔄 Recall",           permission: "view_leads"    as Permission },
   { href: "/admin/gallery",          label: "📸 Gallery",          permission: "view_leads"    as Permission },
-  { href: "/admin/content",          label: "✍️ Content",          permission: "view_leads"    as Permission },
   { href: "/admin/offers",           label: "🎁 Offers",           permission: "manage_staff"  as Permission },
   { href: "/admin/staff",            label: "👤 Staff",            permission: "manage_staff"  as Permission },
 ];
