@@ -253,3 +253,65 @@ export const faqs = [
     a: "K M Arcade, Mahalakshmi Layout, Bengaluru — opposite the swimming pool & bus stop, next to the Buddha statue.",
   },
 ];
+
+// ── Blog content strategy (Phase 9 SEO) ──────────────────────────────────────
+// Create /blog pages with these articles to build topical authority.
+// Each maps to a service page for internal linking.
+export const blogContentPlan = [
+  {
+    slug: "dental-implants-bengaluru-complete-guide",
+    title: "Dental Implants in Bengaluru: Complete Patient Guide",
+    targetKeyword: "dental implants Bengaluru",
+    intent: "informational",
+    relatedService: "dental-implants",
+    funnelStage: "consideration",
+  },
+  {
+    slug: "dental-implants-vs-dentures",
+    title: "Dental Implants vs Dentures: Which is Better for Missing Teeth?",
+    targetKeyword: "dental implants vs dentures",
+    intent: "commercial",
+    relatedService: "dental-implants",
+    funnelStage: "decision",
+  },
+  {
+    slug: "full-mouth-rehabilitation-who-needs-it",
+    title: "Full Mouth Rehabilitation: Who Needs It and What Does It Involve?",
+    targetKeyword: "full mouth rehabilitation Bengaluru",
+    intent: "informational",
+    relatedService: "full-mouth-rehabilitation",
+    funnelStage: "awareness",
+  },
+  {
+    slug: "dental-implant-cost-bengaluru",
+    title: "Dental Implant Cost in Bengaluru: What Determines the Price?",
+    targetKeyword: "dental implant cost Bengaluru",
+    intent: "commercial",
+    relatedService: "dental-implants",
+    funnelStage: "decision",
+  },
+  {
+    slug: "prosthodontist-vs-general-dentist",
+    title: "Prosthodontist vs General Dentist: When Should You See a Specialist?",
+    targetKeyword: "prosthodontist Bengaluru",
+    intent: "informational",
+    relatedService: null,
+    funnelStage: "awareness",
+  },
+  {
+    slug: "complete-dentures-vs-implant-supported-dentures",
+    title: "Complete Dentures vs Implant-Supported Dentures: A Practical Guide",
+    targetKeyword: "implant supported dentures Bengaluru",
+    intent: "commercial",
+    relatedService: "dentures",
+    funnelStage: "consideration",
+  },
+  {
+    slug: "smile-makeover-what-to-expect",
+    title: "Smile Makeover in Bengaluru: What to Expect at Your Consultation",
+    targetKeyword: "smile makeover Bengaluru",
+    intent: "informational",
+    relatedService: "cosmetic-smile-makeover",
+    funnelStage: "consideration",
+  },
+] as const;

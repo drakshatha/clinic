@@ -37,7 +37,7 @@ export function Header() {
         <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
           <Image
             src="/images/logo-akshatha.svg"
-            alt={site.name}
+            alt={`${site.name} — Dental Clinic in Bengaluru`}
             width={168}
             height={44}
             priority

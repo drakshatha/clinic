@@ -1,16 +1,46 @@
 import type { MetadataRoute } from "next";
 import { services, site } from "@/lib/site";
 
+const base = site.url;
+const now = new Date().toISOString();
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = site.url;
   return [
-    { url: `${base}/`, priority: 1 },
-    { url: `${base}/about`, priority: 0.8 },
-    { url: `${base}/services`, priority: 0.9 },
-    { url: `${base}/contact`, priority: 0.9 },
+    {
+      url: `${base}/`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 1.0,
+    },
+    {
+      url: `${base}/about`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${base}/services`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${base}/gallery`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${base}/contact`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
     ...services.map((s) => ({
       url: `${base}/services/${s.slug}`,
-      priority: 0.8,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.85,
     })),
   ];
 }

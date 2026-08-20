@@ -5,6 +5,15 @@ import { Section, SectionHeading } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
 
+// Descriptive alt text for each service image
+const serviceAlt: Record<string, string> = {
+  "full-mouth-rehabilitation": "Full mouth rehabilitation consultation — complete dental restoration by specialist in Bengaluru",
+  "dental-implants": "Dental implant consultation — permanent tooth replacement specialist in Bengaluru",
+  "crowns-bridges": "Dental crown and bridge fitting — precision ceramic restorations in Bengaluru",
+  "dentures": "Denture fitting consultation — complete and partial dentures specialist in Bengaluru",
+  "cosmetic-smile-makeover": "Cosmetic smile makeover — confident dental transformation in Bengaluru",
+};
+
 export function ServicesGrid() {
   return (
     <Section id="services">
@@ -20,7 +29,7 @@ export function ServicesGrid() {
               <div className="relative h-44 overflow-hidden">
                 <Image
                   src={service.image}
-                  alt={service.title}
+                  alt={serviceAlt[service.slug] ?? service.title}
                   fill
                   className="object-cover transition duration-500 group-hover:scale-105"
                   sizes="(max-width:768px) 100vw, 33vw"
@@ -34,6 +43,7 @@ export function ServicesGrid() {
                 <Link
                   href={`/services/${service.slug}`}
                   className="mt-4 text-sm font-bold text-navy transition hover:text-blue"
+                  aria-label={`Learn more about ${service.title}`}
                 >
                   Learn more →
                 </Link>
@@ -44,7 +54,7 @@ export function ServicesGrid() {
       </div>
       <div className="mt-10 text-center">
         <Button href="/services" variant="secondary">
-          Explore all services
+          Explore all treatments
         </Button>
       </div>
     </Section>

@@ -55,7 +55,7 @@ export function Hero({
             <div className="flex items-center gap-4 rounded-2xl border border-line bg-white/80 p-3 pr-5 shadow-[var(--shadow-sm)] backdrop-blur">
               <Image
                 src="/images/doctor-portrait-clean.png"
-                alt={site.doctor}
+                alt="Dr. Akshatha V — MDS Prosthodontist and Implantologist in Bengaluru"
                 width={72}
                 height={72}
                 className="h-[72px] w-[72px] rounded-xl object-cover flex-shrink-0"

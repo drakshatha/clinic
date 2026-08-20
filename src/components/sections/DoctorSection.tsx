@@ -12,7 +12,7 @@ export function DoctorSection() {
           <div className="overflow-hidden rounded-[28px] shadow-[var(--shadow)]">
             <Image
               src="/images/doctor-portrait-clean.png"
-              alt={site.doctor}
+              alt="Dr. Akshatha V, MDS Prosthodontist and Implantologist at Akshatha Dental Clinic, Mahalakshmi Layout, Bengaluru"
               width={640}
               height={800}
               className="h-full w-full object-cover"
