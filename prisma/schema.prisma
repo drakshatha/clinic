@@ -349,3 +349,30 @@ model Prescription {
   createdBy StaffUser @relation(fields: [createdById], references: [id])
   lead      Lead?     @relation(fields: [leadId], references: [id])
 }
+
+// ─── CMS: Service Page Content ────────────────────────────────────────────────
+model ServiceContent {
+  slug         String   @id               // matches slug in site.ts
+  title        String   @default("")
+  shortTitle   String   @default("")
+  summary      String   @default("")
+  description  String   @default("")      // main long-form text (800-1500 words)
+  benefits     String   @default("[]")    // JSON string[]
+  steps        String   @default("[]")    // JSON {title,body}[]
+  faqs         String   @default("[]")    // JSON {q,a}[]
+  startingFrom String   @default("")
+  keywords     String   @default("[]")    // JSON string[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ─── CMS: Global FAQs ─────────────────────────────────────────────────────────
+model SiteFaq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
