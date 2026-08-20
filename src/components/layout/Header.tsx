@@ -66,17 +66,29 @@ export function Header() {
           </Button>
         </nav>
 
-        <button
-          type="button"
-          className="inline-flex flex-col gap-1.5 rounded-lg p-2 md:hidden"
-          aria-label="Toggle menu"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span className="block h-0.5 w-6 bg-navy" />
-          <span className="block h-0.5 w-6 bg-navy" />
-          <span className="block h-0.5 w-6 bg-navy" />
-        </button>
+        {/* Mobile quick-actions: tap-to-call + hamburger */}
+        <div className="flex items-center gap-2 md:hidden">
+          <a
+            href={`tel:${site.phone}`}
+            aria-label={`Call ${site.phoneDisplay}`}
+            className="grid h-10 w-10 place-items-center rounded-full border border-line bg-white text-navy shadow-sm hover:bg-bg-soft"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden>
+              <path d="M6.6 10.8a15.5 15.5 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.5.6.6 0 1 .5 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.5-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.5.1.4 0 .8-.2 1l-2.3 2.3Z"/>
+            </svg>
+          </a>
+          <button
+            type="button"
+            className="inline-flex flex-col gap-1.5 rounded-lg p-2"
+            aria-label="Toggle menu"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span className="block h-0.5 w-6 bg-navy" />
+            <span className="block h-0.5 w-6 bg-navy" />
+            <span className="block h-0.5 w-6 bg-navy" />
+          </button>
+        </div>
       </div>
 
       {open ? (

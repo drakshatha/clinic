@@ -65,7 +65,7 @@ export function Hero() {
 
         {/* ── Right: image — fills full height of left column ── */}
         <div className="animate-fade-up h-full" style={{ animationDelay: "120ms" }}>
-          <div className="relative h-full overflow-hidden rounded-[28px] shadow-[var(--shadow)]" style={{ minHeight: "520px" }}>
+          <div className="relative h-full overflow-hidden rounded-[28px] shadow-[var(--shadow)] min-h-[260px] md:min-h-[380px] lg:min-h-[520px]">
             <Image
               src="/images/family-smile-consultation.jpg"
               alt="Patient smile restoration consultation"

@@ -175,7 +175,7 @@ export function AppointmentForm() {
             name="name"
             required
             autoComplete="name"
-            className="rounded-xl border border-line px-3 py-3 font-medium outline-none transition focus:border-blue"
+            className="rounded-xl border border-line px-3 py-3 text-base font-medium outline-none transition focus:border-blue"
             placeholder="Your name"
           />
         </label>
@@ -192,7 +192,7 @@ export function AppointmentForm() {
             required
             autoComplete="tel"
             inputMode="tel"
-            className="rounded-xl border border-line px-3 py-3 font-medium outline-none transition focus:border-blue"
+            className="rounded-xl border border-line px-3 py-3 text-base font-medium outline-none transition focus:border-blue"
             placeholder="+91 98765 43210"
           />
         </label>
@@ -203,7 +203,7 @@ export function AppointmentForm() {
             name="email"
             type="email"
             autoComplete="email"
-            className="rounded-xl border border-line px-3 py-3 font-medium outline-none transition focus:border-blue"
+            className="rounded-xl border border-line px-3 py-3 text-base font-medium outline-none transition focus:border-blue"
             placeholder="you@email.com"
           />
         </label>
@@ -215,7 +215,7 @@ export function AppointmentForm() {
             value={dob}
             onChange={(e) => setDob(e.target.value)}
             max={todayIst()}
-            className="rounded-xl border border-line px-3 py-3 font-medium outline-none transition focus:border-blue"
+            className="rounded-xl border border-line px-3 py-3 text-base font-medium outline-none transition focus:border-blue"
           />
         </label>
 
@@ -224,7 +224,7 @@ export function AppointmentForm() {
           <select
             value={gender}
             onChange={(e) => setGender(e.target.value)}
-            className="rounded-xl border border-line px-3 py-3 font-medium outline-none transition focus:border-blue"
+            className="rounded-xl border border-line px-3 py-3 text-base font-medium outline-none transition focus:border-blue"
           >
             <option value="">Prefer not to say</option>
             <option value="male">Male</option>
@@ -237,7 +237,7 @@ export function AppointmentForm() {
           Treatment interest
           <select
             name="treatment"
-            className="rounded-xl border border-line px-3 py-3 font-medium outline-none transition focus:border-blue"
+            className="rounded-xl border border-line px-3 py-3 text-base font-medium outline-none transition focus:border-blue"
             defaultValue=""
           >
             <option value="">General consultation</option>
@@ -257,7 +257,7 @@ export function AppointmentForm() {
             min={todayIst()}
             value={slotDate}
             onChange={(e) => setSlotDate(e.target.value)}
-            className="rounded-xl border border-line px-3 py-3 font-medium outline-none transition focus:border-blue"
+            className="rounded-xl border border-line px-3 py-3 text-base font-medium outline-none transition focus:border-blue"
           />
         </label>
 
@@ -292,7 +292,7 @@ export function AppointmentForm() {
           <textarea
             name="message"
             rows={3}
-            className="resize-y rounded-xl border border-line px-3 py-3 font-medium outline-none transition focus:border-blue"
+            className="resize-y rounded-xl border border-line px-3 py-3 text-base font-medium outline-none transition focus:border-blue"
             placeholder="Tell us about your concern (optional)"
           />
         </label>
@@ -300,7 +300,7 @@ export function AppointmentForm() {
 
       <div className="mt-5 rounded-2xl border border-line bg-bg-soft p-4">
         <p className="mb-3 text-sm font-bold text-navy">Phone verification (OTP) *</p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <Button type="button" variant="secondary" onClick={sendOtp} disabled={otpLoading}>
             {otpLoading ? "Sending…" : otpSent ? "Resend OTP" : "Send OTP"}
           </Button>
@@ -310,7 +310,7 @@ export function AppointmentForm() {
             inputMode="numeric"
             maxLength={6}
             placeholder="Enter 6-digit OTP"
-            className="min-w-[140px] flex-1 rounded-full border border-line px-4 py-3 text-sm font-semibold outline-none focus:border-blue"
+            className="w-full rounded-full border border-line px-4 py-3 text-base font-semibold outline-none focus:border-blue sm:w-auto sm:min-w-[140px] sm:flex-1"
           />
           <Button type="button" variant="secondary" onClick={verifyOtp} disabled={!otpSent}>
             Verify
