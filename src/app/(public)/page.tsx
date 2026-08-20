@@ -1,4 +1,4 @@
-// Revalidate every 60s — picks up FAQ + stats edits from admin within a minute
+// ISR: revalidate every 60s so FAQ / stat edits appear quickly
 export const revalidate = 60;
 
 import { Hero } from "@/components/sections/Hero";
@@ -13,6 +13,7 @@ import { CtaBand } from "@/components/sections/CtaBand";
 import { prisma } from "@/lib/prisma";
 import { faqs as staticFaqs } from "@/lib/site";
 import { getSiteStats } from "@/lib/site-settings";
+import { getGoogleReviews } from "@/lib/google-reviews";
 
 async function getActiveFaqs(): Promise<{ q: string; a: string }[]> {
   try {
@@ -20,19 +21,27 @@ async function getActiveFaqs(): Promise<{ q: string; a: string }[]> {
       where: { isActive: true },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
     });
-    if (rows.length === 0) return staticFaqs;
-    return rows.map((r) => ({ q: r.question, a: r.answer }));
+    return rows.length > 0 ? rows.map((r) => ({ q: r.question, a: r.answer })) : staticFaqs;
   } catch {
     return staticFaqs;
   }
 }
 
 export default async function HomePage() {
-  const [faqItems, stats] = await Promise.all([getActiveFaqs(), getSiteStats()]);
+  const [faqItems, googleReviews, stats] = await Promise.all([
+    getActiveFaqs(),
+    getGoogleReviews(),   // live from Google Places API (cached 6h)
+    getSiteStats(),       // for years experience + patients served
+  ]);
 
   return (
     <>
-      <Hero {...stats} />
+      <Hero
+        reviewCount={googleReviews.reviewCount}
+        rating={googleReviews.rating}
+        yearsExperience={stats.yearsExperience}
+        patientsServed={stats.patientsServed}
+      />
       <EmergencyStrip />
       <ServicesGrid />
       <BeforeAfterGallery />
