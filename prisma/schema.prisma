@@ -376,3 +376,10 @@ model SiteFaq {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// ─── Site Settings (key-value, admin-editable) ────────────────────────────────
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

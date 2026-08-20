@@ -1,8 +1,16 @@
 import Image from "next/image";
 import { site } from "@/lib/site";
 import { Button } from "@/components/ui/Button";
+import type { SiteStats } from "@/lib/site-settings";
 
-export function Hero() {
+type HeroProps = Partial<SiteStats>;
+
+export function Hero({
+  reviewCount = site.reviewCount,
+  rating = site.rating,
+  yearsExperience = site.yearsExperience,
+  patientsServed = site.patientsServed,
+}: HeroProps) {
   return (
     <section className="relative overflow-hidden bg-[linear-gradient(180deg,#eef4fa_0%,#f9fbfe_55%,#ffffff_100%)] pt-28 pb-16 md:pt-32 md:pb-24">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(99,153,194,0.18),transparent_50%)]" />
@@ -28,8 +36,8 @@ export function Hero() {
 
           <div className="mt-10 flex flex-wrap gap-3">
             {[
-              `${site.yearsExperience}+ Years Experience`,
-              `${site.patientsServed} Happy Patients`,
+              `${yearsExperience}+ Years Experience`,
+              `${patientsServed} Happy Patients`,
               "US-Grade Technology",
             ].map((item) => (
               <div
@@ -56,7 +64,7 @@ export function Hero() {
                 <p className="font-bold text-navy">{site.doctor}</p>
                 <p className="text-sm text-muted">{site.credentials}</p>
                 <p className="mt-1 text-xs font-semibold text-blue">
-                  {site.rating}★ · {site.reviewCount}+ Google reviews
+                  {rating}★ · {reviewCount}+ Google reviews
                 </p>
               </div>
             </div>

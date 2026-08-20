@@ -594,10 +594,142 @@ function FaqManager() {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────────────────────
+// Settings Manager tab — editable site stats
+// ──────────────────────────────────────────────────────────────────────────────
+function SettingsManager() {
+  const [reviewCount, setReviewCount] = useState("");
+  const [rating, setRating] = useState("");
+  const [yearsExp, setYearsExp] = useState("");
+  const [patients, setPatients] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/settings")
+      .then((r) => r.json())
+      .then((d) => {
+        const s = d.settings ?? {};
+        setReviewCount(s.review_count ?? "");
+        setRating(s.review_rating ?? "");
+        setYearsExp(s.years_experience ?? "");
+        setPatients(s.patients_served ?? "");
+      });
+  }, []);
+
+  async function save() {
+    setSaving(true);
+    setMsg(null);
+    try {
+      const body: Record<string, string> = {};
+      if (reviewCount) body.review_count = reviewCount;
+      if (rating) body.review_rating = rating;
+      if (yearsExp) body.years_experience = yearsExp;
+      if (patients) body.patients_served = patients;
+
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error();
+      setMsg({ ok: true, text: "Saved! Site updates within 60 seconds." });
+    } catch {
+      setMsg({ ok: false, text: "Save failed. Please try again." });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const field = (
+    label: string,
+    value: string,
+    onChange: (v: string) => void,
+    hint: string,
+    type = "text"
+  ) => (
+    <label className="grid gap-1.5">
+      <span className="text-sm font-semibold text-navy">{label}</span>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="rounded-xl border border-line px-4 py-3 text-base outline-none focus:border-blue"
+      />
+      <span className="text-xs text-muted">{hint}</span>
+    </label>
+  );
+
+  return (
+    <div className="max-w-lg">
+      <div className="rounded-2xl border border-line bg-white p-6 shadow-[var(--shadow-sm)]">
+        <h2 className="mb-1 text-lg font-bold text-navy">Clinic Stats</h2>
+        <p className="mb-6 text-sm text-muted">
+          These numbers appear on the homepage — doctor card, trust badges, and Google
+          structured data. Update whenever you hit a milestone.
+        </p>
+
+        <div className="grid gap-5">
+          {field(
+            "Google Review Count",
+            reviewCount,
+            setReviewCount,
+            'Shown as "58+ Google reviews" in the doctor card. Check Google Business Profile for the latest.',
+            "number"
+          )}
+          {field(
+            "Average Rating (e.g. 4.9)",
+            rating,
+            setRating,
+            "Star rating shown next to the review count.",
+          )}
+          {field(
+            "Years of Experience",
+            yearsExp,
+            setYearsExp,
+            'Shown as "12+ Years Experience" trust badge.',
+            "number"
+          )}
+          {field(
+            "Patients Served (e.g. 1200+)",
+            patients,
+            setPatients,
+            'Shown as "1200+ Happy Patients" trust badge.'
+          )}
+        </div>
+
+        <div className="mt-6 flex items-center gap-4">
+          <button
+            onClick={save}
+            disabled={saving}
+            className="rounded-full bg-blue px-6 py-2.5 text-sm font-bold text-white transition hover:bg-blue-deep disabled:opacity-50"
+          >
+            {saving ? "Saving…" : "💾 Save changes"}
+          </button>
+          {msg && (
+            <span className={`text-sm font-medium ${msg.ok ? "text-success" : "text-red-600"}`}>
+              {msg.text}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-blue/20 bg-blue/5 p-4">
+        <p className="text-xs font-semibold text-blue-deep">💡 Tip</p>
+        <p className="mt-1 text-xs text-muted leading-relaxed">
+          Check your Google Business Profile every few weeks for the latest review count.
+          Keeping this updated adds social proof and improves your Google ranking signals.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 // Main ContentManager
 // ──────────────────────────────────────────────────────────────────────────────
 export function ContentManager() {
-  const [tab, setTab] = useState<"services" | "faqs">("services");
+  const [tab, setTab] = useState<"services" | "faqs" | "settings">("services");
   const [dbServices, setDbServices] = useState<ServiceRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
@@ -643,8 +775,8 @@ export function ContentManager() {
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-1 rounded-xl border border-line bg-bg-soft p-1 w-fit">
-        {(["services", "faqs"] as const).map((t) => (
+      <div className="mb-6 flex flex-wrap gap-1 rounded-xl border border-line bg-bg-soft p-1 w-fit">
+        {(["services", "faqs", "settings"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -652,7 +784,7 @@ export function ContentManager() {
               tab === t ? "bg-white text-navy shadow-sm" : "text-muted hover:text-navy"
             }`}
           >
-            {t === "services" ? "🦷 Service Pages" : "❓ Global FAQs"}
+            {t === "services" ? "🦷 Service Pages" : t === "faqs" ? "❓ Global FAQs" : "⚙️ Stats"}
           </button>
         ))}
       </div>
@@ -710,6 +842,9 @@ export function ContentManager() {
 
       {/* FAQs tab */}
       {tab === "faqs" && <FaqManager />}
+
+      {/* Settings tab */}
+      {tab === "settings" && <SettingsManager />}
     </div>
   );
 }
