@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { services, site } from "@/lib/site";
+import { blogPosts } from "@/lib/blog";
 
 const base = site.url;
 const now = new Date().toISOString();
@@ -41,6 +42,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.85,
+    })),
+    {
+      url: `${base}/blog`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.75,
+    },
+    ...blogPosts.map((p) => ({
+      url: `${base}/blog/${p.slug}`,
+      lastModified: p.updatedAt ?? p.publishedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
     })),
   ];
 }
