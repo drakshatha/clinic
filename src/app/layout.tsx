@@ -26,12 +26,17 @@ export const metadata: Metadata = {
   description: `${site.doctor}, MDS Prosthodontist & Implantologist in ${site.area}, ${site.city}. Expert in dental implants, full mouth rehabilitation, crowns, dentures & smile makeovers. Book a consultation today.`,
   keywords: [
     "prosthodontist in Bengaluru",
+    "prosthodontist Mahalakshmi Layout",
     "dental implants Bengaluru",
+    "dental implants cost Bengaluru",
     "full mouth rehabilitation Bengaluru",
-    "MDS prosthodontist Mahalakshmi Layout",
+    "MDS prosthodontist Bengaluru",
+    "implant supported dentures Bengaluru",
     "smile makeover Bengaluru",
     "dental crowns Bengaluru",
     "dentures specialist Bengaluru",
+    "tooth replacement Bengaluru",
+    "cosmetic dentist Bengaluru",
   ],
   authors: [{ name: site.doctor }],
   creator: site.doctor,
@@ -113,6 +118,15 @@ const clinicSchema = {
   },
   hasMap: site.mapsEmbed,
   sameAs: [site.googleReviewUrl],
+  areaServed: [
+    { "@type": "City", name: "Bengaluru" },
+    { "@type": "Neighborhood", name: "Mahalakshmi Layout" },
+    { "@type": "Neighborhood", name: "Rajajinagar" },
+    { "@type": "Neighborhood", name: "Basaveshwaranagar" },
+    { "@type": "Neighborhood", name: "Yeshwanthpur" },
+    { "@type": "Neighborhood", name: "Malleshwaram" },
+  ],
+  landmark: "Near Rajajinagar Metro Station",
 };
 
 // ── WebSite schema with SearchAction ──────────────────────────────────────────

@@ -107,12 +107,22 @@ export default function ContactPage() {
               </Button>
             </div>
 
-            {/* Nearby areas */}
+            {/* How to find us */}
             <div className="mt-8 rounded-2xl border border-line bg-bg-soft p-5">
-              <h3 className="font-semibold text-navy mb-2 text-sm">Serving Patients From</h3>
+              <h3 className="font-semibold text-navy mb-2 text-sm">How to Find Us</h3>
+              <p className="text-xs text-muted leading-relaxed">
+                Located in <strong className="text-navy">Mahalakshmi Layout</strong>, a short drive from
+                Rajajinagar Metro Station. Opposite the swimming pool &amp; bus stop, next to the Buddha statue.
+                Easily accessible from Rajajinagar, Malleshwaram, Basaveshwaranagar, Yeshwanthpur, and Vijayanagar.
+              </p>
+            </div>
+
+            {/* Nearby areas */}
+            <div className="mt-4 rounded-2xl border border-line bg-bg-soft p-5">
+              <h3 className="font-semibold text-navy mb-2 text-sm">Patients Visit From</h3>
               <p className="text-xs text-muted leading-relaxed">
                 Mahalakshmi Layout · Rajajinagar · Malleshwaram · Basaveshwaranagar ·
-                Vijayanagar · Yeshwanthpur · Sadashivanagar · Mathikere and across Bengaluru.
+                Vijayanagar · Yeshwanthpur · Sadashivanagar · Mathikere · Nagarbhavi and across Bengaluru.
               </p>
             </div>
 

@@ -73,7 +73,7 @@ export const services: Service[] = [
     ],
     startingFrom: "₹50,000+",
     image: "/images/doctor-procedure-care.jpg",
-    keywords: ["full mouth rehabilitation", "full mouth rehab specialist Bengaluru"],
+    keywords: ["full mouth rehabilitation Bengaluru", "full mouth reconstruction Bengaluru", "full mouth rehabilitation specialist", "complete mouth restoration Bengaluru", "prosthodontist Bengaluru"],
   },
   {
     slug: "dental-implants",
@@ -107,7 +107,7 @@ export const services: Service[] = [
     ],
     startingFrom: "₹25,000",
     image: "/images/doctor-patient-consultation.jpg",
-    keywords: ["dental implants specialist", "best dental implants Bengaluru"],
+    keywords: ["dental implants Bengaluru", "dental implants cost Bengaluru", "implant dentist Mahalakshmi Layout", "all on 4 implants Bengaluru", "tooth replacement Bengaluru", "implantologist Bengaluru"],
   },
   {
     slug: "crowns-bridges",
@@ -141,7 +141,7 @@ export const services: Service[] = [
     ],
     startingFrom: "₹8,000",
     image: "/images/doctor-procedure-care-ppe.jpg",
-    keywords: ["dental crowns Bengaluru", "bridges specialist"],
+    keywords: ["dental crowns Bengaluru", "dental bridge Bengaluru", "zirconia crown Bengaluru", "porcelain crown specialist", "crown replacement Bengaluru"],
   },
   {
     slug: "dentures",
@@ -175,7 +175,7 @@ export const services: Service[] = [
     ],
     startingFrom: "₹15,000",
     image: "/images/family-smile-consultation.jpg",
-    keywords: ["dentures Bengaluru", "partial dentures specialist"],
+    keywords: ["dentures Bengaluru", "complete dentures Bengaluru", "partial dentures Bengaluru", "implant supported dentures Bengaluru", "denture specialist Mahalakshmi Layout", "missing teeth treatment Bengaluru"],
   },
   {
     slug: "cosmetic-smile-makeover",
@@ -209,7 +209,7 @@ export const services: Service[] = [
     ],
     startingFrom: "₹15,000",
     image: "/images/hero-chisel-style.jpg",
-    keywords: ["smile makeover clinic", "cosmetic prosthodontist Bengaluru"],
+    keywords: ["smile makeover Bengaluru", "cosmetic dentist Bengaluru", "veneers Bengaluru", "smile design Bengaluru", "cosmetic dentistry Mahalakshmi Layout", "teeth whitening Bengaluru"],
   },
 ];
 
