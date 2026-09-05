@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     type: "profile",
     images: [
       {
-        url: "/images/doctor-portrait-clean.png",
+        url: "/images/doctor-portrait-clean.jpg",
         width: 700,
         height: 880,
         alt: "Dr. Akshatha V — MDS Prosthodontist and Implantologist in Bengaluru",
@@ -37,7 +37,7 @@ const doctorSchema = {
   jobTitle: "MDS Prosthodontist & Implantologist",
   description: `MDS Prosthodontist and Implantologist with ${site.yearsExperience}+ years of clinical experience, specialising in dental implants, full mouth rehabilitation, crowns, bridges, dentures, and cosmetic smile makeovers.`,
   medicalSpecialty: "Prosthodontics",
-  image: `${site.url}/images/doctor-portrait-clean.png`,
+  image: `${site.url}/images/doctor-portrait-clean.jpg`,
   url: `${site.url}/about`,
   worksFor: {
     "@id": `${site.url}/#clinic`,
@@ -104,7 +104,7 @@ export default function AboutPage() {
         <div className="grid items-start gap-12 md:grid-cols-2">
           <div className="overflow-hidden rounded-[28px] shadow-[var(--shadow)] md:sticky md:top-24">
             <Image
-              src="/images/doctor-portrait-clean.png"
+              src="/images/doctor-portrait-clean.jpg"
               alt="Dr. Akshatha V, MDS Prosthodontist and Implantologist at Akshatha Dental Clinic, Mahalakshmi Layout, Bengaluru"
               width={700}
               height={880}

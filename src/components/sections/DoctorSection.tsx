@@ -11,7 +11,7 @@ export function DoctorSection() {
         <Reveal>
           <div className="overflow-hidden rounded-[28px] shadow-[var(--shadow)]">
             <Image
-              src="/images/doctor-portrait-clean.png"
+              src="/images/doctor-portrait-clean.jpg"
               alt="Dr. Akshatha V, MDS Prosthodontist and Implantologist at Akshatha Dental Clinic, Mahalakshmi Layout, Bengaluru"
               width={640}
               height={800}
