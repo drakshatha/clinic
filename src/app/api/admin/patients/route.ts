@@ -4,11 +4,19 @@ import { getAllPatients } from "@/lib/db";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const session = await requireStaff("view_leads");
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const session = await requireStaff("view_leads");
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const patients = await getAllPatients();
-  return NextResponse.json({ patients });
+    const patients = await getAllPatients();
+    return NextResponse.json({ patients });
+  } catch (err) {
+    console.error("[/api/admin/patients GET]", err);
+    return NextResponse.json(
+      { error: "Failed to load patients", detail: String(err) },
+      { status: 500 }
+    );
+  }
 }
 
 /** PATCH — update patient DOB or notes */
