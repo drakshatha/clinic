@@ -72,14 +72,9 @@ function MedicalHistoryPanel({ phone }: { phone: string }) {
   );
 }
 
-type Props = {
-  /** Server pre-fetched patients. When absent, the component falls back to a client-side fetch. */
-  initialPatients?: Patient[];
-};
-
-export function PatientsManager({ initialPatients }: Props) {
-  const [patients, setPatients] = useState<Patient[]>(initialPatients ?? []);
-  const [loading,  setLoading]  = useState(!initialPatients);
+export function PatientsManager() {
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading,  setLoading]  = useState(true);
   const [search,   setSearch]   = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [savingDob, setSavingDob] = useState<string | null>(null);
@@ -97,11 +92,7 @@ export function PatientsManager({ initialPatients }: Props) {
     setLoading(false);
   }, []);
 
-  // Only fetch client-side when no server-provided data (e.g. direct navigation after refresh)
-  useEffect(() => {
-    if (!initialPatients) load();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useEffect(() => { load(); }, [load]);
 
   async function saveDob(phone: string, dob: string) {
     setSavingDob(phone);
