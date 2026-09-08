@@ -362,11 +362,24 @@ export async function getAllPatients() {
   return prisma.patient.findMany({
     orderBy: { lastSeen: "desc" },
     include: {
-      leads: { select: { id: true, status: true, slotDate: true, slotTime: true, treatment: true } },
-      consultations: { select: { id: true, completedAt: true, paymentAmount: true, visitType: true } },
-      medicalHistory: true,
+      leads: {
+        select: { id: true, status: true, slotDate: true, slotTime: true, treatment: true },
+        orderBy: { createdAt: "desc" },
+        take: 25,
+      },
+      consultations: {
+        select: { id: true, completedAt: true, paymentAmount: true, visitType: true },
+        orderBy: { completedAt: "desc" },
+        take: 25,
+      },
+      // medicalHistory is heavy — loaded on-demand when a patient row is expanded
     },
   });
+}
+
+/** Fetch a single patient's medical history on demand (called when a patient row expands). */
+export async function getPatientMedicalHistory(phone: string) {
+  return prisma.medicalHistory.findUnique({ where: { patientPhone: phone } });
 }
 
 export async function getPatientByPhone(phone: string) {

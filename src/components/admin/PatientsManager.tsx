@@ -27,7 +27,6 @@ type Patient = {
   lastSeen: string;
   leads: { id: string; status: string; slotDate: string; treatment: string }[];
   consultations: { id: string; paymentAmount: number | null; visitType: string }[];
-  medicalHistory: MedicalHistory;
 };
 
 function MHRow({ label, value, span }: { label: string; value: string; span?: boolean }) {
@@ -39,9 +38,48 @@ function MHRow({ label, value, span }: { label: string; value: string; span?: bo
   );
 }
 
-export function PatientsManager() {
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [loading,  setLoading]  = useState(true);
+/** Lazy-loaded medical history panel — fetches only when first expanded. */
+function MedicalHistoryPanel({ phone }: { phone: string }) {
+  const [mh, setMh] = useState<MedicalHistory | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/admin/patients/medical-history?phone=${encodeURIComponent(phone)}`)
+      .then((r) => r.json())
+      .then((d) => { setMh(d.medicalHistory); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [phone]);
+
+  if (loading) return <p className="mt-3 text-xs text-muted">Loading medical history…</p>;
+  if (!mh) return <p className="mt-3 text-xs text-muted italic">No medical history on file (patient hasn&apos;t filled the intake form yet).</p>;
+
+  return (
+    <div className="mt-3">
+      <p className="text-[11px] font-bold uppercase tracking-wide text-muted mb-2">🏥 Medical History</p>
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        {mh.bloodGroup && <MHRow label="Blood Group" value={mh.bloodGroup} />}
+        {mh.allergies && <MHRow label="Allergies" value={mh.allergies} />}
+        {mh.currentMedications && <MHRow label="Medications" value={mh.currentMedications} />}
+        {mh.medicalConditions && <MHRow label="Conditions" value={mh.medicalConditions} />}
+        {mh.smokingStatus && <MHRow label="Smoking" value={mh.smokingStatus} />}
+        {mh.isPregnant && mh.isPregnant !== "na" && <MHRow label="Pregnant" value={mh.isPregnant} />}
+        {mh.dentalConcerns && <MHRow label="Concern" value={mh.dentalConcerns} span />}
+        {mh.emergencyContactName && (
+          <MHRow label="Emergency Contact" value={`${mh.emergencyContactName} ${mh.emergencyContactPhone}`} span />
+        )}
+      </div>
+    </div>
+  );
+}
+
+type Props = {
+  /** Server pre-fetched patients. When absent, the component falls back to a client-side fetch. */
+  initialPatients?: Patient[];
+};
+
+export function PatientsManager({ initialPatients }: Props) {
+  const [patients, setPatients] = useState<Patient[]>(initialPatients ?? []);
+  const [loading,  setLoading]  = useState(!initialPatients);
   const [search,   setSearch]   = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [savingDob, setSavingDob] = useState<string | null>(null);
@@ -59,7 +97,11 @@ export function PatientsManager() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  // Only fetch client-side when no server-provided data (e.g. direct navigation after refresh)
+  useEffect(() => {
+    if (!initialPatients) load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function saveDob(phone: string, dob: string) {
     setSavingDob(phone);
@@ -251,27 +293,8 @@ export function PatientsManager() {
                       </div>
                     )}
 
-                    {/* Medical history */}
-                    {p.medicalHistory && (
-                      <div className="mt-3">
-                        <p className="text-[11px] font-bold uppercase tracking-wide text-muted mb-2">🏥 Medical History</p>
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          {p.medicalHistory.bloodGroup && <MHRow label="Blood Group" value={p.medicalHistory.bloodGroup} />}
-                          {p.medicalHistory.allergies && <MHRow label="Allergies" value={p.medicalHistory.allergies} />}
-                          {p.medicalHistory.currentMedications && <MHRow label="Medications" value={p.medicalHistory.currentMedications} />}
-                          {p.medicalHistory.medicalConditions && <MHRow label="Conditions" value={p.medicalHistory.medicalConditions} />}
-                          {p.medicalHistory.smokingStatus && <MHRow label="Smoking" value={p.medicalHistory.smokingStatus} />}
-                          {p.medicalHistory.isPregnant && p.medicalHistory.isPregnant !== "na" && <MHRow label="Pregnant" value={p.medicalHistory.isPregnant} />}
-                          {p.medicalHistory.dentalConcerns && <MHRow label="Concern" value={p.medicalHistory.dentalConcerns} span />}
-                          {p.medicalHistory.emergencyContactName && (
-                            <MHRow label="Emergency Contact" value={`${p.medicalHistory.emergencyContactName} ${p.medicalHistory.emergencyContactPhone}`} span />
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    {!p.medicalHistory && (
-                      <p className="mt-3 text-xs text-muted italic">No medical history on file (patient hasn&apos;t filled the intake form yet).</p>
-                    )}
+                    {/* Medical history — fetched lazily when this row is first expanded */}
+                    <MedicalHistoryPanel phone={p.phone} />
                   </div>
                 )}
               </div>
