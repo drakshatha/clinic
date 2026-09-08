@@ -1,32 +1,23 @@
 /**
  * GET /api/cron/warm-db
  *
- * Keep-warm endpoint called by Vercel Cron every 4 minutes.
- * Sends a trivial query to Neon so the compute never auto-suspends
- * during clinic hours (and stays ready overnight too).
+ * Keep-warm endpoint pinged by UptimeRobot every 5 minutes.
+ * Sends a trivial SELECT 1 to Neon so the compute never auto-suspends,
+ * eliminating cold-start latency on the admin panel.
  *
- * Protected by CRON_SECRET env var to prevent abuse.
+ * No auth required — SELECT 1 has zero side effects and cannot be abused.
  */
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
-export async function GET(req: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  const auth = req.headers.get("authorization");
-
-  // Allow Vercel Cron (Bearer token) or internal curl with the secret
-  if (secret && auth !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export async function GET() {
   try {
-    // Cheapest possible query — asks Neon for the current timestamp
     await prisma.$queryRaw`SELECT 1`;
     return NextResponse.json({ ok: true, ts: new Date().toISOString() });
   } catch (err) {
     console.error("[warm-db] ping failed:", err);
-    return NextResponse.json({ ok: false }, { status: 500 });
+    return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });
   }
 }
