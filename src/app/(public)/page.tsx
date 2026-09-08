@@ -58,11 +58,70 @@ export default async function HomePage() {
     })),
   };
 
+  // LocalBusiness / Dentist schema — helps Google associate site with local dental searches
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@type": ["Dentist", "MedicalBusiness"],
+    name: site.name,
+    alternateName: site.doctor,
+    description: `${site.doctor}, ${site.credentials} in ${site.area}, ${site.city}. Specialist in dental implants, full mouth rehabilitation, crowns, dentures, and cosmetic smile makeovers.`,
+    url: site.url,
+    telephone: site.phone,
+    email: site.email,
+    priceRange: "₹₹",
+    image: `${site.url}/images/family-smile-consultation.jpg`,
+    logo: `${site.url}/images/logo.png`,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "K M Arcade, opp. Swimming Pool & Bus Stop, next to Buddha Statue",
+      addressLocality: "Mahalakshmi Layout",
+      addressRegion: "Karnataka",
+      postalCode: "560096",
+      addressCountry: "IN",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: 12.9916,
+      longitude: 77.5533,
+    },
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+        opens: "11:00",
+        closes: "21:30",
+      },
+    ],
+    medicalSpecialty: "Prosthodontics",
+    availableService: [
+      { "@type": "MedicalProcedure", name: "Dental Implants" },
+      { "@type": "MedicalProcedure", name: "Full Mouth Rehabilitation" },
+      { "@type": "MedicalProcedure", name: "Dental Crowns & Bridges" },
+      { "@type": "MedicalProcedure", name: "Complete & Partial Dentures" },
+      { "@type": "MedicalProcedure", name: "Cosmetic Smile Makeover" },
+      { "@type": "MedicalProcedure", name: "Implant-Supported Dentures" },
+    ],
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: googleReviews.rating,
+      reviewCount: googleReviews.reviewCount,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    sameAs: [
+      `https://maps.google.com/?q=Akshatha+Dental+Clinic+Mahalakshmi+Layout+Bengaluru`,
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
       />
       <Hero
         reviewCount={googleReviews.reviewCount}
