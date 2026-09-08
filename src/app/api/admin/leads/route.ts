@@ -3,10 +3,23 @@ import { requireStaff } from "@/lib/auth";
 import { getAllLeads, createLead } from "@/lib/db";
 import { formatIstDateTime, formatSlotLabel } from "@/lib/time";
 import { normalizePhone } from "@/lib/whatsapp";
+import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await requireStaff("view_leads");
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // ?slim=true — lightweight dropdown list: only active leads, minimal fields, no joins.
+  // Used by LabWorkTracker and TreatmentPlanManager to populate patient pickers.
+  if (req.nextUrl.searchParams.get("slim") === "true") {
+    const rows = await prisma.lead.findMany({
+      where: { status: { in: ["confirmed", "completed", "followup"] } },
+      select: { id: true, name: true, phone: true, treatment: true, status: true },
+      orderBy: { slotDate: "desc" },
+      take: 300,
+    });
+    return NextResponse.json({ leads: rows });
+  }
 
   const leads = await getAllLeads();
   const enriched = leads.map((l) => ({

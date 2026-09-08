@@ -55,14 +55,14 @@ export function LabWorkTracker() {
     setLoading(true);
     const [labRes, leadsRes] = await Promise.all([
       fetch("/api/admin/lab-work"),
-      fetch("/api/admin/leads"),
+      fetch("/api/admin/leads?slim=true"),   // minimal fields, no joins, active leads only
     ]);
     if (labRes.ok) setItems(await labRes.json());
     if (leadsRes.ok) {
       const data = await leadsRes.json();
-      setLeads((data.leads ?? []).filter((l: Lead & { status: string }) =>
-        ["confirmed", "completed"].includes(l.status)
-      ).map((l: Lead) => ({ id: l.id, name: l.name, phone: l.phone, treatment: l.treatment })));
+      setLeads((data.leads ?? []).map((l: Lead) => ({
+        id: l.id, name: l.name, phone: l.phone, treatment: l.treatment,
+      })));
     }
     setLoading(false);
   }

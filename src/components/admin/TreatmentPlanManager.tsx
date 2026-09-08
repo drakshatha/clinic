@@ -68,7 +68,7 @@ export function TreatmentPlanManager() {
     setLoading(true);
     const [plansRes, patientsRes] = await Promise.all([
       fetch("/api/admin/treatment-plans"),
-      fetch("/api/admin/patients"),
+      fetch("/api/admin/patients?slim=true"),   // name + phone only, used for the dropdown
     ]);
     if (plansRes.ok) setPlans(await plansRes.json());
     if (patientsRes.ok) {

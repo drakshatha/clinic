@@ -3,10 +3,19 @@ import { requireStaff } from "@/lib/auth";
 import { getAllPatients } from "@/lib/db";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const session = await requireStaff("view_leads");
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // ?slim=true — only name + phone, used by dropdowns (TreatmentPlanManager etc.)
+    if (req.nextUrl.searchParams.get("slim") === "true") {
+      const rows = await prisma.patient.findMany({
+        select: { phone: true, name: true },
+        orderBy: { lastSeen: "desc" },
+      });
+      return NextResponse.json({ patients: rows });
+    }
 
     const patients = await getAllPatients();
     return NextResponse.json({ patients });
