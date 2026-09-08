@@ -117,6 +117,7 @@ export async function getLead(leadId: string) {
 export async function getAllLeads() {
   const leads = await prisma.lead.findMany({
     orderBy: { createdAt: "desc" },
+    take: 200, // show 200 most recent — prevents the query growing unboundedly as the clinic scales
     include: { confirmedBy: { select: { name: true, role: true } } },
   });
   return leads.map((l) => leadToLegacy(l, l.confirmedBy ?? undefined));
