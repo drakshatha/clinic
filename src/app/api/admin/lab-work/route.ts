@@ -7,13 +7,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth";
 import { getAllLabWork, createLabWork, updateLabWork, deleteLabWork } from "@/lib/db";
+import { withCache } from "@/lib/response-cache";
 
 export async function GET() {
   const session = await requireStaff("view_leads");
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const work = await getAllLabWork();
-  return NextResponse.json(work);
+  return withCache(work);
 }
 
 export async function POST(req: NextRequest) {

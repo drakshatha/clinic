@@ -15,16 +15,17 @@ export default async function PatientsPage() {
   // Pre-fetch on the server — the component renders instantly with no loading spinner.
   // Serialise Date fields to strings so they survive the server→client boundary.
   const rows = await getAllPatients();
+  // Explicitly pick only the fields the component needs — avoids passing
+  // non-serialisable Date objects (e.g. lastRecallAt) across the server→client boundary.
   const initialPatients = rows.map((p) => ({
-    ...p,
-    lastSeen: p.lastSeen.toISOString(),
-    joinedAt: p.joinedAt.toISOString(),
-    leads: p.leads.map((l) => ({ id: l.id, status: l.status, slotDate: l.slotDate, treatment: l.treatment })),
-    consultations: p.consultations.map((c) => ({
-      id: c.id,
-      paymentAmount: c.paymentAmount,
-      visitType: c.visitType,
-    })),
+    id:           p.id,
+    phone:        p.phone,
+    name:         p.name,
+    email:        p.email,
+    dob:          p.dob ?? null,
+    lastSeen:     p.lastSeen.toISOString(),
+    leads:        p.leads.map((l) => ({ id: l.id, status: l.status, slotDate: l.slotDate, treatment: l.treatment })),
+    consultations: p.consultations.map((c) => ({ id: c.id, paymentAmount: c.paymentAmount, visitType: c.visitType })),
   }));
 
   return <PatientsManager initialPatients={initialPatients} />;

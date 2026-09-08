@@ -5,13 +5,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireStaff, getSession } from "@/lib/auth";
 import { getTreatmentPlans, createTreatmentPlan } from "@/lib/db";
+import { withCache } from "@/lib/response-cache";
 
 export async function GET() {
   const session = await requireStaff("view_leads");
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const plans = await getTreatmentPlans();
-  return NextResponse.json(plans);
+  return withCache(plans);
 }
 
 export async function POST(req: NextRequest) {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth";
 import { getAllPatients } from "@/lib/db";
 import { prisma } from "@/lib/prisma";
+import { withCache } from "@/lib/response-cache";
 
 export async function GET(req: NextRequest) {
   try {
@@ -14,11 +15,11 @@ export async function GET(req: NextRequest) {
         select: { phone: true, name: true },
         orderBy: { lastSeen: "desc" },
       });
-      return NextResponse.json({ patients: rows });
+      return withCache({ patients: rows });
     }
 
     const patients = await getAllPatients();
-    return NextResponse.json({ patients });
+    return withCache({ patients });
   } catch (err) {
     console.error("[/api/admin/patients GET]", err);
     return NextResponse.json(

@@ -4,6 +4,7 @@ import { getAllLeads, createLead } from "@/lib/db";
 import { formatIstDateTime, formatSlotLabel } from "@/lib/time";
 import { normalizePhone } from "@/lib/whatsapp";
 import { prisma } from "@/lib/prisma";
+import { withCache } from "@/lib/response-cache";
 
 export async function GET(req: NextRequest) {
   const session = await requireStaff("view_leads");
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
       orderBy: { slotDate: "desc" },
       take: 300,
     });
-    return NextResponse.json({ leads: rows });
+    return withCache({ leads: rows });
   }
 
   const leads = await getAllLeads();
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
     confirmed_at_ist: l.confirmed_at ? formatIstDateTime(l.confirmed_at) : null,
   }));
 
-  return NextResponse.json({
+  return withCache({
     user: { name: session.name, role: session.role, permissions: session.permissions },
     leads: enriched,
   });
