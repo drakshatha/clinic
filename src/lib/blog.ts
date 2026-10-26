@@ -632,6 +632,152 @@ export const blogPosts: BlogPost[] = [
 <p>Dr. Akshatha V is an MDS Prosthodontist at Akshatha Dental Clinic, Mahalakshmi Layout — specialising in cosmetic smile design, veneers, crowns, and full smile transformations. A prosthodontist's training in bite mechanics and restoration design ensures that your makeover is both beautiful and functionally sound. Consultations are available daily 11 AM – 9:30 PM.</p>
     `.trim(),
   },
+
+  {
+    slug: "ndc-mandatory-prescription-requirements-dentists-2026",
+    title: "NDC Advisory: 8 Mandatory Details Every Dental Prescription Must Include (2026)",
+    description:
+      "The National Dental Commission has issued a mandatory advisory for all practising dentists in India. Here's exactly what every prescription must include from now on — and why it matters for patients too.",
+    publishedAt: "2026-10-24",
+    readingMinutes: 5,
+    category: "Dental Regulations",
+    relatedService: undefined,
+    keywords: [
+      "NDC prescription requirements 2026",
+      "mandatory dental prescription India",
+      "NDC advisory October 2026",
+      "dental prescription requirements India",
+      "National Dental Commission advisory",
+      "dental prescription mandatory details",
+    ],
+    content: `
+<p class="lead">On 22 October 2026, the National Dental Commission (NDC) — through its Ethics and Dental Registration Board — issued a public advisory making certain details <strong>mandatory on every dental prescription</strong> issued in India, whether on paper or in electronic form.</p>
+
+<p>This applies to all practising dentists across India. Here is a complete breakdown of what the advisory requires, and what it means if you are a patient receiving a dental prescription.</p>
+
+<h2>The 8 Mandatory Details (F.No.NDC/EDRB/Public-Notice/2026/M-2749)</h2>
+<p>Every dental prescription — whether handwritten or digital — must now contain all of the following:</p>
+
+<ol>
+  <li><strong>Name of the Dentist</strong> — as recorded with the concerned State Dental Council.</li>
+  <li><strong>Active Registration Number</strong> — the number allotted by the concerned State Dental Council. This is the primary way to verify that your dentist is a licensed practitioner.</li>
+  <li><strong>Recognised Dental Qualification(s)</strong> — as recognised by the National Dental Commission or the erstwhile Dental Council of India, including any specialty (e.g. MDS Prosthodontics).</li>
+  <li><strong>Address of Practice</strong> — the complete postal address of the dentist's clinic or place of practice, including PIN code.</li>
+  <li><strong>Emergency Contact Number</strong> — a functional contact number for urgent communication.</li>
+  <li><strong>Patient's Relevant Particulars</strong> — name, age, and gender of the patient receiving the prescription.</li>
+  <li><strong>Date of Prescription</strong> — the date of each attendance must be recorded on the prescription.</li>
+  <li><strong>Dentist's Signature</strong> — a handwritten signature or a legally valid digital signature.</li>
+</ol>
+
+<h2>The Mandatory Stamp Requirement</h2>
+<p>If the dentist's name, qualifications, and registration number are <strong>not pre-printed</strong> on the prescription pad, the prescription must carry the dentist's <strong>official stamp</strong> containing all the above details. The stamp must be affixed clearly and legibly.</p>
+<p>This requirement is designed to prevent prescriptions being issued without proper identification of the prescribing dentist — a patient safety measure.</p>
+
+<h2>Pharmaceutical Company Prescription Pads Are Banned</h2>
+<p>The advisory also explicitly states that dentists must <strong>not use prescription pads supplied, printed, or sponsored by pharmaceutical companies</strong>. All prescriptions must be issued on the dentist's own letterhead or prescription pad that complies with the mandatory requirements above.</p>
+<p>This is an important conflict-of-interest safeguard — sponsored prescription pads can subtly influence prescribing behaviour in favour of the sponsoring company's products.</p>
+
+<h2>Why This Advisory Was Issued</h2>
+<p>The NDC's mandate covers professional accountability and patient safety in dental practice across India. Prescriptions without proper dentist identification make it difficult for patients to:</p>
+<ul>
+  <li>Verify that their dentist is a licensed practitioner</li>
+  <li>Follow up on prescriptions or report adverse reactions</li>
+  <li>Know whether the prescribing dentist has the specialisation relevant to their treatment</li>
+</ul>
+<p>By standardising prescription details, the NDC ensures greater transparency and traceability in dental care.</p>
+
+<h2>What This Means for Patients</h2>
+<p>If you receive a dental prescription, you now have the right to expect all 8 of the above details on it. A prescription missing the dentist's registration number, qualifications, or clinic address is not compliant with the new NDC guidelines.</p>
+<p>You can verify any dentist's registration number with your <strong>State Dental Council</strong> — in Karnataka, that is the Karnataka State Dental Council.</p>
+
+<h2>Digital Prescriptions Are Included</h2>
+<p>The advisory explicitly covers electronic prescriptions. Dental clinic management systems that generate digital prescriptions must be updated to include all 8 mandatory fields and support a legally valid digital signature.</p>
+
+<h2>At Akshatha Dental Clinic</h2>
+<p>All prescriptions issued at Akshatha Dental Clinic, Mahalakshmi Layout carry Dr. Akshatha V's name, MDS qualification, registration number, clinic address, and signature — in full compliance with the NDC advisory. If you have any questions about your prescription or treatment, call us at +91 63643 49943 or visit us daily between 11 AM and 9:30 PM.</p>
+    `.trim(),
+  },
+
+  {
+    slug: "nmc-ethical-advertising-guidelines-doctors-hospitals-2026",
+    title: "NMC Ethical Advertising Guidelines 2026: What Patients Should Know About Doctor Advertising in India",
+    description:
+      "The National Medical Commission issued new guidelines in October 2026 restricting how doctors and hospitals can advertise. Here's what is allowed, what is banned, and what it means when choosing a dentist.",
+    publishedAt: "2026-10-24",
+    readingMinutes: 6,
+    category: "Dental Regulations",
+    relatedService: undefined,
+    keywords: [
+      "NMC advertising guidelines doctors 2026",
+      "NMC ethical advertising dentists India",
+      "doctor advertising rules India 2026",
+      "National Medical Commission guidelines October 2026",
+      "ethical advertising doctors hospitals India",
+      "how to choose a dentist India",
+    ],
+    content: `
+<p class="lead">On 6 October 2026, the National Medical Commission (NMC) issued new guidelines on <strong>Ethical Advertising and Public Communication by Doctors and Hospitals</strong>. These guidelines significantly restrict how medical practitioners — including dentists — can market their services in India.</p>
+
+<p>If you have ever seen a clinic advertise "No.1 Dentist in Bengaluru" or "100% Success Rate", these guidelines directly address that. Here is what changed, what is now banned, and what this means for patients choosing a dental clinic.</p>
+
+<h2>What Doctors and Hospitals Are NOT Allowed to Do</h2>
+<p>The NMC guidelines prohibit the following forms of advertising and communication:</p>
+
+<ul>
+  <li><strong>No misleading or false advertising</strong> — including any claims of guaranteed results or outcomes.</li>
+  <li><strong>No self-promotion through patient testimonials</strong> — reviews, endorsements, or success stories cannot be used for promotional purposes.</li>
+  <li><strong>No paid ratings or rankings</strong> — and no manipulation of search or social media visibility.</li>
+  <li><strong>No comparative claims</strong> — phrases like "No.1", "Best Dentist", "100% Success", "Guaranteed Cure" are explicitly banned.</li>
+  <li><strong>No solicitation of patients</strong> — or promotion of unnecessary investigations or procedures.</li>
+  <li><strong>No use of patient photographs, videos, or medical records</strong> for advertising without valid patient consent.</li>
+  <li><strong>No AI-generated content</strong> used to create fake patient experiences, testimonials, clinical outcomes, or endorsements.</li>
+</ul>
+
+<h2>What Doctors and Hospitals ARE Allowed to Do</h2>
+<p>The guidelines clarify what is permissible:</p>
+<ul>
+  <li><strong>Factual information</strong> — hospitals and clinics may publish factual details such as services offered, facilities available, doctors' qualifications, equipment, and accreditation status.</li>
+  <li><strong>Public health education</strong> — educational content about dental or medical conditions is permitted, as long as it does not become promotional advertising.</li>
+  <li><strong>Academic content</strong> — doctors may give lectures and share educational content using their professional designation, without promotional intent.</li>
+</ul>
+
+<h2>Penalties for Violations</h2>
+<p>The NMC has established a four-tier penalty system for violations:</p>
+<table>
+  <thead>
+    <tr><th>Level</th><th>Penalty</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>First violation</td><td>Warning + mandatory ethics training</td></tr>
+    <tr><td>Second violation</td><td>Suspension + monetary penalty</td></tr>
+    <tr><td>Third violation</td><td>Suspension of registration for 3–6 months</td></tr>
+    <tr><td>Serious / repeated</td><td>Removal from medical register</td></tr>
+  </tbody>
+</table>
+
+<h2>What This Means When You Choose a Dentist</h2>
+<p>These guidelines are actually good news for patients. They mean:</p>
+<ul>
+  <li>A clinic claiming to be "No.1 in Bengaluru" is now in violation of NMC guidelines — treat such claims with scepticism.</li>
+  <li>Patient testimonials displayed on a clinic's website may not be compliant — they should not be the basis for your decision.</li>
+  <li>Legitimate clinics focus on sharing factual information: doctor qualifications, services offered, and accurate pricing.</li>
+  <li>AI-generated fake reviews and testimonials are explicitly banned — report suspicious review patterns to the NMC.</li>
+</ul>
+
+<h2>How to Evaluate a Dental Clinic Without Marketing Claims</h2>
+<p>Instead of relying on advertising claims, use these more reliable signals:</p>
+<ol>
+  <li><strong>Check the dentist's qualifications</strong> — is the dentist a BDS (general dentist) or MDS (specialist)? For implants, crowns, and full-mouth treatment, an MDS Prosthodontist has dedicated specialist training.</li>
+  <li><strong>Verify registration</strong> — every dentist must be registered with their State Dental Council. In Karnataka, verify through the Karnataka State Dental Council.</li>
+  <li><strong>Read organic Google reviews</strong> — independent reviews on Google Maps, which the clinic cannot edit or curate, are a more reliable signal than testimonials on the clinic's own website.</li>
+  <li><strong>Ask factual questions</strong> — at your consultation, ask about the doctor's qualification, the materials used, and the procedure steps. A well-trained specialist will answer clearly and without pressure.</li>
+</ol>
+
+<h2>At Akshatha Dental Clinic</h2>
+<p>In compliance with NMC guidelines, Akshatha Dental Clinic does not make comparative claims or publish patient testimonials for promotional purposes. Dr. Akshatha V holds an MDS in Prosthodontics and Implantology — a postgraduate specialist degree — and provides factual information about services, qualifications, and pricing at every consultation.</p>
+<p>If you have questions about a dental treatment or want to understand your options, we are available daily from 11 AM to 9:30 PM at Mahalakshmi Layout, Bengaluru. Call +91 63643 49943 or book an appointment online.</p>
+    `.trim(),
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {
