@@ -18,7 +18,7 @@ export const blogPosts: BlogPost[] = [
     slug: "dental-implant-cost-bengaluru",
     title: "Dental Implant Cost in Bengaluru: What Determines the Price?",
     description:
-      "A transparent breakdown of dental implant costs in Bengaluru — what drives the price, what's included, and what to ask your specialist before committing.",
+      "Dental implants cost ₹25,000–₹75,000+ in Bengaluru. See what drives the price — brand, crown type, bone condition — and what to ask before choosing a clinic.",
     publishedAt: "2026-08-20",
     readingMinutes: 7,
     category: "Patient Guide",

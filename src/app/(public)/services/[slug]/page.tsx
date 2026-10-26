@@ -16,8 +16,8 @@ type Props = { params: Promise<{ slug: string }> };
 // ─── SEO copy per service ────────────────────────────────────────────────────
 const seoMeta: Record<string, { title: string; description: string }> = {
   "dental-implants": {
-    title: `Dental Implants in Bengaluru | Specialist Implantologist — ${site.doctor}`,
-    description: `Dental implants by MDS Prosthodontist Dr. Akshatha V in Mahalakshmi Layout, Bengaluru. Permanent tooth replacement with titanium implants and custom crowns. Expert implant planning for single teeth and full-arch cases.`,
+    title: `Dental Implants in Mahalakshmi Layout | MDS Prosthodontist Bengaluru`,
+    description: `Permanent dental implants near Mahalakshmi Metro Station, Bengaluru. MDS Prosthodontist Dr. Akshatha V — single tooth to full-arch cases. Open daily 11 AM–9:30 PM. Book a consultation.`,
   },
   "full-mouth-rehabilitation": {
     title: `Full Mouth Rehabilitation in Bengaluru | Complete Dental Restoration — ${site.shortName}`,
