@@ -80,7 +80,8 @@ export async function GET() {
       })),
     });
   } catch (err) {
-    console.error("[gsc]", err);
-    return NextResponse.json({ error: "Failed to fetch GSC data" }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[gsc]", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
