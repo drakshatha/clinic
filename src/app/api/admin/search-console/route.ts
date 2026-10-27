@@ -1,31 +1,17 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import crypto from "crypto";
 
 const GSC_SITE = process.env.GOOGLE_SEARCH_CONSOLE_SITE ?? "sc-domain:drakshatha.in";
 
-async function getAccessToken(clientEmail: string, privateKey: string): Promise<string> {
-  const now = Math.floor(Date.now() / 1000);
-  const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
-  const claim = Buffer.from(JSON.stringify({
-    iss: clientEmail,
-    scope: "https://www.googleapis.com/auth/webmasters.readonly",
-    aud: "https://oauth2.googleapis.com/token",
-    iat: now,
-    exp: now + 3600,
-  })).toString("base64url");
-  const unsigned = `${header}.${claim}`;
-  const signer = crypto.createSign("RSA-SHA256");
-  signer.update(unsigned);
-  const sig = signer.sign(privateKey, "base64url");
-  const jwt = `${unsigned}.${sig}`;
-
+async function getAccessToken(): Promise<string> {
   const res = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: jwt,
+      client_id:     process.env.GSC_CLIENT_ID!,
+      client_secret: process.env.GSC_CLIENT_SECRET!,
+      refresh_token: process.env.GSC_REFRESH_TOKEN!,
+      grant_type:    "refresh_token",
     }),
   });
   const data = await res.json();
@@ -53,12 +39,11 @@ export async function GET() {
   const session = await getSession();
   if (!session?.isOwner) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const raw = process.env.GSC_SERVICE_ACCOUNT_JSON;
-  if (!raw) return NextResponse.json({ configured: false });
+  const configured = !!(process.env.GSC_CLIENT_ID && process.env.GSC_CLIENT_SECRET && process.env.GSC_REFRESH_TOKEN);
+  if (!configured) return NextResponse.json({ configured: false });
 
   try {
-    const sa = JSON.parse(Buffer.from(raw, "base64").toString("utf8"));
-    const token = await getAccessToken(sa.client_email, sa.private_key);
+    const token = await getAccessToken();
     const range = { startDate: dateStr(28), endDate: dateStr(1) };
 
     const [totalData, queriesData, pagesData] = await Promise.all([
