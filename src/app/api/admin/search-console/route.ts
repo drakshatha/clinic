@@ -15,7 +15,7 @@ async function getAccessToken(): Promise<string> {
     }),
   });
   const data = await res.json();
-  if (!data.access_token) throw new Error(`OAuth error: ${data.error} — ${data.error_description}`);
+  if (!data.access_token) throw new Error(data.error_description ?? "token fetch failed");
   return data.access_token as string;
 }
 
@@ -80,8 +80,7 @@ export async function GET() {
       })),
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error("[gsc]", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    console.error("[gsc]", err);
+    return NextResponse.json({ error: "Failed to fetch GSC data" }, { status: 500 });
   }
 }
