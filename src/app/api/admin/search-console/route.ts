@@ -15,7 +15,7 @@ async function getAccessToken(): Promise<string> {
     }),
   });
   const data = await res.json();
-  if (!data.access_token) throw new Error(data.error_description ?? "token fetch failed");
+  if (!data.access_token) throw new Error(`OAuth error: ${data.error} — ${data.error_description}`);
   return data.access_token as string;
 }
 
