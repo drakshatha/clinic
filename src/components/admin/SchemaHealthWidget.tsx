@@ -8,16 +8,22 @@ const SCHEMA_CHECKS = [
     note: "Correct geo (13.00261, 77.55663), @id set, AggregateRating 4.9/50 reviews. layout.tsx handles this sitewide.",
   },
   {
+    page: "About / Doctor",
+    schemas: ["Physician", "hasCredential"],
+    status: "pass",
+    note: "Physician schema with @id, medicalSpecialty: Prosthodontics, hasCredential (MDS), worksFor clinic. In about/page.tsx.",
+  },
+  {
+    page: "All-on-4 Implants",
+    schemas: ["BreadcrumbList", "FAQPage", "MedicalProcedure"],
+    status: "pass",
+    note: "MedicalProcedure with bodyLocation (jaw), preparation (CBCT + consultation), followup, performer links to doctor @id.",
+  },
+  {
     page: "Dental Implant Cost",
     schemas: ["BreadcrumbList", "FAQPage"],
     status: "pass",
     note: "FAQPage no longer generates rich results (retired May 2026) but valid for structured data.",
-  },
-  {
-    page: "All-on-4 Implants",
-    schemas: ["BreadcrumbList", "FAQPage"],
-    status: "pass",
-    note: "New page. BreadcrumbList + FAQPage. No duplicate LocalBusiness.",
   },
   {
     page: "Blog posts",
@@ -55,8 +61,8 @@ const ISSUES_FIXED = [
 ];
 
 const OPPORTUNITIES = [
-  "Add Physician (Person) schema to /about with MedicalSpecialty: Prosthodontics and sameAs pointing to NMC/LinkedIn",
-  "Add MedicalProcedure schema to /all-on-4-dental-implants-bangalore with bodyLocation and preparation fields",
+  "Update AggregateRating reviewCount in layout.tsx whenever Google review count grows beyond 50",
+  "Add sameAs to Physician schema on /about pointing to NMC registration or LinkedIn once URL is confirmed",
 ];
 
 export function SchemaHealthWidget() {

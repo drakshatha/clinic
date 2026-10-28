@@ -78,6 +78,24 @@ const faqSchema = {
   ],
 };
 
+const medicalProcedureSchema = {
+  "@context": "https://schema.org",
+  "@type": "MedicalProcedure",
+  name: "All-on-4 Dental Implants",
+  alternateName: ["All-on-4", "Full Arch Implants", "Teeth-in-a-Day"],
+  description:
+    "All-on-4 dental implants replace a full arch of missing teeth using just 4 strategically angled titanium implants, supporting a fixed prosthetic bridge. A permanent, non-removable alternative to dentures for patients with significant tooth loss.",
+  procedureType: "https://schema.org/TherapeuticProcedure",
+  bodyLocation: "Jaw (maxilla or mandible)",
+  preparation:
+    "CBCT scan and clinical consultation to assess bone volume and implant sites. Full medical history review. Pre-surgical extraction of any remaining compromised teeth if required.",
+  followup:
+    "Review at 2 weeks for healing assessment. Final prosthesis fitted at 3–6 months after osseointegration. Annual maintenance thereafter.",
+  url: `${site.url}/all-on-4-dental-implants-bangalore`,
+  provider: { "@id": `${site.url}/#clinic` },
+  performer: { "@id": `${site.url}/about#doctor` },
+};
+
 const TIERS = [
   {
     type: "All-on-4 (Single Jaw)",
@@ -128,6 +146,7 @@ export default function AllOn4Page() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(medicalProcedureSchema) }} />
 
       {/* Hero */}
       <section className="bg-navy text-white pt-28 pb-16 px-6 text-center">
