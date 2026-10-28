@@ -40,6 +40,14 @@ export function Footer() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                href="/dental-implant-cost-bangalore"
+                className="hover:text-white transition-colors text-blue/80"
+              >
+                Dental Implant Cost →
+              </Link>
+            </li>
           </ul>
         </div>
 

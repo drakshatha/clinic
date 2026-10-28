@@ -260,6 +260,18 @@ export default async function ServiceDetailPage({ params }: Props) {
             <p className="mt-3 text-xs text-muted">
               Exact fees are provided at your consultation once we assess your specific case.
             </p>
+            {slug === "dental-implants" && (
+              <Link
+                href="/dental-implant-cost-bangalore"
+                className="mt-5 flex items-center gap-3 rounded-xl border border-blue/30 bg-blue/5 px-4 py-3 hover:bg-blue/10 transition-colors group"
+              >
+                <span className="text-blue text-xl">💰</span>
+                <div>
+                  <p className="text-xs font-bold text-blue">Full implant cost breakdown →</p>
+                  <p className="text-[11px] text-muted mt-0.5">Price tiers, what&apos;s included, and what affects cost</p>
+                </div>
+              </Link>
+            )}
           </div>
         </div>
       </Section>
