@@ -27,11 +27,12 @@ export function Accordion({
               <span>{item.q}</span>
               <span className="text-blue text-xl leading-none">{isOpen ? "−" : "+"}</span>
             </button>
-            {isOpen ? (
-              <div className="border-t border-line px-5 py-4 text-sm leading-relaxed text-muted">
-                {item.a}
-              </div>
-            ) : null}
+            <div
+              hidden={!isOpen}
+              className="border-t border-line px-5 py-4 text-sm leading-relaxed text-muted"
+            >
+              {item.a}
+            </div>
           </div>
         );
       })}

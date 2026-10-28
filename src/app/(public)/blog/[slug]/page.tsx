@@ -31,6 +31,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt ?? post.publishedAt,
       authors: [site.doctor],
+      images: [
+        {
+          url: `${site.url}/images/doctor-portrait-clean.jpg`,
+          width: 700,
+          height: 880,
+          alt: `${site.doctor} — MDS Prosthodontist, Bengaluru`,
+        },
+      ],
     },
   };
 }
@@ -49,6 +57,7 @@ export default async function BlogPostPage({ params }: Props) {
     "@type": "Article",
     headline: post.title,
     description: post.description,
+    image: `${site.url}/images/doctor-portrait-clean.jpg`,
     datePublished: post.publishedAt,
     dateModified: post.updatedAt ?? post.publishedAt,
     author: {

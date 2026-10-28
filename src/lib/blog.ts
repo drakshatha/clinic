@@ -52,10 +52,10 @@ export const blogPosts: BlogPost[] = [
   </thead>
   <tbody>
     <tr><td>Single implant + zirconia crown</td><td>₹35,000 – ₹75,000+</td></tr>
-    <tr><td>Single implant + metal-ceramic crown</td><td>₹25,000 – ₹45,000</td></tr>
+    <tr><td>Single implant + metal-ceramic (PFM) crown</td><td>₹25,000 – ₹40,000</td></tr>
     <tr><td>All-on-4 (full arch, 4 implants)</td><td>₹2,50,000 – ₹5,00,000</td></tr>
     <tr><td>Bone graft (if needed)</td><td>₹8,000 – ₹25,000</td></tr>
-    <tr><td>CBCT scan</td><td>₹2,500 – ₹5,000</td></tr>
+    <tr><td>CBCT scan</td><td>₹2,000 – ₹3,500</td></tr>
   </tbody>
 </table>
 <p class="note">Note: These are typical ranges for Bengaluru. Exact costs depend on your specific case and are confirmed at consultation. Prices at Akshatha Dental Clinic are shared transparently at your first visit.</p>
