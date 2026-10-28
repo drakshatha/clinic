@@ -174,10 +174,15 @@ export default async function ServiceDetailPage({ params }: Props) {
   // Service schema
   const serviceSchema = {
     "@context": "https://schema.org",
-    "@type": "MedicalProcedure",
+    "@type": ["MedicalProcedure", "Service"],
     name: service.title,
     description: service.summary,
     url: `${site.url}/services/${slug}`,
+    serviceType: service.title,
+    areaServed: {
+      "@type": "City",
+      name: "Bengaluru",
+    },
     provider: { "@id": `${site.url}/#clinic` },
     procedureType: "https://schema.org/TherapeuticProcedure",
   };

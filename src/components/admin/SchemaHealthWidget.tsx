@@ -21,15 +21,15 @@ const SCHEMA_CHECKS = [
   },
   {
     page: "Blog posts",
-    schemas: ["BlogPosting", "BreadcrumbList"],
-    status: "check",
-    note: "Verify Article schema has datePublished, dateModified, and author fields set correctly.",
+    schemas: ["Article", "BreadcrumbList"],
+    status: "pass",
+    note: "datePublished, dateModified, and author (Person with @id) all set in blog/[slug]/page.tsx.",
   },
   {
     page: "Services pages",
-    schemas: ["Service / MedicalProcedure"],
-    status: "check",
-    note: "Consider adding Service schema with serviceType and areaServed for AI search visibility.",
+    schemas: ["MedicalProcedure", "Service"],
+    status: "pass",
+    note: "serviceType and areaServed: Bengaluru added. Dual @type ['MedicalProcedure','Service'] for AI search visibility.",
   },
 ];
 
@@ -55,10 +55,9 @@ const ISSUES_FIXED = [
 ];
 
 const OPPORTUNITIES = [
-  "Add MedicalProcedure schema to /all-on-4-dental-implants-bangalore (procedure, bodyLocation, preparation)",
-  "Add Service schema to each /services/* page (serviceType, areaServed: Bengaluru)",
-  "Add AggregateRating to LocalBusiness once verified Google reviews reach 10+",
+  "Add AggregateRating to LocalBusiness once verified Google reviews reach 10+ (currently 50 reviews — add ratingValue: 4.9)",
   "Add Physician (Person) schema to /about with MedicalSpecialty: Prosthodontics",
+  "Add MedicalProcedure schema to /all-on-4-dental-implants-bangalore with bodyLocation and preparation fields",
 ];
 
 export function SchemaHealthWidget() {
