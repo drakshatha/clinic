@@ -39,7 +39,8 @@ const CANNIBALIZATION = {
   page1: "/dental-implant-cost-bangalore",
   page2: "/blog/dental-implant-cost-bengaluru",
   keyword: "dental implant cost bangalore",
-  fix: "Keep landing page transactional ('from ₹25,000 · Book now'). Pivot blog title/H1 to informational ('What determines implant cost'). Both pages can coexist once intent signals differ.",
+  fixed: true,
+  fix: "Blog title changed to 'What Actually Determines Dental Implant Cost in Bengaluru?' — clearly informational. Landing page stays transactional. Submit both URLs to GSC URL Inspection after deploy.",
 };
 
 export function ContentClusterWidget() {
@@ -91,37 +92,32 @@ export function ContentClusterWidget() {
         ))}
       </div>
 
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-        <p className="text-[11px] font-bold uppercase tracking-wide text-amber-700 mb-2">⚠ Cannibalization Issue</p>
+      <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-green-700 mb-2">✓ Cannibalization Fixed</p>
         <div className="flex gap-2 flex-wrap mb-2">
-          <code className="text-xs bg-white border border-amber-200 rounded px-1.5 py-0.5 text-amber-800">{CANNIBALIZATION.page1}</code>
-          <span className="text-xs text-amber-700 self-center">vs</span>
-          <code className="text-xs bg-white border border-amber-200 rounded px-1.5 py-0.5 text-amber-800">{CANNIBALIZATION.page2}</code>
+          <code className="text-xs bg-white border border-green-200 rounded px-1.5 py-0.5 text-green-800">{CANNIBALIZATION.page1}</code>
+          <span className="text-xs text-green-700 self-center">vs</span>
+          <code className="text-xs bg-white border border-green-200 rounded px-1.5 py-0.5 text-green-800">{CANNIBALIZATION.page2}</code>
         </div>
-        <p className="text-xs text-amber-700 leading-relaxed">
-          Both target <strong>{CANNIBALIZATION.keyword}</strong>. {CANNIBALIZATION.fix}
+        <p className="text-xs text-green-700 leading-relaxed">
+          {CANNIBALIZATION.fix}
         </p>
       </div>
 
       <div className="rounded-xl border border-line bg-bg-soft p-4">
-        <p className="text-[11px] font-bold uppercase tracking-wide text-muted mb-3">Pending Internal Links (add after page creation)</p>
+        <p className="text-[11px] font-bold uppercase tracking-wide text-muted mb-3">Internal Links — All Added</p>
         <div className="space-y-1.5 text-xs text-muted">
-          <div className="flex gap-2">
-            <span className="text-red-500">→</span>
-            <span><code className="text-navy">/services/dental-implants</code> → All-on-4 page (anchor: "all-on-4 full arch implants")</span>
-          </div>
-          <div className="flex gap-2">
-            <span className="text-red-500">→</span>
-            <span><code className="text-navy">/dental-implant-cost-bangalore</code> → All-on-4 page (anchor: "all-on-4 dental implants cost")</span>
-          </div>
-          <div className="flex gap-2">
-            <span className="text-amber-500">→</span>
-            <span><code className="text-navy">/services/cosmetic-smile-makeover</code> → Smile makeover cost page (anchor: "smile makeover cost breakdown")</span>
-          </div>
-          <div className="flex gap-2">
-            <span className="text-amber-500">→</span>
-            <span><code className="text-navy">/services/crowns-bridges</code> → Zirconia crowns blog post (anchor: "zirconia vs PFM crowns")</span>
-          </div>
+          {[
+            { from: "/services/dental-implants", to: "All-on-4 page", anchor: "all-on-4 full arch implants" },
+            { from: "/dental-implant-cost-bangalore", to: "All-on-4 page", anchor: "all-on-4 dental implants cost" },
+            { from: "/services/cosmetic-smile-makeover", to: "Smile makeover cost page", anchor: "smile makeover cost breakdown" },
+            { from: "/services/crowns-bridges", to: "Zirconia crowns blog post", anchor: "zirconia vs PFM crowns" },
+          ].map((link) => (
+            <div key={link.from} className="flex gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span><code className="text-navy">{link.from}</code> → {link.to} (anchor: "{link.anchor}")</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
