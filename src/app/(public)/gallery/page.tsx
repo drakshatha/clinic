@@ -53,6 +53,13 @@ export default async function GalleryPage() {
         </p>
       </section>
 
+      {/* NMC compliance disclaimer */}
+      <div className="bg-amber-50 border-b border-amber-200 px-6 py-3 text-center">
+        <p className="text-xs text-amber-800">
+          <strong>Disclaimer:</strong> All photographs are displayed with patient consent. Individual results may vary — outcomes depend on each patient&apos;s oral health, bone condition, and treatment complexity. These images are not a guarantee of similar results.
+        </p>
+      </div>
+
       {/* Gallery */}
       <section className="py-16 px-6">
         <div className="mx-auto max-w-6xl">

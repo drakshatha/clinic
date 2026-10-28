@@ -70,6 +70,9 @@ export function BeforeAfterGallery() {
       <p className="mt-8 text-center text-xs text-muted">
         ✦ Illustrative images. Real patient cases available to view at your consultation.
       </p>
+      <p className="mt-2 text-center text-[11px] text-muted/70 max-w-xl mx-auto">
+        Individual results may vary. All clinical photographs displayed with patient consent. These images do not constitute a guarantee of similar outcomes — as per NMC Regulations 2023.
+      </p>
 
       <div className="mt-6 text-center">
         <Button href="/contact#book">Book your consultation</Button>
