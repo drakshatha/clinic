@@ -3,9 +3,9 @@
 const SCHEMA_CHECKS = [
   {
     page: "Homepage (/)",
-    schemas: ["Dentist + MedicalBusiness", "WebSite", "BreadcrumbList"],
+    schemas: ["Dentist + MedicalBusiness", "WebSite", "BreadcrumbList", "AggregateRating"],
     status: "pass",
-    note: "Correct geo (13.00261, 77.55663), has @id. layout.tsx handles this for all pages.",
+    note: "Correct geo (13.00261, 77.55663), @id set, AggregateRating 4.9/50 reviews. layout.tsx handles this sitewide.",
   },
   {
     page: "Dental Implant Cost",
@@ -55,8 +55,7 @@ const ISSUES_FIXED = [
 ];
 
 const OPPORTUNITIES = [
-  "Add AggregateRating to LocalBusiness once verified Google reviews reach 10+ (currently 50 reviews — add ratingValue: 4.9)",
-  "Add Physician (Person) schema to /about with MedicalSpecialty: Prosthodontics",
+  "Add Physician (Person) schema to /about with MedicalSpecialty: Prosthodontics and sameAs pointing to NMC/LinkedIn",
   "Add MedicalProcedure schema to /all-on-4-dental-implants-bangalore with bodyLocation and preparation fields",
 ];
 
