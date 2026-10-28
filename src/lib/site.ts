@@ -3,7 +3,7 @@ export const site = {
   shortName: "Akshatha Dental",
   doctor: "Dr. Akshatha V",
   credentials: "MDS Prosthodontist & Implantologist",
-  tagline: "Advanced Smile Restoration by Expert Prosthodontist",
+  tagline: "Prosthodontist in Mahalakshmi Layout, Bengaluru",
   phone: "+916364349943",
   phoneDisplay: "+91 63643 49943",
   whatsapp: "916364349943",

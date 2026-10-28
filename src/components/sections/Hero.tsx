@@ -22,7 +22,7 @@ export function Hero({
             MDS Prosthodontist · {site.city}
           </p>
           <h1 className="max-w-xl text-4xl font-bold leading-[1.1] text-navy md:text-5xl lg:text-[3.25rem]">
-            Advanced Smile Restoration by Expert Prosthodontist
+            Prosthodontist in Mahalakshmi Layout, Bengaluru
           </h1>
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted">
             Dental implants, full mouth rehabilitation, crowns, dentures & cosmetic smile
