@@ -4,7 +4,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Privacy Policy | Akshatha Dental Clinic",
   description: "Privacy policy for Akshatha Dental Clinic, Mahalakshmi Layout, Bengaluru.",
-  robots: { index: false },
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {
