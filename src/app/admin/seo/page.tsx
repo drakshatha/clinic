@@ -5,6 +5,7 @@ import { ReviewRequestWidget } from "@/components/admin/ReviewRequestWidget";
 import { TechnicalSeoWidget } from "@/components/admin/TechnicalSeoWidget";
 import { ContentClusterWidget } from "@/components/admin/ContentClusterWidget";
 import { SchemaHealthWidget } from "@/components/admin/SchemaHealthWidget";
+import { SeoChartWidget } from "@/components/admin/SeoChartWidget";
 
 export default async function SeoPage() {
   const session = await requireStaff("view_leads");
@@ -17,6 +18,14 @@ export default async function SeoPage() {
       </div>
 
       <SearchConsoleWidget />
+
+      <div>
+        <div className="mb-3 border-t border-line pt-6">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Performance Charts</p>
+          <p className="text-xs text-muted mt-0.5">Content cluster coverage · Impressions vs clicks · CTR opportunities</p>
+        </div>
+        <SeoChartWidget />
+      </div>
 
       <div>
         <div className="mb-3 border-t border-line pt-6">
