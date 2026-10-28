@@ -2,14 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { site } from "@/lib/site";
+import { useEffect, useRef, useState } from "react";
+import { site, services } from "@/lib/site";
 import { Button } from "@/components/ui/Button";
 
 const links = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About Doctor" },
-  { href: "/services", label: "Services" },
   { href: "/blog", label: "Blog" },
   { href: "/gallery", label: "Gallery" },
   { href: "/contact", label: "Contact" },
@@ -18,12 +17,24 @@ const links = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const servicesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (servicesRef.current && !servicesRef.current.contains(e.target as Node)) {
+        setServicesOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
   return (
@@ -47,6 +58,56 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-7 md:flex" aria-label="Main">
+          <Link href="/" className="text-sm font-semibold text-navy-soft transition hover:text-blue">Home</Link>
+          <Link href="/about" className="text-sm font-semibold text-navy-soft transition hover:text-blue">About Doctor</Link>
+
+          {/* Services dropdown */}
+          <div className="relative" ref={servicesRef}>
+            <button
+              type="button"
+              className="flex items-center gap-1 text-sm font-semibold text-navy-soft transition hover:text-blue"
+              onClick={() => setServicesOpen((v) => !v)}
+              aria-expanded={servicesOpen}
+              aria-haspopup="true"
+            >
+              Services
+              <svg viewBox="0 0 16 16" className={`h-3 w-3 transition-transform ${servicesOpen ? "rotate-180" : ""}`} fill="currentColor" aria-hidden>
+                <path d="M3 5l5 5 5-5H3z" />
+              </svg>
+            </button>
+            {servicesOpen && (
+              <div className="absolute left-1/2 top-full mt-3 -translate-x-1/2 w-72 rounded-2xl border border-line bg-white shadow-[var(--shadow)] p-2 z-50">
+                <Link
+                  href="/services"
+                  onClick={() => setServicesOpen(false)}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wide text-muted hover:bg-bg-soft transition-colors"
+                >
+                  All Treatments →
+                </Link>
+                <div className="my-1 border-t border-line" />
+                {services.map((s) => (
+                  <Link
+                    key={s.slug}
+                    href={`/services/${s.slug}`}
+                    onClick={() => setServicesOpen(false)}
+                    className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-navy hover:bg-bg-soft transition-colors"
+                  >
+                    {s.shortTitle}
+                  </Link>
+                ))}
+                <div className="my-1 border-t border-line" />
+                <Link
+                  href="/dental-implant-cost-bangalore"
+                  onClick={() => setServicesOpen(false)}
+                  className="flex items-center justify-between gap-2 rounded-xl bg-blue/5 border border-blue/20 px-3 py-2.5 hover:bg-blue/10 transition-colors"
+                >
+                  <span className="text-sm font-semibold text-blue">💰 Dental Implant Cost</span>
+                  <span className="text-[10px] font-bold text-blue/70 bg-blue/10 rounded-full px-2 py-0.5">from ₹25,000</span>
+                </Link>
+              </div>
+            )}
+          </div>
+
           {links.map((l) => (
             <Link
               key={l.href}
@@ -94,27 +155,42 @@ export function Header() {
 
       {open ? (
         <div className="border-t border-line bg-white px-4 py-4 md:hidden">
-          <div className="mx-auto flex w-[min(1120px,100%)] flex-col gap-3">
-            {links.map((l) => (
+          <div className="mx-auto flex w-[min(1120px,100%)] flex-col gap-1">
+            <Link href="/" className="rounded-xl px-3 py-2 font-semibold text-navy hover:bg-bg-soft" onClick={() => setOpen(false)}>Home</Link>
+            <Link href="/about" className="rounded-xl px-3 py-2 font-semibold text-navy hover:bg-bg-soft" onClick={() => setOpen(false)}>About Doctor</Link>
+
+            {/* Services group */}
+            <div className="rounded-xl border border-line overflow-hidden mt-1">
+              <Link href="/services" className="block px-3 py-2 font-semibold text-navy bg-bg-soft text-sm" onClick={() => setOpen(false)}>
+                Services — All Treatments
+              </Link>
+              {services.map((s) => (
+                <Link
+                  key={s.slug}
+                  href={`/services/${s.slug}`}
+                  className="block px-5 py-2 text-sm text-navy hover:bg-bg-soft border-t border-line/50"
+                  onClick={() => setOpen(false)}
+                >
+                  {s.shortTitle}
+                </Link>
+              ))}
               <Link
-                key={l.href}
-                href={l.href}
-                className="rounded-xl px-3 py-2 font-semibold text-navy hover:bg-bg-soft"
+                href="/dental-implant-cost-bangalore"
+                className="flex items-center justify-between px-5 py-2.5 text-sm font-semibold text-blue bg-blue/5 border-t border-blue/20"
                 onClick={() => setOpen(false)}
               >
-                {l.label}
+                💰 Dental Implant Cost
+                <span className="text-[10px] font-bold bg-blue/10 rounded-full px-2 py-0.5">from ₹25,000</span>
               </Link>
-            ))}
-            <Link
-              href="/patient"
-              className="rounded-xl px-3 py-2 font-semibold text-muted hover:bg-bg-soft"
-              onClick={() => setOpen(false)}
-            >
-              🦷 Patient Login
-            </Link>
-            <Button href="/contact#book" onClick={() => setOpen(false)}>
-              Book Appointment
-            </Button>
+            </div>
+
+            <Link href="/blog" className="rounded-xl px-3 py-2 font-semibold text-navy hover:bg-bg-soft mt-1" onClick={() => setOpen(false)}>Blog</Link>
+            <Link href="/gallery" className="rounded-xl px-3 py-2 font-semibold text-navy hover:bg-bg-soft" onClick={() => setOpen(false)}>Gallery</Link>
+            <Link href="/contact" className="rounded-xl px-3 py-2 font-semibold text-navy hover:bg-bg-soft" onClick={() => setOpen(false)}>Contact</Link>
+            <Link href="/patient" className="rounded-xl px-3 py-2 font-semibold text-muted hover:bg-bg-soft" onClick={() => setOpen(false)}>🦷 Patient Login</Link>
+            <div className="mt-2">
+              <Button href="/contact#book" onClick={() => setOpen(false)}>Book Appointment</Button>
+            </div>
           </div>
         </div>
       ) : null}
