@@ -35,21 +35,24 @@ function dateStr(daysAgo: number) {
   return d.toISOString().split("T")[0];
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await getSession();
   if (!session?.isOwner) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const configured = !!(process.env.GSC_CLIENT_ID && process.env.GSC_CLIENT_SECRET && process.env.GSC_REFRESH_TOKEN);
   if (!configured) return NextResponse.json({ configured: false });
 
+  const { searchParams } = new URL(request.url);
+  const days = Math.min(Math.max(Number(searchParams.get("days") ?? 28), 7), 90);
+
   try {
     const token = await getAccessToken();
-    const range = { startDate: dateStr(28), endDate: dateStr(1) };
+    const range = { startDate: dateStr(days), endDate: dateStr(1) };
 
     const [totalData, queriesData, pagesData] = await Promise.all([
       gscQuery(token, { ...range, rowLimit: 1 }),
-      gscQuery(token, { ...range, dimensions: ["query"], rowLimit: 10 }),
-      gscQuery(token, { ...range, dimensions: ["page"], rowLimit: 10 }),
+      gscQuery(token, { ...range, dimensions: ["query"], rowLimit: 25 }),
+      gscQuery(token, { ...range, dimensions: ["page"], rowLimit: 15 }),
     ]);
 
     const total = totalData.rows?.[0];
