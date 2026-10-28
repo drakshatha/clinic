@@ -96,8 +96,15 @@ const clinicSchema = {
   },
   geo: {
     "@type": "GeoCoordinates",
-    latitude: 13.0026,
-    longitude: 77.5566,
+    latitude: 13.00261,
+    longitude: 77.55663,
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.9",
+    reviewCount: "50",
+    bestRating: "5",
+    worstRating: "1",
   },
   openingHoursSpecification: [
     {
@@ -126,7 +133,7 @@ const clinicSchema = {
     { "@type": "Neighborhood", name: "Yeshwanthpur" },
     { "@type": "Neighborhood", name: "Malleshwaram" },
   ],
-  landmark: "Near Rajajinagar Metro Station",
+  landmark: "Near Mahalakshmi Metro Station",
 };
 
 // ── WebSite schema with SearchAction ──────────────────────────────────────────
