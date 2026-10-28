@@ -9,7 +9,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <AdminShell user={{ name: session.name, role: session.role, permissions: session.permissions }}>
+    <AdminShell user={{ name: session.name, role: session.role, permissions: session.permissions, isOwner: session.isOwner }}>
       {children}
     </AdminShell>
   );

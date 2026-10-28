@@ -6,25 +6,26 @@ import { usePathname, useRouter } from "next/navigation";
 import type { Permission } from "@/lib/permissions";
 
 type Props = {
-  user: { name: string; role: string; permissions: Permission[] };
+  user: { name: string; role: string; permissions: Permission[]; isOwner?: boolean };
   children: React.ReactNode;
 };
 
-const NAV_ITEMS = [
-  { href: "/admin/dashboard",        label: "📊 Dashboard",        permission: "view_leads"    as Permission },
-  { href: "/admin/leads",            label: "📋 Leads",            permission: "view_leads"    as Permission },
-  { href: "/admin/patients",         label: "🧑‍⚕️ Patients",        permission: "view_leads"    as Permission },
-  { href: "/admin/calendar",         label: "📅 Calendar",         permission: "view_calendar" as Permission },
-  { href: "/admin/treatment-plans",  label: "📋 Treatment Plans",  permission: "view_leads"    as Permission },
-  { href: "/admin/lab-work",         label: "🔬 Lab Work",         permission: "view_leads"    as Permission },
-  { href: "/admin/payments",         label: "💰 Payments",         permission: "view_leads"    as Permission },
-  { href: "/admin/analytics",        label: "📈 Analytics",        permission: "view_leads"    as Permission },
-  { href: "/admin/inventory",        label: "🗃 Inventory",         permission: "view_leads"    as Permission },
-  { href: "/admin/reminders",        label: "🔔 Reminders",        permission: "view_leads"    as Permission },
-  { href: "/admin/recall",           label: "🔄 Recall",           permission: "view_leads"    as Permission },
-  { href: "/admin/gallery",          label: "📸 Gallery",          permission: "view_leads"    as Permission },
-  { href: "/admin/offers",           label: "🎁 Offers",           permission: "manage_staff"  as Permission },
-  { href: "/admin/staff",            label: "👤 Staff",            permission: "manage_staff"  as Permission },
+const NAV_ITEMS: { href: string; label: string; permission: Permission; ownerOnly?: boolean }[] = [
+  { href: "/admin/dashboard",        label: "📊 Dashboard",        permission: "view_leads"    },
+  { href: "/admin/leads",            label: "📋 Leads",            permission: "view_leads"    },
+  { href: "/admin/patients",         label: "🧑‍⚕️ Patients",        permission: "view_leads"    },
+  { href: "/admin/calendar",         label: "📅 Calendar",         permission: "view_calendar" },
+  { href: "/admin/treatment-plans",  label: "📋 Treatment Plans",  permission: "view_leads"    },
+  { href: "/admin/lab-work",         label: "🔬 Lab Work",         permission: "view_leads"    },
+  { href: "/admin/payments",         label: "💰 Payments",         permission: "view_leads"    },
+  { href: "/admin/analytics",        label: "📈 Analytics",        permission: "view_leads"    },
+  { href: "/admin/seo",              label: "🔍 SEO",              permission: "view_leads",   ownerOnly: true },
+  { href: "/admin/inventory",        label: "🗃 Inventory",         permission: "view_leads"    },
+  { href: "/admin/reminders",        label: "🔔 Reminders",        permission: "view_leads"    },
+  { href: "/admin/recall",           label: "🔄 Recall",           permission: "view_leads"    },
+  { href: "/admin/gallery",          label: "📸 Gallery",          permission: "view_leads"    },
+  { href: "/admin/offers",           label: "🎁 Offers",           permission: "manage_staff"  },
+  { href: "/admin/staff",            label: "👤 Staff",            permission: "manage_staff"  },
 ];
 
 export function AdminShell({ user, children }: Props) {
@@ -33,7 +34,9 @@ export function AdminShell({ user, children }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
-  const links = NAV_ITEMS.filter((n) => user.permissions.includes(n.permission));
+  const links = NAV_ITEMS.filter(
+    (n) => user.permissions.includes(n.permission) && (!n.ownerOnly || user.isOwner)
+  );
 
   async function logout() {
     setLoggingOut(true);
