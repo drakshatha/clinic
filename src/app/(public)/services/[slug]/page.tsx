@@ -261,14 +261,50 @@ export default async function ServiceDetailPage({ params }: Props) {
               Exact fees are provided at your consultation once we assess your specific case.
             </p>
             {slug === "dental-implants" && (
+              <div className="mt-5 space-y-2">
+                <Link
+                  href="/dental-implant-cost-bangalore"
+                  className="flex items-center gap-3 rounded-xl border border-blue/30 bg-blue/5 px-4 py-3 hover:bg-blue/10 transition-colors"
+                >
+                  <span className="text-blue text-xl">💰</span>
+                  <div>
+                    <p className="text-xs font-bold text-blue">Full implant cost breakdown →</p>
+                    <p className="text-[11px] text-muted mt-0.5">Price tiers, what&apos;s included, and what affects cost</p>
+                  </div>
+                </Link>
+                <Link
+                  href="/all-on-4-dental-implants-bangalore"
+                  className="flex items-center gap-3 rounded-xl border border-line bg-white px-4 py-3 hover:border-blue/30 hover:bg-blue/5 transition-colors"
+                >
+                  <span className="text-blue text-xl">🦷</span>
+                  <div>
+                    <p className="text-xs font-bold text-navy">All-on-4 full arch implants →</p>
+                    <p className="text-[11px] text-muted mt-0.5">Replace all teeth with just 4 implants — cost & process</p>
+                  </div>
+                </Link>
+              </div>
+            )}
+            {slug === "cosmetic-smile-makeover" && (
               <Link
-                href="/dental-implant-cost-bangalore"
-                className="mt-5 flex items-center gap-3 rounded-xl border border-blue/30 bg-blue/5 px-4 py-3 hover:bg-blue/10 transition-colors group"
+                href="/smile-makeover-cost-bangalore"
+                className="mt-5 flex items-center gap-3 rounded-xl border border-blue/30 bg-blue/5 px-4 py-3 hover:bg-blue/10 transition-colors"
               >
-                <span className="text-blue text-xl">💰</span>
+                <span className="text-blue text-xl">✨</span>
                 <div>
-                  <p className="text-xs font-bold text-blue">Full implant cost breakdown →</p>
-                  <p className="text-[11px] text-muted mt-0.5">Price tiers, what&apos;s included, and what affects cost</p>
+                  <p className="text-xs font-bold text-blue">Smile makeover cost breakdown →</p>
+                  <p className="text-[11px] text-muted mt-0.5">Veneers, bonding, crowns — indicative prices explained</p>
+                </div>
+              </Link>
+            )}
+            {slug === "crowns-bridges" && (
+              <Link
+                href="/blog/zirconia-crowns-bangalore"
+                className="mt-5 flex items-center gap-3 rounded-xl border border-line bg-white px-4 py-3 hover:border-blue/30 hover:bg-blue/5 transition-colors"
+              >
+                <span className="text-blue text-xl">📖</span>
+                <div>
+                  <p className="text-xs font-bold text-navy">Zirconia vs PFM crowns: which is better? →</p>
+                  <p className="text-[11px] text-muted mt-0.5">Strength, aesthetics, cost — a prosthodontist&apos;s comparison</p>
                 </div>
               </Link>
             )}

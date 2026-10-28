@@ -250,6 +250,24 @@ export default function DentalImplantCostPage() {
         </div>
       </section>
 
+      {/* Related pages */}
+      <section className="py-8 px-6 bg-bg-soft">
+        <div className="mx-auto max-w-3xl">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted mb-4">Related Pages</h3>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/services/dental-implants" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-bg-soft transition-colors">
+              Dental Implants Overview →
+            </Link>
+            <Link href="/all-on-4-dental-implants-bangalore" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-bg-soft transition-colors">
+              All-on-4 dental implants cost →
+            </Link>
+            <Link href="/blog/dental-implants-bengaluru-complete-guide" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-bg-soft transition-colors">
+              Complete implants guide →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-16 px-6 bg-bg-soft">
         <div className="mx-auto max-w-2xl rounded-3xl bg-navy text-white p-10 text-center">

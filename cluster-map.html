@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO Cluster Map — drakshatha.in</title>
+<style>
+  :root {
+    --bg: #f8f7f5;
+    --bg-card: #ffffff;
+    --fg: #1a1a2e;
+    --fg-muted: #64748b;
+    --border: #e2ddd8;
+    --c1: #2563eb;
+    --c2: #7c3aed;
+    --c3: #059669;
+    --c4: #d97706;
+    --c5: #64748b;
+    --pillar: #0f172a;
+    --gap-red: #dc2626;
+    --gap-amber: #d97706;
+    --gap-green: #16a34a;
+    --existing: #059669;
+    --fix: #ea580c;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f172a;
+      --bg-card: #1e293b;
+      --fg: #f1f5f9;
+      --fg-muted: #94a3b8;
+      --border: #334155;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f172a;
+    --bg-card: #1e293b;
+    --fg: #f1f5f9;
+    --fg-muted: #94a3b8;
+    --border: #334155;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    padding: 24px max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  /* Header */
+  .header { margin-bottom: 28px; }
+  .header h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+  .header p { color: var(--fg-muted); font-size: 13px; margin-top: 4px; }
+  .meta-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 99px;
+    font-size: 11px; font-weight: 700; border: 1px solid var(--border);
+    color: var(--fg-muted); background: var(--bg-card);
+  }
+  .pill.warn { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+  .pill.gap { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+  .pill.ok { background: #dcfce7; color: #166534; border-color: #86efac; }
+
+  /* Tab bar */
+  .tabs { display: flex; gap: 2px; border-bottom: 2px solid var(--border); margin-bottom: 24px; overflow-x: auto; }
+  .tab {
+    padding: 9px 16px; font-size: 12px; font-weight: 700; cursor: pointer;
+    border: none; background: none; color: var(--fg-muted);
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+    white-space: nowrap; transition: color 0.15s, border-color 0.15s;
+  }
+  .tab.active { color: var(--fg); border-bottom-color: var(--fg); }
+  .tab:hover { color: var(--fg); }
+
+  /* Panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Visual map panel */
+  #map-canvas {
+    width: 100%; height: 620px;
+    border: 1px solid var(--border); border-radius: 16px;
+    background: var(--bg-card); overflow: hidden; position: relative;
+  }
+  #map-canvas svg { width: 100%; height: 100%; }
+
+  /* Cluster cards panel */
+  .cluster-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .cluster-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px; border-top: 3px solid var(--cluster-color);
+  }
+  .cluster-name {
+    font-size: 13px; font-weight: 800; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cluster-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cluster-color); flex-shrink: 0; }
+  .page-row {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+  }
+  .page-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .page-status {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+  }
+  .status-existing { background: var(--existing); }
+  .status-gap { background: var(--gap-red); }
+  .status-fix { background: var(--fix); }
+  .page-info { flex: 1; min-width: 0; }
+  .page-title { font-weight: 600; color: var(--fg); line-height: 1.3; }
+  .page-kw { color: var(--fg-muted); font-size: 11px; margin-top: 2px; }
+  .page-url { color: var(--fg-muted); font-size: 10px; font-family: monospace; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .badge {
+    padding: 2px 7px; border-radius: 99px; font-size: 10px; font-weight: 700;
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .badge-gap { background: #fee2e2; color: #991b1b; }
+  .badge-fix { background: #ffedd5; color: #9a3412; }
+  .badge-high { background: #dbeafe; color: #1e40af; }
+
+  /* Gaps panel */
+  .gap-list { display: flex; flex-direction: column; gap: 16px; }
+  .gap-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px;
+  }
+  .gap-priority {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .priority-high { background: #fee2e2; color: #991b1b; }
+  .priority-med { background: #fef3c7; color: #92400e; }
+  .priority-low { background: #dcfce7; color: #166534; }
+  .gap-title { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+  .gap-url { font-size: 12px; font-family: monospace; color: var(--fg-muted); margin-bottom: 10px; }
+  .gap-detail { font-size: 13px; color: var(--fg-muted); line-height: 1.5; margin-bottom: 10px; }
+  .gap-meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+  .gap-meta-item { background: var(--bg); border-radius: 10px; padding: 8px 10px; }
+  .gap-meta-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--fg-muted); }
+  .gap-meta-val { font-size: 13px; font-weight: 700; color: var(--fg); margin-top: 2px; }
+  .warn-card {
+    background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px;
+    padding: 14px; margin-top: 8px;
+  }
+  .warn-title { font-size: 13px; font-weight: 800; color: #92400e; margin-bottom: 4px; }
+  .warn-body { font-size: 12px; color: #78350f; line-height: 1.5; }
+
+  /* Links panel */
+  .link-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .link-table th { text-align: left; padding: 8px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-muted); border-bottom: 2px solid var(--border); }
+  .link-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .link-type { padding: 2px 7px; border-radius: 99px; font-size: 10px; font-weight: 700; }
+  .lt-mandatory { background: #dbeafe; color: #1e40af; }
+  .lt-spoke { background: #f3e8ff; color: #6b21a8; }
+  .lt-pending { background: #fef3c7; color: #92400e; }
+  .mono { font-family: monospace; }
+  .table-wrap { overflow-x: auto; }
+
+  /* Legend */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--fg-muted); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>SEO Cluster Map — drakshatha.in</h1>
+  <p>Hub-and-spoke content architecture · Seed: <strong>prosthodontist bangalore</strong> · 2026-10-28</p>
+  <div class="meta-pills">
+    <span class="pill ok">✅ 13 existing pages</span>
+    <span class="pill gap">❌ 3 content gaps</span>
+    <span class="pill warn">⚠️ 1 cannibalization issue</span>
+    <span class="pill">5 topic clusters</span>
+    <span class="pill">16 total pages</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="visual">Visual Map</button>
+  <button class="tab" data-panel="clusters">Clusters & Pages</button>
+  <button class="tab" data-panel="gaps">Content Gaps</button>
+  <button class="tab" data-panel="links">Link Matrix</button>
+</div>
+
+<!-- VISUAL MAP -->
+<div id="visual" class="panel active">
+  <div id="map-canvas">
+    <svg id="cluster-svg" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 Z" fill="#94a3b8"/>
+        </marker>
+        <marker id="arrow-pending" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 Z" fill="#fbbf24"/>
+        </marker>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/>
+        </filter>
+      </defs>
+      <!-- Drawn by JS below -->
+    </svg>
+  </div>
+  <div class="legend" style="margin-top:14px;">
+    <div class="legend-item"><div class="legend-dot" style="background:#0f172a"></div>Pillar (homepage)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#059669"></div>Existing page</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Content gap (create)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ea580c"></div>Cannibalization fix needed</div>
+    <div class="legend-item"><svg width="24" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/></svg>Internal link</div>
+    <div class="legend-item"><svg width="24" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arrow-pending)"/></svg>Pending link</div>
+  </div>
+</div>
+
+<!-- CLUSTERS & PAGES -->
+<div id="clusters" class="panel">
+  <div class="cluster-grid" id="cluster-cards"></div>
+</div>
+
+<!-- CONTENT GAPS -->
+<div id="gaps" class="panel">
+  <div class="gap-list">
+
+    <div class="gap-card">
+      <div class="gap-priority priority-high">🔴 HIGH PRIORITY</div>
+      <div class="gap-title">All-on-4 Dental Implants Bangalore</div>
+      <div class="gap-url">/all-on-4-dental-implants-bangalore</div>
+      <div class="gap-detail">
+        "All on 4 dental implants bangalore" returns a distinct SERP dominated by Pristyn Care, WhatClinic, and Medical Tourism Co — 5/10 overlap with generic "dental implants bangalore". This is a <strong>high-value, separate cluster</strong> targeting full-arch cases (₹2,50,000–₹5,00,000 range). No existing page on the site targets this keyword. Creating this page mirrors the implant cost page pattern and directly targets the next-highest GSC opportunity.
+      </div>
+      <div class="gap-meta-grid">
+        <div class="gap-meta-item"><div class="gap-meta-label">Est. impressions/mo</div><div class="gap-meta-val">150–400</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Est. clicks/mo</div><div class="gap-meta-val">15–40</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Case value</div><div class="gap-meta-val">₹2.5L–₹5L</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Word count</div><div class="gap-meta-val">1,200–1,500</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Template</div><div class="gap-meta-val">Landing page</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Time to rank</div><div class="gap-meta-val">8–12 weeks</div></div>
+      </div>
+      <div style="margin-top:12px; font-size:12px; color:var(--fg-muted);">
+        <strong>Target keywords:</strong> all on 4 dental implants bangalore, all on 4 cost bangalore, full arch implants bangalore, teeth in a day bangalore<br>
+        <strong>Internal links in:</strong> /services/dental-implants, /dental-implant-cost-bangalore, homepage<br>
+        <strong>Schema:</strong> FAQPage + BreadcrumbList + MedicalProcedure<br>
+        <strong>NMC note:</strong> Price ranges as indicative (₹2,50,000–₹5,00,000), no guarantees
+      </div>
+    </div>
+
+    <div class="gap-card">
+      <div class="gap-priority priority-med">🟡 MEDIUM PRIORITY</div>
+      <div class="gap-title">Smile Makeover Cost in Bangalore</div>
+      <div class="gap-url">/smile-makeover-cost-bangalore</div>
+      <div class="gap-detail">
+        "Smile makeover cost bangalore" SERPs are dominated by aggregator/cost pages (Bajaj Finserv Health, Pristyn Care, WhatClinic). Google is clearly preferring cost-intent content. The clinic's smile makeover service page exists but has no dedicated cost page. This mirrors the exact pattern that worked for the implant cost landing page.
+      </div>
+      <div class="gap-meta-grid">
+        <div class="gap-meta-item"><div class="gap-meta-label">Est. impressions/mo</div><div class="gap-meta-val">80–200</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Est. clicks/mo</div><div class="gap-meta-val">8–20</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Word count</div><div class="gap-meta-val">1,000–1,200</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Template</div><div class="gap-meta-val">Landing page</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Time to rank</div><div class="gap-meta-val">8–12 weeks</div></div>
+      </div>
+      <div style="margin-top:12px; font-size:12px; color:var(--fg-muted);">
+        <strong>Target keywords:</strong> smile makeover cost bangalore, veneers cost bangalore, cosmetic dentistry price bangalore<br>
+        <strong>Internal links in:</strong> /services/cosmetic-smile-makeover, homepage
+      </div>
+    </div>
+
+    <div class="gap-card">
+      <div class="gap-priority priority-low">🟢 LOW PRIORITY</div>
+      <div class="gap-title">Zirconia Crowns vs PFM Crowns Bangalore</div>
+      <div class="gap-url">/blog/zirconia-crowns-bangalore</div>
+      <div class="gap-detail">
+        "Zirconia crown bangalore" has informational intent and sits in the same cluster as /services/crowns-bridges. A supporting blog post builds topical authority for the crowns service page and targets long-tail searches.
+      </div>
+      <div class="gap-meta-grid">
+        <div class="gap-meta-item"><div class="gap-meta-label">Est. impressions/mo</div><div class="gap-meta-val">50–120</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Est. clicks/mo</div><div class="gap-meta-val">5–12</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Word count</div><div class="gap-meta-val">900–1,200</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Template</div><div class="gap-meta-val">Comparison</div></div>
+        <div class="gap-meta-item"><div class="gap-meta-label">Time to rank</div><div class="gap-meta-val">12–16 weeks</div></div>
+      </div>
+    </div>
+
+    <!-- Cannibalization fix -->
+    <div class="warn-card">
+      <div class="warn-title">⚠️ Cannibalization Fix Required</div>
+      <div class="warn-body">
+        <strong>/dental-implant-cost-bangalore</strong> (landing page) and <strong>/blog/dental-implant-cost-bengaluru</strong> (blog post) both target <strong>"dental implant cost bangalore"</strong>. Google may suppress one.
+        <br><br>
+        <strong>Recommended fix:</strong> Differentiate intent signals. Keep the landing page as purely transactional ("Starting from ₹25,000 · Book now") and pivot the blog post's title/description to emphasize informational framing ("What factors determine implant cost" — the blog already does this but the meta description has overlap). Optionally add <code>rel="canonical"</code> from the blog post pointing to the landing page if content is very similar.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- LINK MATRIX -->
+<div id="links" class="panel">
+  <p style="font-size:13px; color:var(--fg-muted); margin-bottom:16px;">Bidirectional linking structure. Every spoke must link to the pillar and vice versa. Cross-cluster links improve topical authority signals.</p>
+  <div class="table-wrap">
+    <table class="link-table">
+      <thead>
+        <tr>
+          <th>From</th>
+          <th>To</th>
+          <th>Anchor Text</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+      <tbody id="link-rows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  pillar: { title: "Homepage — Prosthodontist Bangalore", url: "/", status: "existing" },
+  clusters: [
+    {
+      id: "c1", name: "Dental Implants", color: "#2563eb",
+      posts: [
+        { title: "Dental Implants Bangalore", url: "/services/dental-implants", kw: "dental implants bangalore", status: "existing" },
+        { title: "Dental Implant Cost Bangalore", url: "/dental-implant-cost-bangalore", kw: "dental implant cost bangalore", status: "existing" },
+        { title: "All-on-4 Dental Implants Bangalore", url: "/all-on-4-dental-implants-bangalore", kw: "all on 4 implants bangalore", status: "gap" },
+        { title: "Complete Patient Guide (Blog)", url: "/blog/dental-implants-bengaluru-complete-guide", kw: "dental implant procedure", status: "existing" },
+        { title: "Cost Guide (Blog)", url: "/blog/dental-implant-cost-bengaluru", kw: "what determines implant cost", status: "fix" }
+      ]
+    },
+    {
+      id: "c2", name: "Full Mouth & Restorations", color: "#7c3aed",
+      posts: [
+        { title: "Full Mouth Rehabilitation", url: "/services/full-mouth-rehabilitation", kw: "full mouth rehabilitation bangalore", status: "existing" },
+        { title: "Dental Crowns & Bridges", url: "/services/crowns-bridges", kw: "dental crowns bangalore", status: "existing" },
+        { title: "Full Mouth Rehab Guide (Blog)", url: "/blog/full-mouth-rehabilitation-who-needs-it", kw: "full mouth rehab guide", status: "existing" }
+      ]
+    },
+    {
+      id: "c3", name: "Teeth Replacement & Dentures", color: "#059669",
+      posts: [
+        { title: "Dentures in Bangalore", url: "/services/dentures", kw: "dentures bangalore", status: "existing" },
+        { title: "Implants vs Dentures (Blog)", url: "/blog/dental-implants-vs-dentures", kw: "implants vs dentures bangalore", status: "existing" },
+        { title: "Implant-Supported Dentures (Blog)", url: "/blog/complete-dentures-vs-implant-supported-dentures", kw: "implant supported dentures", status: "existing" }
+      ]
+    },
+    {
+      id: "c4", name: "Smile Makeover & Cosmetic", color: "#d97706",
+      posts: [
+        { title: "Smile Makeover Bangalore", url: "/services/cosmetic-smile-makeover", kw: "smile makeover bangalore", status: "existing" },
+        { title: "Smile Makeover Consultation (Blog)", url: "/blog/smile-makeover-bengaluru-consultation", kw: "smile makeover consultation", status: "existing" },
+        { title: "Smile Makeover Cost Bangalore", url: "/smile-makeover-cost-bangalore", kw: "smile makeover cost bangalore", status: "gap" }
+      ]
+    },
+    {
+      id: "c5", name: "Authority & Informational", color: "#64748b",
+      posts: [
+        { title: "Prosthodontist vs Dentist (Blog)", url: "/blog/prosthodontist-vs-general-dentist", kw: "prosthodontist vs dentist", status: "existing" },
+        { title: "About Dr. Akshatha", url: "/about", kw: "MDS prosthodontist mahalakshmi layout", status: "existing" },
+        { title: "Zirconia Crowns Bangalore (Blog)", url: "/blog/zirconia-crowns-bangalore", kw: "zirconia crown bangalore", status: "gap" }
+      ]
+    }
+  ],
+  links: [
+    { from: "/services/dental-implants", to: "/", anchor: "prosthodontist in bangalore", type: "mandatory" },
+    { from: "/dental-implant-cost-bangalore", to: "/services/dental-implants", anchor: "dental implants specialist", type: "mandatory" },
+    { from: "/services/dental-implants", to: "/dental-implant-cost-bangalore", anchor: "full implant cost breakdown", type: "mandatory" },
+    { from: "/services/full-mouth-rehabilitation", to: "/", anchor: "prosthodontist in bengaluru", type: "mandatory" },
+    { from: "/services/crowns-bridges", to: "/services/full-mouth-rehabilitation", anchor: "full mouth rehabilitation", type: "spoke-to-spoke" },
+    { from: "/services/dentures", to: "/blog/dental-implants-vs-dentures", anchor: "implants vs dentures", type: "spoke-to-spoke" },
+    { from: "/blog/dental-implants-vs-dentures", to: "/services/dental-implants", anchor: "dental implants bangalore", type: "spoke-to-spoke" },
+    { from: "/blog/full-mouth-rehabilitation-who-needs-it", to: "/services/full-mouth-rehabilitation", anchor: "full mouth rehabilitation", type: "spoke-to-pillar" },
+    { from: "/blog/prosthodontist-vs-general-dentist", to: "/", anchor: "prosthodontist in bangalore", type: "spoke-to-pillar" },
+    { from: "/services/dental-implants", to: "/all-on-4-dental-implants-bangalore", anchor: "all-on-4 full arch implants", type: "pending" },
+    { from: "/dental-implant-cost-bangalore", to: "/all-on-4-dental-implants-bangalore", anchor: "all-on-4 cost bangalore", type: "pending" },
+    { from: "/services/cosmetic-smile-makeover", to: "/smile-makeover-cost-bangalore", anchor: "smile makeover cost breakdown", type: "pending" },
+    { from: "/services/crowns-bridges", to: "/blog/zirconia-crowns-bangalore", anchor: "zirconia vs PFM crowns", type: "pending" }
+  ]
+};
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Build cluster cards
+const cardContainer = document.getElementById('cluster-cards');
+DATA.clusters.forEach(cluster => {
+  const card = document.createElement('div');
+  card.className = 'cluster-card';
+  card.style.setProperty('--cluster-color', cluster.color);
+  let rows = cluster.posts.map(p => `
+    <div class="page-row">
+      <div class="page-status status-${p.status}"></div>
+      <div class="page-info">
+        <div class="page-title">${p.title}</div>
+        <div class="page-kw">${p.kw}</div>
+        <div class="page-url">${p.url}</div>
+      </div>
+      ${p.status === 'gap' ? '<span class="badge badge-gap">GAP</span>' : ''}
+      ${p.status === 'fix' ? '<span class="badge badge-fix">FIX</span>' : ''}
+    </div>`).join('');
+  card.innerHTML = `<div class="cluster-name"><div class="cluster-dot" style="background:${cluster.color}"></div>${cluster.name}</div>${rows}`;
+  cardContainer.appendChild(card);
+});
+
+// Build link table
+const linkBody = document.getElementById('link-rows');
+DATA.links.forEach(l => {
+  const tr = document.createElement('tr');
+  const typeClass = l.type === 'mandatory' ? 'lt-mandatory' : l.type === 'pending' ? 'lt-pending' : 'lt-spoke';
+  const typeLabel = l.type === 'mandatory' ? 'Mandatory' : l.type === 'pending' ? 'Pending (add after create)' : 'Spoke→Spoke';
+  tr.innerHTML = `
+    <td class="mono" style="font-size:11px;">${l.from}</td>
+    <td class="mono" style="font-size:11px;">${l.to}</td>
+    <td>${l.anchor}</td>
+    <td><span class="link-type ${typeClass}">${typeLabel}</span></td>`;
+  linkBody.appendChild(tr);
+});
+
+// Draw SVG map
+(function drawMap() {
+  const svg = document.getElementById('cluster-svg');
+  const W = 900, H = 600;
+  const cx = W / 2, cy = H / 2;
+
+  // Pillar node center
+  const pillar = { x: cx, y: cy, r: 44 };
+
+  // Cluster positions (evenly around center)
+  const clusterAngles = [
+    -Math.PI / 2,          // top: Dental Implants
+    -Math.PI / 2 + 2 * Math.PI / 5,
+    -Math.PI / 2 + 4 * Math.PI / 5,
+    -Math.PI / 2 + 6 * Math.PI / 5,
+    -Math.PI / 2 + 8 * Math.PI / 5,
+  ];
+  const clusterR = 200;
+  const clusterNodeR = 30;
+
+  // Compute cluster hub positions
+  const clusterHubs = DATA.clusters.map((c, i) => ({
+    x: cx + clusterR * Math.cos(clusterAngles[i]),
+    y: cy + clusterR * Math.sin(clusterAngles[i]),
+    r: clusterNodeR,
+    color: c.color,
+    name: c.name,
+    id: c.id
+  }));
+
+  // Compute spoke positions around each cluster hub
+  const spokePositions = DATA.clusters.map((cluster, ci) => {
+    const hub = clusterHubs[ci];
+    const n = cluster.posts.length;
+    const spokeR = 90;
+    // Fan out away from center
+    const baseAngle = clusterAngles[ci];
+    const spreadAngle = Math.PI * 0.9;
+    return cluster.posts.map((post, pi) => {
+      const angle = n === 1
+        ? baseAngle
+        : baseAngle + spreadAngle * (pi / (n - 1) - 0.5);
+      return {
+        x: hub.x + spokeR * Math.cos(angle),
+        y: hub.y + spokeR * Math.sin(angle),
+        r: 18,
+        post,
+        clusterColor: cluster.color
+      };
+    });
+  });
+
+  let svgContent = '';
+
+  // Lines from pillar to cluster hubs
+  clusterHubs.forEach(hub => {
+    svgContent += `<line x1="${pillar.x}" y1="${pillar.y}" x2="${hub.x}" y2="${hub.y}"
+      stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"
+      marker-end="url(#arrow)" opacity="0.5"/>`;
+  });
+
+  // Lines from cluster hubs to spokes
+  spokePositions.forEach((spokes, ci) => {
+    const hub = clusterHubs[ci];
+    spokes.forEach(spoke => {
+      const isPending = spoke.post.status === 'gap';
+      svgContent += `<line x1="${hub.x}" y1="${hub.y}" x2="${spoke.x}" y2="${spoke.y}"
+        stroke="${isPending ? '#fbbf24' : hub.color}" stroke-width="1.2"
+        ${isPending ? 'stroke-dasharray="4,2"' : ''}
+        opacity="0.6"/>`;
+    });
+  });
+
+  // Spoke nodes
+  spokePositions.forEach(spokes => {
+    spokes.forEach(spoke => {
+      const c = spoke.post.status === 'gap' ? '#dc2626'
+              : spoke.post.status === 'fix' ? '#ea580c'
+              : spoke.clusterColor;
+      const outline = spoke.post.status === 'gap' ? '#fee2e2' : '#fff';
+      svgContent += `<circle cx="${spoke.x}" cy="${spoke.y}" r="${spoke.r}"
+        fill="${outline}" stroke="${c}" stroke-width="2.5" filter="url(#shadow)"/>`;
+      if (spoke.post.status === 'gap') {
+        svgContent += `<text x="${spoke.x}" y="${spoke.y + 1}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#dc2626" font-weight="800">?</text>`;
+      } else if (spoke.post.status === 'fix') {
+        svgContent += `<text x="${spoke.x}" y="${spoke.y + 1}" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#ea580c" font-weight="800">⚠</text>`;
+      } else {
+        svgContent += `<text x="${spoke.x}" y="${spoke.y + 1}" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="${spoke.clusterColor}" font-weight="700">✓</text>`;
+      }
+      // Label
+      const label = spoke.post.title.length > 18 ? spoke.post.title.slice(0, 16) + '…' : spoke.post.title;
+      const lx = spoke.x, ly = spoke.y + spoke.r + 11;
+      svgContent += `<text x="${lx}" y="${ly}" text-anchor="middle" font-size="8" fill="#64748b">${label}</text>`;
+    });
+  });
+
+  // Cluster hub nodes
+  clusterHubs.forEach(hub => {
+    svgContent += `<circle cx="${hub.x}" cy="${hub.y}" r="${hub.r}"
+      fill="${hub.color}" filter="url(#shadow)" opacity="0.92"/>`;
+    const words = hub.name.split(' ');
+    if (words.length <= 2) {
+      svgContent += `<text x="${hub.x}" y="${hub.y + 1}" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff" font-weight="700">${hub.name}</text>`;
+    } else {
+      // Two lines
+      const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
+      const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+      svgContent += `<text x="${hub.x}" y="${hub.y - 5}" text-anchor="middle" dominant-baseline="middle" font-size="8.5" fill="#fff" font-weight="700">${line1}</text>`;
+      svgContent += `<text x="${hub.x}" y="${hub.y + 7}" text-anchor="middle" dominant-baseline="middle" font-size="8.5" fill="#fff" font-weight="700">${line2}</text>`;
+    }
+  });
+
+  // Pillar node
+  svgContent += `<circle cx="${pillar.x}" cy="${pillar.y}" r="${pillar.r}"
+    fill="#0f172a" filter="url(#shadow)"/>`;
+  svgContent += `<text x="${pillar.x}" y="${pillar.y - 7}" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff" font-weight="800">PILLAR</text>`;
+  svgContent += `<text x="${pillar.x}" y="${pillar.y + 7}" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="#94a3b8">drakshatha.in</text>`;
+
+  svg.innerHTML = svg.innerHTML + svgContent;
+})();
+</script>
+</body>
+</html>

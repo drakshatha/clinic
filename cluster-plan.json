@@ -1,0 +1,265 @@
+{
+  "meta": {
+    "domain": "drakshatha.in",
+    "generatedAt": "2026-10-28",
+    "seedKeyword": "prosthodontist bangalore",
+    "totalPosts": 16,
+    "totalClusters": 5,
+    "existingPages": 13,
+    "gapPages": 3,
+    "cannibalizationIssues": 1
+  },
+  "pillar": {
+    "title": "Prosthodontist in Bengaluru | Akshatha Dental Clinic",
+    "keyword": "prosthodontist bangalore",
+    "secondaryKeywords": ["prosthodontist in bengaluru", "MDS prosthodontist bangalore", "specialist dentist bangalore"],
+    "url": "/",
+    "wordCount": 2500,
+    "template": "landing-page",
+    "status": "existing"
+  },
+  "clusters": [
+    {
+      "id": "cluster-1",
+      "name": "Dental Implants",
+      "theme": "Single-tooth implants, cost, procedure, full-arch",
+      "intent": "commercial",
+      "color": "#2563eb",
+      "posts": [
+        {
+          "title": "Dental Implants in Bangalore",
+          "keyword": "dental implants bangalore",
+          "secondaryKeywords": ["best dental implants bangalore", "implant dentist bangalore", "single tooth implant bangalore"],
+          "url": "/services/dental-implants",
+          "wordCount": 1200,
+          "template": "landing-page",
+          "status": "existing",
+          "priority": "high"
+        },
+        {
+          "title": "Dental Implant Cost Bangalore",
+          "keyword": "dental implant cost bangalore",
+          "secondaryKeywords": ["how much do dental implants cost in bangalore", "dental implant price bangalore"],
+          "url": "/dental-implant-cost-bangalore",
+          "wordCount": 1400,
+          "template": "landing-page",
+          "status": "existing",
+          "priority": "high",
+          "note": "Cannibalization risk with /blog/dental-implant-cost-bengaluru — differentiate or consolidate"
+        },
+        {
+          "title": "All-on-4 Dental Implants Bangalore",
+          "keyword": "all on 4 dental implants bangalore",
+          "secondaryKeywords": ["all on 4 cost bangalore", "full arch implants bangalore", "teeth in a day bangalore", "all on 4 price bangalore"],
+          "url": "/all-on-4-dental-implants-bangalore",
+          "wordCount": 1300,
+          "template": "landing-page",
+          "status": "gap",
+          "priority": "high",
+          "estimatedMonthlyImpressions": 300,
+          "estimatedMonthlyClicks": 25,
+          "note": "Distinct SERP from dental implants bangalore — pristyncare, whatclinic, medicaltourismco dominate. ₹1.5-5L value, high conversion intent."
+        },
+        {
+          "title": "Dental Implants in Bengaluru: Complete Patient Guide",
+          "keyword": "dental implant procedure bangalore",
+          "secondaryKeywords": ["how long does dental implant procedure take", "dental implant steps bangalore"],
+          "url": "/blog/dental-implants-bengaluru-complete-guide",
+          "wordCount": 1500,
+          "template": "ultimate-guide",
+          "status": "existing",
+          "priority": "medium"
+        },
+        {
+          "title": "Dental Implant Cost in Bengaluru: What Determines the Price?",
+          "keyword": "what determines dental implant cost bengaluru",
+          "secondaryKeywords": ["dental implant cost factors", "affordable dental implants bengaluru"],
+          "url": "/blog/dental-implant-cost-bengaluru",
+          "wordCount": 1200,
+          "template": "explainer",
+          "status": "existing",
+          "priority": "fix",
+          "issue": "CANNIBALIZATION with /dental-implant-cost-bangalore — same head keyword. Fix: differentiate to informational framing."
+        }
+      ]
+    },
+    {
+      "id": "cluster-2",
+      "name": "Full Mouth Rehabilitation & Restorations",
+      "theme": "Crowns, bridges, full-mouth reconstruction, zirconia",
+      "intent": "commercial",
+      "color": "#7c3aed",
+      "posts": [
+        {
+          "title": "Full Mouth Rehabilitation in Bangalore",
+          "keyword": "full mouth rehabilitation bangalore",
+          "secondaryKeywords": ["full mouth reconstruction bangalore", "full mouth rehab cost bangalore", "teeth reconstruction bangalore"],
+          "url": "/services/full-mouth-rehabilitation",
+          "wordCount": 1200,
+          "template": "landing-page",
+          "status": "existing",
+          "priority": "high"
+        },
+        {
+          "title": "Dental Crowns & Bridges in Bangalore",
+          "keyword": "dental crowns bangalore",
+          "secondaryKeywords": ["zirconia crown bangalore", "dental crown cost bangalore", "dental bridge bangalore"],
+          "url": "/services/crowns-bridges",
+          "wordCount": 1000,
+          "template": "landing-page",
+          "status": "existing",
+          "priority": "medium"
+        },
+        {
+          "title": "Full Mouth Rehabilitation: Who Needs It and What Does It Involve?",
+          "keyword": "full mouth rehabilitation guide bangalore",
+          "secondaryKeywords": ["what is full mouth rehabilitation", "signs you need full mouth rehab"],
+          "url": "/blog/full-mouth-rehabilitation-who-needs-it",
+          "wordCount": 1200,
+          "template": "explainer",
+          "status": "existing",
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "id": "cluster-3",
+      "name": "Teeth Replacement & Dentures",
+      "theme": "Dentures, implant dentures, implants vs dentures",
+      "intent": "mixed",
+      "color": "#059669",
+      "posts": [
+        {
+          "title": "Dentures in Bangalore",
+          "keyword": "dentures bangalore",
+          "secondaryKeywords": ["complete dentures bangalore", "partial dentures bangalore", "removable dentures bangalore"],
+          "url": "/services/dentures",
+          "wordCount": 1000,
+          "template": "landing-page",
+          "status": "existing",
+          "priority": "medium"
+        },
+        {
+          "title": "Dental Implants vs Dentures: Which Is Better for Missing Teeth?",
+          "keyword": "dental implants vs dentures bangalore",
+          "secondaryKeywords": ["implants or dentures which is better", "teeth replacement options bangalore"],
+          "url": "/blog/dental-implants-vs-dentures",
+          "wordCount": 1200,
+          "template": "comparison",
+          "status": "existing",
+          "priority": "medium"
+        },
+        {
+          "title": "Complete Dentures vs Implant-Supported Dentures: A Practical Guide",
+          "keyword": "implant supported dentures bangalore",
+          "secondaryKeywords": ["implant retained dentures bangalore", "permanent dentures bangalore"],
+          "url": "/blog/complete-dentures-vs-implant-supported-dentures",
+          "wordCount": 1100,
+          "template": "comparison",
+          "status": "existing",
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "id": "cluster-4",
+      "name": "Smile Makeover & Cosmetic",
+      "theme": "Cosmetic dentistry, smile design, veneers",
+      "intent": "commercial",
+      "color": "#d97706",
+      "posts": [
+        {
+          "title": "Smile Makeover in Bangalore",
+          "keyword": "smile makeover bangalore",
+          "secondaryKeywords": ["cosmetic dentist bangalore", "teeth whitening bangalore", "veneers bangalore"],
+          "url": "/services/cosmetic-smile-makeover",
+          "wordCount": 1000,
+          "template": "landing-page",
+          "status": "existing",
+          "priority": "medium"
+        },
+        {
+          "title": "Smile Makeover in Bengaluru: What to Expect at Your Consultation",
+          "keyword": "smile makeover consultation bangalore",
+          "secondaryKeywords": ["what happens at smile makeover consultation", "smile design process bangalore"],
+          "url": "/blog/smile-makeover-bengaluru-consultation",
+          "wordCount": 900,
+          "template": "how-to",
+          "status": "existing",
+          "priority": "medium"
+        },
+        {
+          "title": "Smile Makeover Cost in Bangalore",
+          "keyword": "smile makeover cost bangalore",
+          "secondaryKeywords": ["smile makeover price bangalore", "cosmetic dentistry cost bangalore", "veneers cost bangalore"],
+          "url": "/smile-makeover-cost-bangalore",
+          "wordCount": 1100,
+          "template": "landing-page",
+          "status": "gap",
+          "priority": "medium",
+          "estimatedMonthlyImpressions": 150,
+          "estimatedMonthlyClicks": 12,
+          "note": "SERP dominated by bajajfinserv, pristyncare — cost-intent pages win. Mirror the implant cost page pattern."
+        }
+      ]
+    },
+    {
+      "id": "cluster-5",
+      "name": "Authority & Informational",
+      "theme": "Prosthodontist expertise, educational content",
+      "intent": "informational",
+      "color": "#64748b",
+      "posts": [
+        {
+          "title": "Prosthodontist vs General Dentist: When Should You See a Specialist?",
+          "keyword": "prosthodontist vs dentist",
+          "secondaryKeywords": ["what is a prosthodontist", "prosthodontics specialist bangalore", "when to see prosthodontist"],
+          "url": "/blog/prosthodontist-vs-general-dentist",
+          "wordCount": 1100,
+          "template": "explainer",
+          "status": "existing",
+          "priority": "medium"
+        },
+        {
+          "title": "About Dr. Akshatha — MDS Prosthodontist",
+          "keyword": "MDS prosthodontist mahalakshmi layout bangalore",
+          "secondaryKeywords": ["dr akshatha prosthodontist bangalore", "best prosthodontist bangalore"],
+          "url": "/about",
+          "wordCount": 800,
+          "template": "profile",
+          "status": "existing",
+          "priority": "medium"
+        },
+        {
+          "title": "Zirconia Crowns vs PFM Crowns: Which Is Better for You?",
+          "keyword": "zirconia crown bangalore",
+          "secondaryKeywords": ["zirconia vs porcelain crown bangalore", "best dental crown material bangalore", "zirconia crown cost bangalore"],
+          "url": "/blog/zirconia-crowns-bangalore",
+          "wordCount": 1000,
+          "template": "comparison",
+          "status": "gap",
+          "priority": "low",
+          "estimatedMonthlyImpressions": 80,
+          "estimatedMonthlyClicks": 8
+        }
+      ]
+    }
+  ],
+  "links": [
+    { "from": "/services/dental-implants", "to": "/", "type": "mandatory", "anchor": "prosthodontist in bangalore" },
+    { "from": "/dental-implant-cost-bangalore", "to": "/services/dental-implants", "type": "mandatory", "anchor": "dental implants specialist" },
+    { "from": "/services/dental-implants", "to": "/dental-implant-cost-bangalore", "type": "mandatory", "anchor": "full implant cost breakdown" },
+    { "from": "/services/full-mouth-rehabilitation", "to": "/", "type": "mandatory", "anchor": "prosthodontist in bengaluru" },
+    { "from": "/services/crowns-bridges", "to": "/services/full-mouth-rehabilitation", "type": "spoke-to-spoke", "anchor": "full mouth rehabilitation" },
+    { "from": "/services/dentures", "to": "/blog/dental-implants-vs-dentures", "type": "spoke-to-spoke", "anchor": "implants vs dentures comparison" },
+    { "from": "/blog/dental-implants-vs-dentures", "to": "/services/dental-implants", "type": "spoke-to-spoke", "anchor": "dental implants bangalore" },
+    { "from": "/blog/dental-implants-vs-dentures", "to": "/services/dentures", "type": "spoke-to-spoke", "anchor": "dentures in bangalore" },
+    { "from": "/blog/full-mouth-rehabilitation-who-needs-it", "to": "/services/full-mouth-rehabilitation", "type": "spoke-to-pillar", "anchor": "full mouth rehabilitation bangalore" },
+    { "from": "/services/cosmetic-smile-makeover", "to": "/", "type": "mandatory", "anchor": "specialist dentist bangalore" },
+    { "from": "/blog/prosthodontist-vs-general-dentist", "to": "/", "type": "spoke-to-pillar", "anchor": "prosthodontist in bangalore" },
+    { "from": "/services/dental-implants", "to": "/all-on-4-dental-implants-bangalore", "type": "spoke-to-spoke", "anchor": "all-on-4 full arch implants", "status": "pending-creation" },
+    { "from": "/dental-implant-cost-bangalore", "to": "/all-on-4-dental-implants-bangalore", "type": "spoke-to-spoke", "anchor": "all-on-4 dental implants cost", "status": "pending-creation" },
+    { "from": "/services/cosmetic-smile-makeover", "to": "/smile-makeover-cost-bangalore", "type": "spoke-to-spoke", "anchor": "smile makeover cost breakdown", "status": "pending-creation" },
+    { "from": "/services/crowns-bridges", "to": "/blog/zirconia-crowns-bangalore", "type": "spoke-to-spoke", "anchor": "zirconia vs PFM crowns", "status": "pending-creation" }
+  ]
+}

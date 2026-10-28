@@ -16,9 +16,9 @@ export type BlogPost = {
 export const blogPosts: BlogPost[] = [
   {
     slug: "dental-implant-cost-bengaluru",
-    title: "Dental Implant Cost in Bengaluru: What Determines the Price?",
+    title: "What Actually Determines Dental Implant Cost in Bengaluru?",
     description:
-      "Dental implants cost ₹25,000–₹75,000+ in Bengaluru. See what drives the price — brand, crown type, bone condition — and what to ask before choosing a clinic.",
+      "Not all implants are priced the same. This guide explains the 6 factors that drive implant cost in Bengaluru — implant brand, crown type, bone condition, specialist vs general dentist — so you can compare quotes fairly.",
     publishedAt: "2026-08-20",
     readingMinutes: 7,
     category: "Patient Guide",
@@ -630,6 +630,102 @@ export const blogPosts: BlogPost[] = [
 
 <h2>Smile Makeovers in Bengaluru</h2>
 <p>Dr. Akshatha V is an MDS Prosthodontist at Akshatha Dental Clinic, Mahalakshmi Layout — specialising in cosmetic smile design, veneers, crowns, and full smile transformations. A prosthodontist's training in bite mechanics and restoration design ensures that your makeover is both beautiful and functionally sound. Consultations are available daily 11 AM – 9:30 PM.</p>
+    `.trim(),
+  },
+
+  {
+    slug: "zirconia-crowns-bangalore",
+    title: "Zirconia Crowns vs PFM Crowns: Which Is Better for You?",
+    description:
+      "Zirconia crowns vs porcelain-fused-to-metal (PFM) — a clear comparison of strength, aesthetics, cost, and which crown type is right for which tooth. From a prosthodontist in Bengaluru.",
+    publishedAt: "2026-10-28",
+    readingMinutes: 6,
+    category: "Treatment Guide",
+    relatedService: "crowns-bridges",
+    keywords: [
+      "zirconia crown Bengaluru",
+      "zirconia vs PFM crown",
+      "best dental crown material",
+      "zirconia crown cost Bengaluru",
+      "dental crown types India",
+      "ceramic crown Bengaluru",
+    ],
+    content: `
+<p class="lead">Choosing a dental crown but unsure whether to go with zirconia or porcelain-fused-to-metal (PFM)? The material matters — it affects how the crown looks, how long it lasts, and whether it's right for the specific tooth being treated. Here's a clear comparison from a prosthodontist's perspective.</p>
+
+<h2>What Is a Zirconia Crown?</h2>
+<p>Zirconia (zirconium dioxide) is a white ceramic material — a type of synthetic crystal. Dental-grade zirconia is milled from a solid block in a CAD/CAM process, giving it exceptional strength. Modern zirconia crowns are tooth-coloured, translucent, and require no metal substructure underneath.</p>
+<p>There are two main types used in dentistry:</p>
+<ul>
+  <li><strong>Monolithic zirconia</strong> — a single piece of high-strength zirconia, opaque, extremely strong. Used for back teeth where strength matters more than translucency.</li>
+  <li><strong>Layered (veneered) zirconia</strong> — a zirconia core with porcelain layered on top for better aesthetics. More natural-looking, but slightly more prone to porcelain chipping than monolithic.</li>
+</ul>
+
+<h2>What Is a PFM Crown?</h2>
+<p>Porcelain-fused-to-metal (PFM) crowns have a metal alloy substructure (typically a nickel or precious metal alloy) with tooth-coloured porcelain fused on top. They've been the workhorse of dentistry for over 50 years and are still widely used — particularly where high strength is needed and aesthetics are secondary.</p>
+
+<h2>Zirconia vs PFM: Head-to-Head Comparison</h2>
+
+<h3>Strength and Durability</h3>
+<p>Both are durable for most clinical situations. Monolithic zirconia is among the strongest dental materials available — flexural strength of 900–1200 MPa vs PFM's 400–600 MPa. PFM has a long clinical track record (decades of data) and performs well in posterior teeth under bite forces.</p>
+<p><strong>Verdict:</strong> Zirconia wins on raw strength. PFM has more long-term clinical data but is comparable in most applications.</p>
+
+<h3>Aesthetics and Natural Appearance</h3>
+<p>This is where the difference is most visible, especially in front teeth. PFM crowns have a dark metal margin at the gum line — a thin grey line that becomes more visible as gums recede with age. Zirconia has no metal, so there's no grey margin — the crown can be made completely translucent and tooth-coloured from the root up.</p>
+<p><strong>Verdict:</strong> Zirconia wins clearly on aesthetics, especially for front teeth or patients with thin/receding gums.</p>
+
+<h3>Tooth Preparation Required</h3>
+<p>PFM crowns require slightly more tooth reduction (about 1.5–2mm) to accommodate the metal layer plus overlying porcelain. Zirconia's strength allows thinner construction — some high-strength zirconia crowns can be made as thin as 0.5–1mm on the prep, preserving more natural tooth structure.</p>
+<p><strong>Verdict:</strong> Zirconia can be more conservative, but differences in practice are modest.</p>
+
+<h3>Wear on Opposing Teeth</h3>
+<p>Zirconia, especially monolithic zirconia, is harder than natural tooth enamel. Poorly polished zirconia can cause accelerated wear on the opposing natural tooth. PFM porcelain similarly can wear opposing teeth if it's roughened or fractured. Both need to be properly polished and regularly monitored at check-ups.</p>
+<p><strong>Verdict:</strong> Both require attention — zirconia needs careful polishing; PFM chips need prompt repair.</p>
+
+<h3>Porcelain Chipping</h3>
+<p>Classic PFM crowns have a known failure mode: the overlying porcelain chips away from the metal substructure over time, especially in grinders or those with heavy bite forces. Monolithic zirconia eliminates this entirely — there's no porcelain layer to chip.</p>
+<p><strong>Verdict:</strong> Zirconia wins — chipping is a well-documented long-term issue with PFM.</p>
+
+<h3>Cost (Bengaluru)</h3>
+<table>
+  <thead><tr><th>Crown Type</th><th>Approximate Cost Per Crown</th></tr></thead>
+  <tbody>
+    <tr><td>PFM (metal-ceramic)</td><td>₹5,000 – ₹12,000</td></tr>
+    <tr><td>Monolithic zirconia</td><td>₹10,000 – ₹18,000</td></tr>
+    <tr><td>Layered (veneered) zirconia</td><td>₹12,000 – ₹22,000</td></tr>
+    <tr><td>Full-porcelain (e.max / lithium disilicate)</td><td>₹12,000 – ₹25,000</td></tr>
+  </tbody>
+</table>
+<p class="note">Costs are indicative and depend on the lab, the dentist's expertise, and clinical complexity. Zirconia costs have dropped significantly in the last 5 years as CAD/CAM technology became more accessible.</p>
+
+<h2>Which Is Right for Which Tooth?</h2>
+<table>
+  <thead><tr><th>Situation</th><th>Recommended Crown</th></tr></thead>
+  <tbody>
+    <tr><td>Front teeth (visible in smile)</td><td>Zirconia (layered) or e.max / lithium disilicate</td></tr>
+    <tr><td>Back teeth (high bite force)</td><td>Monolithic zirconia or PFM</td></tr>
+    <tr><td>Bruxism / heavy grinding</td><td>Monolithic zirconia (no porcelain to chip)</td></tr>
+    <tr><td>Implant crown</td><td>Zirconia (no metal margin issue at gum line)</td></tr>
+    <tr><td>Bridge spanning 3–4 units</td><td>Zirconia (strength) or PFM (established long-term data)</td></tr>
+    <tr><td>Budget is primary concern</td><td>PFM (lower upfront cost; comparable longevity)</td></tr>
+  </tbody>
+</table>
+
+<h2>Is PFM Still a Good Choice?</h2>
+<p>Yes, for the right situations. PFM remains a clinically excellent choice for back teeth, long bridges, and patients for whom cost is a significant factor. The technology is proven, the failure modes are well understood, and properly made PFM crowns last 15–20 years routinely.</p>
+<p>The main reasons to choose zirconia over PFM are aesthetics (no grey margin), metal-free biocompatibility (some patients have nickel sensitivities), and eliminating the chipping risk over time.</p>
+
+<h2>What to Ask Your Prosthodontist</h2>
+<ul>
+  <li>Is this tooth visible in my smile? (Front vs back matters a lot)</li>
+  <li>Do I grind my teeth? (Monolithic zirconia preferred for grinders)</li>
+  <li>Is there a metal sensitivity I should flag?</li>
+  <li>What does the opposing tooth look like — natural tooth vs existing crown?</li>
+  <li>What's the cost difference for this specific tooth and situation?</li>
+</ul>
+
+<h2>Crowns at Akshatha Dental Clinic</h2>
+<p>Dr. Akshatha V is an MDS Prosthodontist at Akshatha Dental Clinic, Mahalakshmi Layout — specialising in crowns, bridges, and full-mouth rehabilitation. Both zirconia and PFM options are available; the right material is recommended based on your clinical situation at consultation. Appointments available daily 11 AM – 9:30 PM.</p>
     `.trim(),
   },
 
