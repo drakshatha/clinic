@@ -2,6 +2,7 @@ import { requireStaff } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { SearchConsoleWidget } from "@/components/admin/SearchConsoleWidget";
 import { ReviewRequestWidget } from "@/components/admin/ReviewRequestWidget";
+import { TechnicalSeoWidget } from "@/components/admin/TechnicalSeoWidget";
 
 export default async function SeoPage() {
   const session = await requireStaff("view_leads");
@@ -14,6 +15,13 @@ export default async function SeoPage() {
       </div>
 
       <SearchConsoleWidget />
+
+      <div>
+        <div className="mb-3 border-t border-line pt-6">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Technical Health</p>
+        </div>
+        <TechnicalSeoWidget />
+      </div>
 
       <div>
         <div className="mb-3 border-t border-line pt-6">
