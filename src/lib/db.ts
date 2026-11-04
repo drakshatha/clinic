@@ -45,22 +45,7 @@ export async function createLead(input: {
   dob?: string;    // YYYY-MM-DD
   gender?: string; // "male" | "female" | "other"
 }) {
-  const lead = await prisma.lead.create({
-    data: {
-      name: input.name,
-      phone: input.phone,
-      email: input.email ?? "",
-      treatment: input.treatment ?? "",
-      message: input.message ?? "",
-      slotDate: input.slot_date,
-      slotTime: input.slot_time,
-      source: input.source ?? "website",
-      status: input.status ?? "pending",
-      patientPhone: input.phone,
-    },
-  });
-
-  // Upsert patient record — persist dob/gender when provided
+  // Upsert patient FIRST so the FK on lead.patientPhone is satisfied
   await prisma.patient.upsert({
     where: { phone: input.phone },
     update: {
@@ -76,6 +61,21 @@ export async function createLead(input: {
       email: input.email ?? "",
       dob: input.dob ?? null,
       gender: input.gender ?? null,
+    },
+  });
+
+  const lead = await prisma.lead.create({
+    data: {
+      name: input.name,
+      phone: input.phone,
+      email: input.email ?? "",
+      treatment: input.treatment ?? "",
+      message: input.message ?? "",
+      slotDate: input.slot_date,
+      slotTime: input.slot_time,
+      source: input.source ?? "website",
+      status: input.status ?? "pending",
+      patientPhone: input.phone,
     },
   });
 
