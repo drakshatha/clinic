@@ -29,11 +29,11 @@ export default function AppDownloadPage() {
             <span className="text-3xl">🤖</span>
             <div>
               <p className="font-bold text-navy text-base">Android App</p>
-              <p className="text-sm text-muted">APK · Version 2.1</p>
+              <p className="text-sm text-muted">APK · Version 2.2</p>
             </div>
           </div>
           <a
-            href="https://expo.dev/accounts/drakshatha/projects/akshatha-dental/builds/99a9729c-a16e-4fe7-9dbf-17b76f86908f"
+            href="https://expo.dev/accounts/drakshatha/projects/akshatha-dental/builds/32a96ddb-ab4e-4312-8273-d4abaf7ecb78"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full rounded-full bg-blue px-6 py-3.5 text-white font-bold text-base hover:bg-blue/90 transition-colors"

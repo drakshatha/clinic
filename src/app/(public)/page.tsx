@@ -10,6 +10,7 @@ import { FaqSection } from "@/components/sections/FaqSection";
 import { EmergencyStrip } from "@/components/sections/EmergencyStrip";
 import { HomeBooking } from "@/components/sections/HomeBooking";
 import { CtaBand } from "@/components/sections/CtaBand";
+import { AppDownloadStrip } from "@/components/sections/AppDownloadStrip";
 import { prisma } from "@/lib/prisma";
 import { faqs as staticFaqs, site } from "@/lib/site";
 import { getSiteStats } from "@/lib/site-settings";
@@ -75,6 +76,7 @@ export default async function HomePage() {
       <CtaBand />
       <DoctorSection />
       <HomeBooking />
+      <AppDownloadStrip />
       <FaqSection items={faqItems} />
       <CtaBand />
     </>
