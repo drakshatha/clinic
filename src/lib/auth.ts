@@ -101,6 +101,7 @@ export async function loginStaff(username: string, password: string) {
 
   return {
     ok: true as const,
+    token: jwt,          // returned for mobile clients (RN can't read HttpOnly cookies)
     user: { id: user.id, name: user.name, role: user.role, username: user.username },
   };
 }
