@@ -15,7 +15,14 @@ async function getAccessToken(): Promise<string> {
     }),
   });
   const data = await res.json();
-  if (!data.access_token) throw new Error(data.error_description ?? "token fetch failed");
+  if (!data.access_token) {
+    const reason = data.error === "invalid_grant"
+      ? "Refresh token expired or revoked — regenerate GSC_REFRESH_TOKEN in Vercel"
+      : data.error === "invalid_client"
+      ? "OAuth client credentials invalid — check GSC_CLIENT_ID and GSC_CLIENT_SECRET"
+      : (data.error_description ?? data.error ?? "token fetch failed");
+    throw new Error(reason);
+  }
   return data.access_token as string;
 }
 
@@ -83,7 +90,8 @@ export async function GET(request: Request) {
       })),
     });
   } catch (err) {
-    console.error("[gsc]", err);
-    return NextResponse.json({ error: "Failed to fetch GSC data" }, { status: 500 });
+    const msg = err instanceof Error ? err.message : "Failed to fetch GSC data";
+    console.error("[gsc]", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
