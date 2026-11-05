@@ -165,6 +165,18 @@ export default function PatientLoginPage() {
             Book an appointment
           </Link>
         </p>
+
+        <Link
+          href="/app"
+          className="mt-4 flex items-center gap-3 rounded-2xl border border-line bg-white px-4 py-3 shadow-sm hover:border-blue/30 hover:shadow-md transition-all"
+        >
+          <span className="text-2xl">📱</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-navy">Use our Patient App</p>
+            <p className="text-[11px] text-muted leading-tight">View appointments, records & reports on your phone</p>
+          </div>
+          <span className="text-xs font-semibold text-blue shrink-0">Download →</span>
+        </Link>
       </div>
     </div>
   );

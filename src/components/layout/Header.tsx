@@ -7,8 +7,6 @@ import { site, services } from "@/lib/site";
 import { Button } from "@/components/ui/Button";
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About Doctor" },
   { href: "/blog", label: "Blog" },
   { href: "/gallery", label: "Gallery" },
   { href: "/contact", label: "Contact" },
@@ -118,12 +116,6 @@ export function Header() {
             </Link>
           ))}
           <Link
-            href="/app"
-            className="text-sm font-semibold text-muted hover:text-blue transition"
-          >
-            📱 App
-          </Link>
-          <Link
             href="/patient"
             className="text-sm font-semibold text-muted hover:text-blue transition"
           >
@@ -193,7 +185,6 @@ export function Header() {
             <Link href="/blog" className="rounded-xl px-3 py-2 font-semibold text-navy hover:bg-bg-soft mt-1" onClick={() => setOpen(false)}>Blog</Link>
             <Link href="/gallery" className="rounded-xl px-3 py-2 font-semibold text-navy hover:bg-bg-soft" onClick={() => setOpen(false)}>Gallery</Link>
             <Link href="/contact" className="rounded-xl px-3 py-2 font-semibold text-navy hover:bg-bg-soft" onClick={() => setOpen(false)}>Contact</Link>
-            <Link href="/app" className="rounded-xl px-3 py-2 font-semibold text-muted hover:bg-bg-soft" onClick={() => setOpen(false)}>📱 Download App</Link>
             <Link href="/patient" className="rounded-xl px-3 py-2 font-semibold text-muted hover:bg-bg-soft" onClick={() => setOpen(false)}>🦷 Patient Login</Link>
             <div className="mt-2">
               <Button href="/contact#book" onClick={() => setOpen(false)}>Book Appointment</Button>
