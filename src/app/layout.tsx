@@ -20,10 +20,10 @@ const lato = Lato({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `Prosthodontist in Bengaluru | Dental Implants & Smile Restoration | ${site.doctor}`,
+    default: `Prosthodontist in Bengaluru | ${site.doctor}`,
     template: `%s | ${site.shortName}`,
   },
-  description: `${site.doctor}, MDS Prosthodontist & Implantologist in ${site.area}, ${site.city}. Expert in dental implants, full mouth rehabilitation, crowns, dentures & smile makeovers. Book a consultation today.`,
+  description: `${site.doctor} — MDS Prosthodontist in ${site.area}, ${site.city}. Expert in dental implants, crowns, dentures & smile makeovers. Book a consultation.`,
   keywords: [
     "prosthodontist in Bengaluru",
     "prosthodontist Mahalakshmi Layout",
@@ -124,6 +124,7 @@ const clinicSchema = {
     image: `${site.url}/images/doctor-portrait-clean.jpg`,
   },
   hasMap: site.mapsEmbed,
+  // sameAs: add your verified profile URLs here (Facebook, Instagram, Practo, JustDial)
   sameAs: [site.googleReviewUrl],
   areaServed: [
     { "@type": "City", name: "Bengaluru" },
