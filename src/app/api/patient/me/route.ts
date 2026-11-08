@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPatientSession, getPatientByPhone } from "@/lib/db";
 
+function getToken(req: NextRequest): string | null {
+  const auth = req.headers.get("Authorization");
+  if (auth?.startsWith("Bearer ")) return auth.slice(7);
+  return req.cookies.get("akshatha_patient_session")?.value ?? null;
+}
+
 export async function GET(req: NextRequest) {
-  const token = req.cookies.get("akshatha_patient_session")?.value;
+  const token = getToken(req);
   if (!token) return NextResponse.json({ error: "Not logged in" }, { status: 401 });
 
   const session = await getPatientSession(token);

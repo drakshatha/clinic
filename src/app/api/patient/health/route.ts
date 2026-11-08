@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { getPatientSession, getMedicalHistory, upsertMedicalHistory } from "@/lib/db";
 import { prisma } from "@/lib/prisma";
 
-async function getPatient() {
-  const jar = await cookies();
-  const token = jar.get("akshatha_patient_session")?.value;
+function getToken(req: NextRequest): string | null {
+  const auth = req.headers.get("Authorization");
+  if (auth?.startsWith("Bearer ")) return auth.slice(7);
+  return req.cookies.get("akshatha_patient_session")?.value ?? null;
+}
+
+async function getPatient(req: NextRequest) {
+  const token = getToken(req);
   if (!token) return null;
   const s = await getPatientSession(token);
   if (!s || new Date(s.expiresAt) < new Date()) return null;
   return s.patient;
 }
 
-export async function GET() {
-  const patient = await getPatient();
+export async function GET(req: NextRequest) {
+  const patient = await getPatient(req);
   if (!patient) return NextResponse.json({ error: "Not logged in" }, { status: 401 });
 
   const history = await getMedicalHistory(patient.phone);
@@ -21,7 +25,7 @@ export async function GET() {
 }
 
 export async function PUT(req: NextRequest) {
-  const patient = await getPatient();
+  const patient = await getPatient(req);
   if (!patient) return NextResponse.json({ error: "Not logged in" }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));

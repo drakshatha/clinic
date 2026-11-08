@@ -1,19 +1,23 @@
 /** GET /api/patient/treatment-plans — returns treatment plans shared with this patient */
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 import { getPatientSession, getTreatmentPlans } from "@/lib/db";
 
-async function getPatient() {
-  const jar = await cookies();
-  const token = jar.get("akshatha_patient_session")?.value;
+function getToken(req: NextRequest): string | null {
+  const auth = req.headers.get("Authorization");
+  if (auth?.startsWith("Bearer ")) return auth.slice(7);
+  return req.cookies.get("akshatha_patient_session")?.value ?? null;
+}
+
+async function getPatient(req: NextRequest) {
+  const token = getToken(req);
   if (!token) return null;
   const s = await getPatientSession(token);
   if (!s || new Date(s.expiresAt) < new Date()) return null;
   return s.patient;
 }
 
-export async function GET() {
-  const patient = await getPatient();
+export async function GET(req: NextRequest) {
+  const patient = await getPatient(req);
   if (!patient) return NextResponse.json({ error: "Not logged in" }, { status: 401 });
 
   // Only return shared/accepted plans
