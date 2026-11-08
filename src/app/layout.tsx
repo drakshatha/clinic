@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Lato } from "next/font/google";
-import { site } from "@/lib/site";
+import { site, services } from "@/lib/site";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -123,9 +123,21 @@ const clinicSchema = {
     url: `${site.url}/about`,
     image: `${site.url}/images/doctor-portrait-clean.jpg`,
   },
-  hasMap: site.mapsEmbed,
-  // sameAs: add your verified profile URLs here (Facebook, Instagram, Practo, JustDial)
-  sameAs: [site.googleReviewUrl],
+  hasMap: site.mapsUrl,
+  // sameAs: list of verified profiles — add URLs to site.ts; empty strings are filtered out
+  sameAs: [
+    site.gbpPage,
+    site.instagram,
+    site.facebook,
+    site.practo,
+    site.justdial,
+  ].filter(Boolean),
+  availableService: services.map((s) => ({
+    "@type": "MedicalProcedure",
+    name: s.title,
+    url: `${site.url}/services/${s.slug}`,
+    description: s.summary,
+  })),
   areaServed: [
     { "@type": "City", name: "Bengaluru" },
     { "@type": "Neighborhood", name: "Mahalakshmi Layout" },

@@ -48,6 +48,22 @@ export function Footer() {
                 Dental Implant Cost →
               </Link>
             </li>
+            <li>
+              <Link
+                href="/all-on-4-dental-implants-bangalore"
+                className="hover:text-white transition-colors text-blue/80"
+              >
+                All-on-4 Implants →
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/smile-makeover-cost-bangalore"
+                className="hover:text-white transition-colors text-blue/80"
+              >
+                Smile Makeover Cost →
+              </Link>
+            </li>
           </ul>
         </div>
 
@@ -99,7 +115,9 @@ export function Footer() {
             <ul className="flex gap-4">
               <li><Link href="/about" className="hover:text-white/70 transition-colors">About</Link></li>
               <li><Link href="/services" className="hover:text-white/70 transition-colors">Services</Link></li>
+              <li><Link href="/blog" className="hover:text-white/70 transition-colors">Blog</Link></li>
               <li><Link href="/contact" className="hover:text-white/70 transition-colors">Contact</Link></li>
+              <li><Link href="/privacy" className="hover:text-white/70 transition-colors">Privacy</Link></li>
             </ul>
           </nav>
         </div>

@@ -20,10 +20,17 @@ export const site = {
   reviewCount: 50,
   url: "https://drakshatha.in",
   // Direct write-review link (confirmed from Google Business Profile)
-  // When patient is logged into Google, this opens the review form directly
   googleReviewUrl: "https://g.page/r/CcptNvhnF_qkEBE/review",
   mapsEmbed:
     "https://maps.google.com/maps?q=Akshatha+Dental+Clinic+KM+Arcade+Mahalakshmi+Layout+Bengaluru&z=15&output=embed",
+  // Shareable Google Maps link (non-embed) — used in schema sameAs / hasMap
+  mapsUrl: "https://maps.google.com/maps?q=Akshatha+Dental+Clinic+KM+Arcade+Mahalakshmi+Layout+Bengaluru",
+  // Social & directory profile URLs — fill these in once verified, leave "" to omit from schema
+  instagram: "",   // e.g. "https://www.instagram.com/akshathadental"
+  facebook: "",    // e.g. "https://www.facebook.com/akshathadental"
+  practo: "",      // e.g. "https://www.practo.com/bengaluru/doctor/dr-akshatha-v"
+  justdial: "",    // e.g. "https://www.justdial.com/Bangalore/Akshatha-Dental-Clinic-..."
+  gbpPage: "https://g.page/r/CcptNvhnF_qkEBE", // GBP page (not the review form)
 } as const;
 
 export type Service = {

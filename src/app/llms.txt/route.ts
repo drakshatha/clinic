@@ -1,6 +1,5 @@
-import { site } from "@/lib/site";
+import { site, services, testimonials, faqs } from "@/lib/site";
 import { blogPosts } from "@/lib/blog";
-import { services } from "@/lib/site";
 
 export const revalidate = 86400;
 
@@ -40,10 +39,22 @@ export function GET() {
     `## Blog`,
     ...blogPosts.map((p) => `- [${p.title}](${site.url}/blog/${p.slug}) (${p.publishedAt}): ${p.description}`),
     ``,
+    `## Why a Prosthodontist`,
+    `A prosthodontist holds an MDS (3-year post-graduate specialist degree) in dental restorations and replacements, beyond a general BDS degree.`,
+    `They are the highest-qualified specialist for implants, crowns, bridges, dentures, and full mouth rehabilitation.`,
+    `${site.doctor} has ${site.yearsExperience}+ years of specialist clinical experience.`,
+    ``,
+    `## Patient Reviews`,
+    `Overall rating: ${site.rating}/5 stars from ${site.reviewCount}+ Google reviews.`,
+    ...testimonials.map((t) => `- "${t.text}" — ${t.name} (${"⭐".repeat(t.rating)})`),
+    ``,
+    `## Frequently Asked Questions`,
+    ...faqs.map((f) => [`Q: ${f.q}`, `A: ${f.a}`, ``].join("\n")),
     `## Contact`,
     `- Phone: ${site.phoneDisplay}`,
     `- WhatsApp: https://wa.me/${site.whatsapp}`,
     `- Book online: ${site.url}/contact`,
+    `- Write a review: ${site.googleReviewUrl}`,
     ``,
   ];
 
