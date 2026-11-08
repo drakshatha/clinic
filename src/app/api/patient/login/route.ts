@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   await createPatientSession(token, phone, expiresAt);
 
-  const res = NextResponse.json({ ok: true, patient: { phone: patient.phone, name: patient.name } });
+  const res = NextResponse.json({ ok: true, token, patient: { phone: patient.phone, name: patient.name } });
   res.cookies.set("akshatha_patient_session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
