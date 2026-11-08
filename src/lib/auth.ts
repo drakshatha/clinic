@@ -8,6 +8,7 @@
  * SESSION_SECRET env var as the key. Falls back to a dev-only insecure default.
  */
 import { cookies } from "next/headers";
+import { type NextRequest } from "next/server";
 import crypto from "crypto";
 import {
   hashPassword,
@@ -111,10 +112,22 @@ export async function logoutStaff() {
   jar.delete(COOKIE);
 }
 
-/** Returns session data — verified entirely from the cookie, zero DB hits. */
-export async function getSession() {
-  const jar = await cookies();
-  const raw = jar.get(COOKIE)?.value;
+function getRawToken(req?: NextRequest): string | null {
+  if (req) {
+    const auth = req.headers.get("Authorization");
+    if (auth?.startsWith("Bearer ")) return auth.slice(7);
+  }
+  return null;
+}
+
+/** Returns session data — verified entirely from the JWT, zero DB hits.
+ *  Pass `req` to also accept Authorization: Bearer tokens (mobile app). */
+export async function getSession(req?: NextRequest) {
+  let raw = getRawToken(req);
+  if (!raw) {
+    const jar = await cookies();
+    raw = jar.get(COOKIE)?.value ?? null;
+  }
   if (!raw) return null;
 
   const payload = verifyJwt(raw);
@@ -122,7 +135,7 @@ export async function getSession() {
 
   const permissions = parsePermissions(payload.permissions);
   return {
-    token: raw,          // kept for API compat — it's now the JWT itself
+    token: raw,
     userId: payload.userId,
     role: payload.role,
     name: payload.name,
@@ -131,9 +144,10 @@ export async function getSession() {
   };
 }
 
-/** Require a valid session. Optionally require a specific permission. */
-export async function requireStaff(permission?: Permission) {
-  const session = await getSession();
+/** Require a valid session. Optionally require a specific permission.
+ *  Pass `req` to also accept Authorization: Bearer tokens (mobile app). */
+export async function requireStaff(permission?: Permission, req?: NextRequest) {
+  const session = await getSession(req);
   if (!session) return null;
   if (permission && !session.permissions.includes(permission)) return null;
   return session;

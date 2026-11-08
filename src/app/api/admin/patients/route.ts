@@ -6,7 +6,7 @@ import { withCache } from "@/lib/response-cache";
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await requireStaff("view_leads");
+    const session = await requireStaff("view_leads", req);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     // ?slim=true — only name + phone, used by dropdowns (TreatmentPlanManager etc.)
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
 /** PATCH — update patient DOB or notes */
 export async function PATCH(req: NextRequest) {
-  const session = await requireStaff("confirm_leads");
+  const session = await requireStaff("confirm_leads", req);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();

@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth";
 import { updateLead } from "@/lib/db";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-export async function PATCH(request: Request, ctx: Ctx) {
-  const session = await requireStaff("confirm_leads");
+export async function PATCH(request: NextRequest, ctx: Ctx) {
+  const session = await requireStaff("confirm_leads", request);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
