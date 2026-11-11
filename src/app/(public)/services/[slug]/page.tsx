@@ -24,8 +24,8 @@ const seoMeta: Record<string, { title: string; description: string }> = {
     description: `Full mouth rehabilitation specialist in Bengaluru. Dr. Akshatha V, MDS Prosthodontist, rebuilds severely worn, damaged, or missing teeth through coordinated implants, crowns, bridges, and dentures.`,
   },
   "crowns-bridges": {
-    title: `Dental Crowns & Bridges in Bengaluru | Prosthodontic Specialist`,
-    description: `Precision-crafted dental crowns and bridges by Dr. Akshatha V, MDS Prosthodontist in Mahalakshmi Layout, Bengaluru. Zirconia, porcelain and metal-ceramic options with natural shade matching.`,
+    title: `Dental Crowns & Bridges in Bengaluru | Zirconia & Ceramic Specialist`,
+    description: `Dental crowns and bridges in Bengaluru by Dr. Akshatha V, MDS Prosthodontist, Mahalakshmi Layout. Zirconia, e.max, and metal-ceramic options. Starting ₹8,000. Specialist shade-matching for a natural fit.`,
   },
   "dentures": {
     title: `Dentures in Bengaluru | Complete & Partial Dentures Specialist`,

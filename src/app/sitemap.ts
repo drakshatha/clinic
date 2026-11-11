@@ -56,12 +56,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     })),
     {
-      url: `${base}/dental-implant-cost-bangalore`,
-      lastModified: now,
-      changeFrequency: "monthly" as const,
-      priority: 0.9,
-    },
-    {
       url: `${base}/all-on-4-dental-implants-bangalore`,
       lastModified: now,
       changeFrequency: "monthly" as const,
