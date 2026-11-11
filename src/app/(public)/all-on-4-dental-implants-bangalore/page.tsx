@@ -5,12 +5,12 @@ import { site } from "@/lib/site";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: `All-on-4 Dental Implants in Bengaluru — Full Arch Restoration | ${site.name}`,
-  description: `All-on-4 dental implants in Bengaluru from ₹2,50,000 for a full arch. Replace all teeth with just 4 implants. MDS Prosthodontist Dr. Akshatha V, Mahalakshmi Layout. Consultation includes CBCT scan review.`,
+  title: `All on 4 Dental Implants in Bengaluru — Cost, Procedure & Specialist | ${site.name}`,
+  description: `All on 4 dental implants in Bengaluru from ₹2,50,000 per arch. Replace a full jaw of teeth with just 4 implants — fixed, permanent, not a denture. MDS Prosthodontist Dr. Akshatha V, Mahalakshmi Layout.`,
   alternates: { canonical: "/all-on-4-dental-implants-bangalore" },
   openGraph: {
-    title: `All-on-4 Dental Implants in Bengaluru — Full Arch Restoration`,
-    description: `Replace a full arch of teeth with 4 implants. Indicative cost from ₹2,50,000. MDS Prosthodontist, Mahalakshmi Layout, Bengaluru.`,
+    title: `All on 4 Dental Implants in Bengaluru — Cost & Procedure`,
+    description: `All on 4 dental implants in Bengaluru from ₹2,50,000 per arch. Fixed full-arch restoration by MDS Prosthodontist, Mahalakshmi Layout.`,
     url: "/all-on-4-dental-implants-bangalore",
   },
 };
@@ -35,6 +35,14 @@ const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   mainEntity: [
+    {
+      "@type": "Question",
+      name: "Where can I get all on 4 dental implants in Bangalore?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "All on 4 dental implants in Bangalore are available at Akshatha Dental Clinic, Mahalakshmi Layout, performed by Dr. Akshatha V — an MDS Prosthodontist with specialist training in implant dentistry. The clinic provides CBCT scan-based treatment planning and places the fixed temporary prosthesis on the same day as surgery in eligible cases. The clinic is located near Mahalakshmi Metro Station and is open daily from 11 AM to 9:30 PM.",
+      },
+    },
     {
       "@type": "Question",
       name: "How much do All-on-4 dental implants cost in Bangalore?",
@@ -161,12 +169,12 @@ export default function AllOn4Page() {
         </nav>
         <p className="text-blue font-semibold text-sm uppercase tracking-widest mb-3">Full Arch Restoration</p>
         <h1 className="text-4xl font-extrabold mb-4 text-balance">
-          All-on-4 Dental Implants in Bengaluru
+          All on 4 Dental Implants in Bengaluru
         </h1>
         <p className="text-white/70 max-w-xl mx-auto text-lg mb-6">
           Replace a full jaw of teeth with just{" "}
           <span className="text-white font-bold">4 implants</span>. Fixed, permanent,
-          and functional — not a denture. Indicative cost from{" "}
+          and functional — not a denture. All-on-4 cost from{" "}
           <span className="text-white font-bold">₹2,50,000 per arch</span>.
         </p>
         <Link
@@ -319,7 +327,7 @@ export default function AllOn4Page() {
             <Link href="/services/dental-implants" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-bg-soft transition-colors">
               Dental Implants Overview →
             </Link>
-            <Link href="/dental-implant-cost-bangalore" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-bg-soft transition-colors">
+            <Link href="/blog/dental-implant-cost-bengaluru" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-bg-soft transition-colors">
               Single Tooth Implant Cost →
             </Link>
             <Link href="/services/full-mouth-rehabilitation" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-bg-soft transition-colors">

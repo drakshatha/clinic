@@ -42,7 +42,7 @@ export function Footer() {
             ))}
             <li>
               <Link
-                href="/dental-implant-cost-bangalore"
+                href="/blog/dental-implant-cost-bengaluru"
                 className="hover:text-white transition-colors text-blue/80"
               >
                 Dental Implant Cost →

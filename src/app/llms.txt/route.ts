@@ -31,7 +31,7 @@ export function GET() {
     `## Key pages`,
     `- [Home](${site.url}): Overview of the clinic and specialist services`,
     `- [About Dr. Akshatha V](${site.url}/about): Qualifications, experience, specialist background`,
-    `- [Dental Implant Cost Bengaluru](${site.url}/dental-implant-cost-bangalore): Full pricing breakdown`,
+    `- [Dental Implant Cost Bengaluru](${site.url}/blog/dental-implant-cost-bengaluru): Full pricing breakdown`,
     `- [All-on-4 Dental Implants Bengaluru](${site.url}/all-on-4-dental-implants-bangalore): Full-arch implant pricing and procedure`,
     `- [Smile Makeover Cost Bengaluru](${site.url}/smile-makeover-cost-bangalore): Cosmetic treatment pricing`,
     `- [Services](${site.url}/services): All specialist treatments`,

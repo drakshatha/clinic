@@ -95,7 +95,7 @@ export function Header() {
                 ))}
                 <div className="my-1 border-t border-line" />
                 <Link
-                  href="/dental-implant-cost-bangalore"
+                  href="/blog/dental-implant-cost-bengaluru"
                   onClick={() => setServicesOpen(false)}
                   className="flex items-center justify-between gap-2 rounded-xl bg-blue/5 border border-blue/20 px-3 py-2.5 hover:bg-blue/10 transition-colors"
                 >
@@ -173,7 +173,7 @@ export function Header() {
                 </Link>
               ))}
               <Link
-                href="/dental-implant-cost-bangalore"
+                href="/blog/dental-implant-cost-bengaluru"
                 className="flex items-center justify-between px-5 py-2.5 text-sm font-semibold text-blue bg-blue/5 border-t border-blue/20"
                 onClick={() => setOpen(false)}
               >
