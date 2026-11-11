@@ -5,12 +5,12 @@ import { site } from "@/lib/site";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: `Smile Makeover Cost in Bengaluru — Veneers, Crowns & Cosmetic Dentistry | ${site.name}`,
-  description: `Smile makeover costs in Bengaluru from ₹3,000 per tooth (composite bonding) to ₹25,000 per tooth (porcelain veneers). MDS Prosthodontist Dr. Akshatha V, Mahalakshmi Layout. Indicative pricing — confirmed at consultation.`,
+  title: `Smile Correction & Makeover Cost in Bengaluru — Veneers, Bonding & Crowns | ${site.name}`,
+  description: `Smile correction cost in Bengaluru: composite bonding from ₹3,000/tooth, porcelain veneers from ₹12,000/tooth, full smile makeover ₹70,000–₹2,50,000+. MDS Prosthodontist Dr. Akshatha V, Mahalakshmi Layout.`,
   alternates: { canonical: "/smile-makeover-cost-bangalore" },
   openGraph: {
-    title: `Smile Makeover Cost in Bengaluru — Veneers, Crowns & Cosmetic Dentistry`,
-    description: `Indicative smile makeover costs in Bengaluru. Composite bonding from ₹3,000/tooth · Porcelain veneers from ₹12,000/tooth. MDS Prosthodontist, Mahalakshmi Layout.`,
+    title: `Smile Correction & Makeover Cost in Bengaluru`,
+    description: `Smile correction costs in Bengaluru. Composite bonding from ₹3,000/tooth · Porcelain veneers from ₹12,000/tooth. MDS Prosthodontist, Mahalakshmi Layout.`,
     url: "/smile-makeover-cost-bangalore",
   },
 };
@@ -35,6 +35,14 @@ const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   mainEntity: [
+    {
+      "@type": "Question",
+      name: "How much does smile correction cost in Bangalore?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Smile correction cost in Bengaluru starts from ₹3,000 per tooth for composite bonding (chips, gaps, minor shape fixes done in a single visit) up to ₹25,000 per tooth for porcelain veneers. A full smile correction involving 6–8 front teeth with veneers typically costs ₹72,000–₹2,00,000+ at Akshatha Dental Clinic. The exact cost depends on how many teeth are treated, what materials are used, and whether any supporting work (whitening, gum reshaping) is included. A personalised quote is given after a smile assessment.",
+      },
+    },
     {
       "@type": "Question",
       name: "How much does a smile makeover cost in Bangalore?",
@@ -147,11 +155,11 @@ export default function SmileMakeoverCostPage() {
         </nav>
         <p className="text-blue font-semibold text-sm uppercase tracking-widest mb-3">Cosmetic Dentistry</p>
         <h1 className="text-4xl font-extrabold mb-4 text-balance">
-          Smile Makeover Cost in Bengaluru
+          Smile Correction & Makeover Cost in Bengaluru
         </h1>
         <p className="text-white/70 max-w-xl mx-auto text-lg mb-6">
-          Composite bonding from{" "}
-          <span className="text-white font-bold">₹3,000/tooth</span> · Porcelain veneers from{" "}
+          Smile correction in Bengaluru starts from{" "}
+          <span className="text-white font-bold">₹3,000/tooth</span> (composite bonding) · Porcelain veneers from{" "}
           <span className="text-white font-bold">₹12,000/tooth</span>.
           Indicative pricing — personalised quote at consultation.
         </p>
@@ -167,7 +175,7 @@ export default function SmileMakeoverCostPage() {
       {/* Pricing tiers */}
       <section className="py-16 px-6 bg-bg-soft">
         <div className="mx-auto max-w-3xl">
-          <h2 className="text-2xl font-extrabold text-navy text-center mb-2">Smile Makeover Pricing in Bengaluru</h2>
+          <h2 className="text-2xl font-extrabold text-navy text-center mb-2">Smile Correction & Makeover Pricing in Bengaluru</h2>
           <p className="text-center text-muted text-sm mb-10">
             All prices are indicative. A personalised quote follows a consultation and smile assessment.
           </p>
