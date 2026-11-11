@@ -20,16 +20,16 @@ const seoMeta: Record<string, { title: string; description: string }> = {
     description: `Permanent dental implants near Mahalakshmi Metro Station, Bengaluru. MDS Prosthodontist Dr. Akshatha V — single tooth to full-arch cases. Open daily 11 AM–9:30 PM. Book a consultation.`,
   },
   "full-mouth-rehabilitation": {
-    title: `Full Mouth Rehabilitation in Bengaluru | Complete Dental Restoration — ${site.shortName}`,
-    description: `Full mouth rehabilitation specialist in Bengaluru. Dr. Akshatha V, MDS Prosthodontist, rebuilds severely worn, damaged, or missing teeth through coordinated implants, crowns, bridges, and dentures.`,
+    title: `Full Mouth Rehabilitation in Bengaluru | Specialist Prosthodontist — ${site.shortName}`,
+    description: `Full mouth rehabilitation in Bengaluru by Dr. Akshatha V, MDS Prosthodontist, Mahalakshmi Layout. Rebuilds severely worn, damaged, or missing teeth — implants, crowns, bridges and dentures in a coordinated plan.`,
   },
   "crowns-bridges": {
     title: `Dental Crowns & Bridges in Bengaluru | Zirconia & Ceramic Specialist`,
     description: `Dental crowns and bridges in Bengaluru by Dr. Akshatha V, MDS Prosthodontist, Mahalakshmi Layout. Zirconia, e.max, and metal-ceramic options. Starting ₹8,000. Specialist shade-matching for a natural fit.`,
   },
   "dentures": {
-    title: `Dentures in Bengaluru | Complete & Partial Dentures Specialist`,
-    description: `Complete and partial dentures by specialist prosthodontist Dr. Akshatha V in Bengaluru. Custom-fitted for comfort and natural appearance. Implant-supported denture options also available.`,
+    title: `Dentures in Bengaluru | Complete, Partial & Implant-Supported — ${site.shortName}`,
+    description: `Dentures in Bengaluru from ₹15,000 — complete, partial, and implant-supported options by Dr. Akshatha V, MDS Prosthodontist, Mahalakshmi Layout. Custom-fitted for comfort, natural appearance, and confident eating.`,
   },
   "cosmetic-smile-makeover": {
     title: `Smile Makeover in Bengaluru | Cosmetic Dental Specialist — ${site.doctor}`,
